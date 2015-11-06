@@ -1,0 +1,32 @@
+#version 130
+//the vertex shader operates on each vertex
+
+//input data from the VBO. each vertex is 2 floats
+in vec2 vertexPosition;
+in vec4 vertexColour;
+in vec2 vertexUV;
+
+// use flat prefix if you dont want interpolation
+out vec2 pixelPosition;
+out vec4 pixelColour;
+out vec2 pixelUV;
+
+
+void main()
+{
+	// set the x,y position on the screen
+	gl_Position.xy = vertexPosition;
+	// set the x position to 0 since we are in 2D
+	gl_Position.z = 0.0f;
+	
+	// indicate that the coordinates are noramlised
+	gl_Position.w = 1.0f;
+	
+	// set the pixel colour
+	pixelPosition = vertexPosition;
+	
+	pixelColour = vertexColour;
+	
+	pixelUV = vec2(vertexUV.x, 1.0 - vertexUV.y);
+	
+}

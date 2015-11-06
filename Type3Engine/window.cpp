@@ -1,0 +1,70 @@
+#include "window.h"
+#include "errors.h"
+
+namespace Type3Engine
+{
+
+	window::window()
+	{
+	}
+
+
+	window::~window()
+	{
+	}
+
+	int window::create(std::string windowName, int screenWidth, int screenHeight, unsigned int currentFlag)
+	{
+		Uint32 flags = SDL_WINDOW_OPENGL;
+
+		if (currentFlag & INVISIBLE)
+		{
+			flags |= SDL_WINDOW_HIDDEN;
+		}
+		if (currentFlag & FULLSCREEN)
+		{
+			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		}
+		if (currentFlag & BORDERLESS)
+		{
+			flags |= SDL_WINDOW_BORDERLESS;
+		}
+
+		// setting up our window
+		_sdlWindow = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, flags);
+		if (_sdlWindow == nullptr)
+		{
+			fatalError("SDL WINDOW COULD NOT BE CREATED");
+		}
+
+		// setting up open gl context
+		SDL_GLContext glContext = SDL_GL_CreateContext(_sdlWindow);
+		if (glContext == nullptr)
+		{
+			fatalError("SDL_GL CONTEXT COULD NOT BE CREATED");
+		}
+
+		// setting up glew
+		GLenum error = glewInit();
+		if (error != GLEW_OK)
+		{
+			fatalError("COULD NOT INITIALISE GLEW");
+		}
+
+		// check the version of open gl that is being used
+		std::printf("*** OpenGL version %s ***\n", glGetString(GL_VERSION));
+
+
+		glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+
+		// set to 1 to turn on vsync
+		SDL_GL_SetSwapInterval(1);
+
+		return 0;
+	}
+
+	void window::swapBuffer()
+	{
+		SDL_GL_SwapWindow(_sdlWindow);
+	}
+}
