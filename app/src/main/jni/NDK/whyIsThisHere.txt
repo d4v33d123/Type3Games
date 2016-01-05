@@ -1,0 +1,10 @@
+-header taken from the NDK folder at:
+	toolchains\arm-linux-androideabi-4.8\prebuilt\lib\gcc\arm-linux-androideabi\4.8\include
+
+-needed to properly compile Type3Engine's picoPNG.cpp
+(constains compiler specific definitions of size_t and other things referenced in that file)
+
+-Yes, I could have included it directly from the ndk folder instead of copying it here,
+but that folder is outside the project's folder and I found it was annoying to include from
+../../../../../../android-ndk-r10e/toolchains/arm-linux-androideabi-4.8/prebuilt/lib/gcc/arm-linux-androideabi/4.8/include,
+plus other obvious path maintenance related problems when moving stuff around

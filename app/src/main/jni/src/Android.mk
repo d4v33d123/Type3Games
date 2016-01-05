@@ -1,0 +1,37 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := main
+
+SDL_PATH := ../SDL
+GLM_PATH := ../GLM
+# here ndk path refers to a few ndk compiler specific headers, not the location of the ndk folder
+NDK_PATH := ../NDK
+
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(GLM_PATH)
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(NDK_PATH)
+
+# Add your application source files here...
+LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
+	Type3Engine/picoPNG.cpp \
+	Type3Engine/errors.cpp \
+	Type3Engine/GLSLProgram.cpp \
+	Type3Engine/ImageLoader.cpp \
+	Type3Engine/IOManager.cpp \
+	Type3Engine/ResourceManager.cpp \
+	Type3Engine/Sprite.cpp \
+	Type3Engine/TextureCache.cpp \
+	Type3Engine/Type3Engine.cpp \
+	Type3Engine/window.cpp \
+	MainGame.cpp \
+	main.cpp
+	
+LOCAL_SHARED_LIBRARIES := SDL2
+
+LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog
+
+LOCAL_CFLAGS := -std=c++11
+
+include $(BUILD_SHARED_LIBRARY)

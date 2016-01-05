@@ -1,0 +1,27 @@
+//vertex shader
+//transform vertex to homogeneous space and change vertex colour based on input
+
+//input constants
+uniform mat4 finalM;
+uniform lowp vec4 inputColour;
+
+//input variables
+attribute vec4 aPosition;
+attribute lowp vec4 aColour;
+attribute vec2 aTexCoord;
+
+//output variables
+varying lowp vec4 vColour;
+varying vec2 vTexCoord;
+
+void main()
+{
+	//transform position with world view and projection matrices
+	gl_Position = finalM * aPosition;
+
+	//modify colour
+	vColour = aColour*inputColour;
+
+	//pass on unchanged tex coord
+    vTexCoord = aTexCoord;
+}

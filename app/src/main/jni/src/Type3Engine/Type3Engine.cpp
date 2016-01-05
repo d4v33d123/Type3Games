@@ -1,0 +1,15 @@
+#include "Type3Engine.h"
+
+namespace Type3Engine
+{
+	int init()
+	{
+		// initialise SDL
+		SDL_Init(SDL_INIT_EVERYTHING);
+
+		// tells sdl we want to double buffer
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+		
+		return 0;
+	}
+}
