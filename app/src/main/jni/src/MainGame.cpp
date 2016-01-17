@@ -277,7 +277,7 @@ void MainGame::renderGame()
 	//send matrix to shaders
 	glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM));
 	//send a colour to tint the texture
-	float tint[] = {parallX, -parallY, 1.0f, 1.0f};//randomish stuff to make it change with cam movement
+	float tint[] = {1.0f ,parallX, -parallY, 1.0f};//randomish stuff to make it change with cam movement
 	glUniform4fv(inputColour_location, 1, tint);
 	//draw sprites with texture 0
 	glActiveTexture(GL_TEXTURE0);	
