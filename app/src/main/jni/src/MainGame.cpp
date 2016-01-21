@@ -162,6 +162,19 @@ void MainGame::processInput()
 		case SDL_KEYDOWN:
 			if(evnt.key.keysym.sym == SDLK_AC_BACK)//android back key
 				_gameState = GameState::EXIT;
+			
+			//EMULATOR ZOOM
+			if(evnt.key.keysym.sym == SDLK_z)//zoom in
+			{
+				camPos = camPos + glm::vec3(0.0f,0.0f,-0.1f);
+				viewM = glm::lookAt(camPos, lookatPos, glm::vec3(0.0f,1.0f,0.0f));
+			}
+			if(evnt.key.keysym.sym == SDLK_x)//zoom out
+			{
+				camPos = camPos + glm::vec3(0.0f,0.0f,0.1f);
+				viewM = glm::lookAt(camPos, lookatPos, glm::vec3(0.0f,1.0f,0.0f));
+			}
+			
 			break;
 			
 		//TOUCH TEST STUFF
@@ -219,7 +232,7 @@ void MainGame::processInput()
 			break;
 			
 		//END TOUCH TEST STUFF
-		
+			
 		default:
 			break;
 		}
