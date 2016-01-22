@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 
-namespace Type3Engine
+namespace T3E
 {
 
 	class GLSLProgram
@@ -30,15 +30,15 @@ namespace Type3Engine
 		void use();
 		void stopUse();
 
-		GLuint getProgramID(){ return _programID; };
+		GLuint getProgramID(){ return programID_; };
 		
 	private:
 		void CompileShader(const std::string& filePath, GLuint id);
 
-		int _numAttributes;
-		GLuint _programID;
-		GLuint _vertexShaderID;
-		GLuint _pixelShaderID;
+		int numAttributes_;
+		GLuint programID_;
+		GLuint vertexShaderID_;
+		GLuint pixelShaderID_;
 	};
 
 }

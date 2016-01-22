@@ -9,7 +9,7 @@
 #include <string>
 #include "errors.h"
 
-namespace Type3Engine
+namespace T3E
 {
 	enum windowFlag
 	{
@@ -25,17 +25,17 @@ namespace Type3Engine
 		~window();
 
 		int create(std::string windowName, int screenWidth, int screenHeight, unsigned int currentFlag);
-		int getScreenWidth(){ return _screenWidth; }
-		int getScreenHeight(){ return _screenHeight; }
+		int getScreenWidth(){ return screenWidth_; }
+		int getScreenHeight(){ return screenHeight_; }
 
 		void swapBuffer();
 		
-		void destroy();//destroy _sdlWindow
-		void updateSizeInfo();//update_screenWidth and _screenHeight with the current window size
+		void destroy();//destroy sdlWindow_
+		void updateSizeInfo();//updatescreenWidth_ and screenHeight_ with the current window size
 		
 	private:
-		SDL_Window* _sdlWindow;
-		int _screenWidth, _screenHeight;
+		SDL_Window* sdlWindow_;
+		int screenWidth_, screenHeight_;
 	};
 }
 

@@ -6,7 +6,7 @@
 	#include <GLES2/gl2ext.h>
 	#endif//__ANDROID__
 	
-namespace Type3Engine
+namespace T3E
 {
 	struct GLTexture
 	{

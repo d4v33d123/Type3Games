@@ -6,7 +6,7 @@
 #include "ImageLoader.h"
 #include <iostream>
 
-namespace Type3Engine
+namespace T3E
 {
 	class TextureCache
 	{
@@ -17,7 +17,7 @@ namespace Type3Engine
 		GLTexture getTexture(std::string texturePath);
 
 	private:
-		std::map<std::string, GLTexture> _textureMap;
+		std::map<std::string, GLTexture> textureMap_;
 	};
 
 }

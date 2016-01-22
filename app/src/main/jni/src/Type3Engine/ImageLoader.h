@@ -13,7 +13,7 @@
 
 #include <sstream>//remove if you can fix 'to_string' is not a member of 'std'
 
-namespace Type3Engine
+namespace T3E
 {	
 	class ImageLoader
 	{	

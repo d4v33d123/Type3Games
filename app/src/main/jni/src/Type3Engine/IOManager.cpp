@@ -1,6 +1,6 @@
 #include "IOManager.h"
 
-namespace Type3Engine
+namespace T3E
 {
 	bool IOManager::readBinaryToBuffer(std::string filePath, std::vector<unsigned char>& buffer)
 	{

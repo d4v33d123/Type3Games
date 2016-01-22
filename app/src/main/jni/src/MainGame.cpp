@@ -1,11 +1,11 @@
 #include "MainGame.h"
 
 MainGame::MainGame() : 
-	_screenHeight(800),
-	_screenWidth(600),
-	_time(0.0f), 
-	_gameState(GameState::PLAY),
-	_maxFPS(60.0f)
+	screenHeight_(800),
+	screenWidth_(600),
+	time_(0.0f), 
+	gameState_(GameState::PLAY),
+	maxFPS_(60.0f)
 {
 }
 
@@ -18,9 +18,9 @@ void MainGame::run()
 	initSystems();
 	
 	//load sprites
-	_sprites.push_back(new Type3Engine::Sprite());
+	sprites_.push_back(new T3E::Sprite());
 	//x, y, width, height
-	_sprites.back()->init(-0.5f, -0.5f, 1.0f, 1.0f,"textures/cell.png");
+	sprites_.back()->init(-0.5f, -0.5f, 1.0f, 1.0f,"textures/cell.png");
 
 	gameLoop();
 }
@@ -28,9 +28,9 @@ void MainGame::run()
 
 void MainGame::initSystems()
 {
-	Type3Engine::init();
+	T3E::init();
 	
-	_window.create("Game Engine", _screenWidth, _screenHeight, Type3Engine::BORDERLESS);
+	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
 
 	initShaders();
 }
@@ -39,28 +39,28 @@ void MainGame::initShaders()
 {
 	//CELL PRORGAM
 	// compile
-	_cellProgram.compileShaders("shaders/cell_vs.txt", "shaders/cell_ps.txt");
+	cellProgram_.compileShaders("shaders/cell_vs.txt", "shaders/cell_ps.txt");
 	// add attributes
-	_cellProgram.addAttribute("aPosition");
-	_cellProgram.addAttribute("aColour");
-	_cellProgram.addAttribute("aTexCoord");
+	cellProgram_.addAttribute("aPosition");
+	cellProgram_.addAttribute("aColour");
+	cellProgram_.addAttribute("aTexCoord");
 	// link
-	_cellProgram.linkShaders();
+	cellProgram_.linkShaders();
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	inputColour_location = _cellProgram.getUniformLocation("inputColour");
-	cell_finalM_location = _cellProgram.getUniformLocation("finalM");
-	sampler0_location = _cellProgram.getUniformLocation("sampler0");
+	inputColour_location = cellProgram_.getUniformLocation("inputColour");
+	cell_finalM_location = cellProgram_.getUniformLocation("finalM");
+	sampler0_location = cellProgram_.getUniformLocation("sampler0");
 	
 	//TRIANGLE PROGRAM
 	// compile
-	_triangleProgram.compileShaders("shaders/triangle_vs.txt", "shaders/triangle_ps.txt");
+	triangleProgram_.compileShaders("shaders/triangle_vs.txt", "shaders/triangle_ps.txt");
 	// add attributes
-	_triangleProgram.addAttribute("aPosition");
-	_triangleProgram.addAttribute("aColour");
+	triangleProgram_.addAttribute("aPosition");
+	triangleProgram_.addAttribute("aColour");
 	// link
-	_triangleProgram.linkShaders();
+	triangleProgram_.linkShaders();
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	triangle_finalM_location = _triangleProgram.getUniformLocation("finalM");
+	triangle_finalM_location = triangleProgram_.getUniformLocation("finalM");
 }
 
 void MainGame::gameLoop()
@@ -100,8 +100,8 @@ void MainGame::gameLoop()
 	viewM = glm::lookAt(glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f));
 	//init projection Matrix
 	//calculate aspect ratio
-	_window.updateSizeInfo();//can do just once here since screen orientation is set to landscape always
-	float ratio = float(_window.getScreenWidth())/float(_window.getScreenHeight());
+	window_.updateSizeInfo();//can do just once here since screen orientation is set to landscape always
+	float ratio = float(window_.getScreenWidth())/float(window_.getScreenHeight());
 	//fov 90°, ratio, near and far clipping plane
 	projectionM = glm::perspective(90.0f, ratio, 0.1f, 100.0f);
 	
@@ -109,13 +109,13 @@ void MainGame::gameLoop()
 	glEnable(GL_CULL_FACE);//GL_BACK is default value
 	
 	//our game loop
-	while (_gameState != GameState::EXIT)
+	while (gameState_ != GameState::EXIT)
 	{
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();
 
 		processInput(); 
-		_time += 0.1f;
+		time_ += 0.1f;
 		renderGame();
 		calculateFPS();
 
@@ -130,15 +130,15 @@ void MainGame::gameLoop()
 
 		float frameTicks = SDL_GetTicks() - startTicks;
 		//Limit the FPS to the max FPS
-		if (1000.0f / _maxFPS > frameTicks)
+		if (1000.0f / maxFPS_ > frameTicks)
 		{
-			SDL_Delay(1000.0f / _maxFPS - frameTicks);
+			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
 		}	
 	}
 	
 	glDisable(GL_CULL_FACE);	
 	
-	_window.destroy();//useful?
+	window_.destroy();//useful?
 	SDL_Quit();
 }
 
@@ -156,12 +156,12 @@ void MainGame::processInput()
 		switch (evnt.type)
 		{
 		case SDL_QUIT:
-			_gameState = GameState::EXIT;
+			gameState_ = GameState::EXIT;
 			break;
 			
 		case SDL_KEYDOWN:
 			if(evnt.key.keysym.sym == SDLK_AC_BACK)//android back key
-				_gameState = GameState::EXIT;
+				gameState_ = GameState::EXIT;
 			
 			//EMULATOR ZOOM
 			if(evnt.key.keysym.sym == SDLK_z)//zoom in
@@ -251,7 +251,7 @@ void MainGame::renderGame()
 	finalM = projectionM*viewM*worldM;
 
 	//RENDER TRIANGLE x 3 at different locations
-	_triangleProgram.use();
+	triangleProgram_.use();
 	for(int i = -1; i < 2; ++i)
 	{
 		//send matrix to shaders
@@ -264,11 +264,11 @@ void MainGame::renderGame()
 		// tell opengl that we want to use the first attribute array
 		glEnableVertexAttribArray(0);
 		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Type3Engine::Vertex), (void*)offsetof(Type3Engine::Vertex, position));
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
 		// this is our pixel attribute pointer;
-		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Type3Engine::Vertex), (void*)offsetof(Type3Engine::Vertex, colour));
+		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
 		//this is out UV attribute pointer;
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Type3Engine::Vertex), (void*)offsetof(Type3Engine::Vertex, uv));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 		// draw our 6 verticies
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		// disable the vertex attrib array
@@ -279,10 +279,10 @@ void MainGame::renderGame()
 		//reset matrix
 		finalM = projectionM*viewM*worldM;
 	}
-	_triangleProgram.stopUse();	
+	triangleProgram_.stopUse();	
 		
 	//RENDER CELL
-	_cellProgram.use();
+	cellProgram_.use();
 	//enable aplha blending
 	//should we take it out of the loop if all our scene is blended? should we instead use frame buffer fetch(for blending at least)?
 	glEnable(GL_BLEND);
@@ -295,17 +295,17 @@ void MainGame::renderGame()
 	//draw sprites with texture 0
 	glActiveTexture(GL_TEXTURE0);	
 	glUniform1i(sampler0_location, 0);
-	for (int i = 0; i < _sprites.size(); i++)
+	for (int i = 0; i < sprites_.size(); i++)
 	{
 		// could do glActiveTexture(GL_TEXTURE0 + i) or similar to change texture
-		_sprites[i]->draw();
+		sprites_[i]->draw();
 	}	
 	//disable aplha blending
 	glDisable(GL_BLEND);	
-	_cellProgram.stopUse();
+	cellProgram_.stopUse();
 
 	// swap our buffers 
-	_window.swapBuffer();
+	window_.swapBuffer();
 }
 
 void MainGame::calculateFPS()
@@ -320,8 +320,8 @@ void MainGame::calculateFPS()
 	float currentTicks;
 	currentTicks = SDL_GetTicks();
 
-	_frameTime = currentTicks - prevTicks;
-	frameTimes[currentFrame % NUM_SAMPLES] = _frameTime;
+	frameTime_ = currentTicks - prevTicks;
+	frameTimes[currentFrame % NUM_SAMPLES] = frameTime_;
 
 	// set previous ticks to new ticks now
 	prevTicks = currentTicks;
@@ -348,10 +348,10 @@ void MainGame::calculateFPS()
 
 	if (frameTimeAverage > 0)
 	{
-		_fps = 1000.0 / frameTimeAverage;
+		fps_ = 1000.0 / frameTimeAverage;
 	}
 	else
 	{
-		_fps = 60.0f;
+		fps_ = 60.0f;
 	}
 }

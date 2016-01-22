@@ -1,6 +1,6 @@
 #include "errors.h"
 
-namespace Type3Engine
+namespace T3E
 {
 	void fatalError(std::string errorString)
 	{

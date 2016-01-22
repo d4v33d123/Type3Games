@@ -1,5 +1,5 @@
-#ifndef TYPE3ENGINE_H
-#define TYPE3ENGINE_H
+#ifndef T3E_H
+#define T3E_H
 
 #include "SDL.h"
 
@@ -8,7 +8,7 @@
 	#include <GLES2/gl2ext.h>
 	#endif//__ANDROID__
 	
-namespace Type3Engine
+namespace T3E
 {
 	extern int init();
 }

@@ -1,6 +1,6 @@
 #include "window.h"
 
-namespace Type3Engine
+namespace T3E
 {
 	window::window()
 	{
@@ -33,14 +33,14 @@ namespace Type3Engine
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 		// setting up our window
-		_sdlWindow = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, flags);
-		if (_sdlWindow == nullptr)
+		sdlWindow_ = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, flags);
+		if (sdlWindow_ == nullptr)
 		{
 			fatalError("SDL WINDOW COULD NOT BE CREATED");
 		}
 
 		// setting up open gl context
-		SDL_GLContext glContext = SDL_GL_CreateContext(_sdlWindow);
+		SDL_GLContext glContext = SDL_GL_CreateContext(sdlWindow_);
 		if (glContext == nullptr)
 		{
 			fatalError("SDL_GL CONTEXT COULD NOT BE CREATED");
@@ -59,17 +59,17 @@ namespace Type3Engine
 
 	void window::swapBuffer()
 	{
-		SDL_GL_SwapWindow(_sdlWindow);
+		SDL_GL_SwapWindow(sdlWindow_);
 	}
 	
 	void window::destroy()
 	{
-		SDL_DestroyWindow(_sdlWindow);
+		SDL_DestroyWindow(sdlWindow_);
 	}
 	
 	void window::updateSizeInfo()
 	{
-		SDL_GetWindowSize(_sdlWindow, &_screenWidth, &_screenHeight);
+		SDL_GetWindowSize(sdlWindow_, &screenWidth_, &screenHeight_);
 	}
 	
 }

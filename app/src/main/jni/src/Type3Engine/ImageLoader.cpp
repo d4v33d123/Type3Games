@@ -1,6 +1,6 @@
 #include "ImageLoader.h"
 
-namespace Type3Engine
+namespace T3E
 {
 	//workaround for 'to_string' is not a member of 'std'
 	template <typename T>

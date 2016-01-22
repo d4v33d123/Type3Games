@@ -4,7 +4,7 @@
 	#include "stddef.h"//android ndk compiler header
 	#endif//__ANDROID__
 
-namespace Type3Engine
+namespace T3E
 {
 	/*
 	decodePNG: The picoPNG function, decodes a PNG file buffer in memory, into a raw pixel buffer.

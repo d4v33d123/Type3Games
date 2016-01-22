@@ -1,6 +1,6 @@
 #include "ResourceManager.h"
 
-namespace Type3Engine
+namespace T3E
 {
 	TextureCache ResourceManager::_textureCache;
 

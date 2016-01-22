@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-namespace Type3Engine
+namespace T3E
 {
 	// no constructor or destructor, because it's a static class
 	class IOManager

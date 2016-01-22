@@ -45,23 +45,23 @@ private:
 	void renderGame();
 	void calculateFPS();
 
-	Type3Engine::window _window;
-	int _screenWidth;
-	int _screenHeight;
-	GameState _gameState;
+	T3E::window window_;
+	int screenWidth_;
+	int screenHeight_;
+	GameState gameState_;
 
-	std::vector<Type3Engine::Sprite*> _sprites;
+	std::vector<T3E::Sprite*> sprites_;
 	
-	Type3Engine::GLSLProgram _cellProgram, _triangleProgram;
+	T3E::GLSLProgram cellProgram_, triangleProgram_;
 	
-	float _time;
-	float _fps;
-	float _frameTime;
-	float _maxFPS;
+	float time_;
+	float fps_;
+	float frameTime_;
+	float maxFPS_;
 	
 	//geometry etc
 	GLuint triangleBufferName;
-	Type3Engine::Vertex triangle[3];
+	T3E::Vertex triangle[3];
 	float parallX, parallY;//parallax effect test
 	//shaders
 	//uniforms locations

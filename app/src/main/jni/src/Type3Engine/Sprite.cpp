@@ -1,32 +1,32 @@
 #include "Sprite.h"
 
-namespace Type3Engine
+namespace T3E
 {
 	Sprite::Sprite()
 	{
-		_vboID = 0;
+		vboID_ = 0;
 	}
 
 	Sprite::~Sprite()
 	{		
-		if (_vboID != 0)
+		if (vboID_ != 0)
 		{
-			glDeleteBuffers(1, &_vboID);
+			glDeleteBuffers(1, &vboID_);
 		}
 	}
 
 	void Sprite::init(float x, float y, float width, float height, std::string texturePath)
 	{
-		_x = x;
-		_y = y;
-		_width = width;
-		_height = height;
+		x_ = x;
+		y_ = y;
+		width_ = width;
+		height_ = height;
 
-		_texture = ResourceManager::getTexture(texturePath);
+		texture_ = ResourceManager::getTexture(texturePath);
 
-		if (_vboID == 0)
+		if (vboID_ == 0)
 		{
-			glGenBuffers(1, &_vboID);
+			glGenBuffers(1, &vboID_);
 		}
 
 		Vertex vertexData[6];
@@ -56,7 +56,7 @@ namespace Type3Engine
 			vertexData[i].setColour(255, 255, 255, 255);
 		}
 		
-		glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -64,10 +64,10 @@ namespace Type3Engine
 	void Sprite::draw()
 	{
 		// bind the texture
-		glBindTexture(GL_TEXTURE_2D, _texture.id);// dont want to unbind this
+		glBindTexture(GL_TEXTURE_2D, texture_.id);// dont want to unbind this
 
 		// bind the buffer object
-		glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
 
 		// tell opengl that we want to use the first attribute array
 		glEnableVertexAttribArray(0);

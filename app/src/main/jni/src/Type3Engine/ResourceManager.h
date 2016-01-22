@@ -4,7 +4,7 @@
 #include "TextureCache.h"
 #include <string>
 
-namespace Type3Engine
+namespace T3E
 {
 	class ResourceManager
 	{
