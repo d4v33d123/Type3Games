@@ -2,7 +2,7 @@
 #include "ImageLoader.h"
 #include <iostream>
 
-namespace Type3Engine
+namespace T3E
 {
 
 	TextureCache::TextureCache()
@@ -19,18 +19,18 @@ namespace Type3Engine
 	{
 		// using auto so no need for this declaration std::map<std::string, GLTexture>::iterator
 		// look up the texture and see if it's in the map
-		auto mit = _textureMap.find(texturePath);
+		auto mit = textureMap_.find(texturePath);
 
 		//check if it's not in the map
-		if (mit == _textureMap.end())
+		if (mit == textureMap_.end())
 		{
 			// load the texture
 			GLTexture newTexture = ImageLoader::loadPNG(texturePath);
 
 			// can use this to flesh out the code a bit, easier to under stand std::pair<std::string, GLTexture> newPair(texturePath, newTexture);
-			//_textureMap.insert(newPair);
+			//textureMap_.insert(newPair);
 			// insert it into the map
-			_textureMap.insert(make_pair(texturePath, newTexture));
+			textureMap_.insert(make_pair(texturePath, newTexture));
 
 			std::cout << "Loaded Texture\n";
 

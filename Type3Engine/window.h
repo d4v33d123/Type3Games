@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <string>
 
-namespace Type3Engine
+namespace T3E
 {
 
 	enum windowFlag
@@ -20,14 +20,14 @@ namespace Type3Engine
 		~window();
 
 		int create(std::string windowName, int screenWidth, int screenHeight, unsigned int currentFlag);
-		int getScreenWidth(){ _screenWidth; }
-		int getScreenHeight(){ _screenHeight; }
+		int getScreenWidth(){ screenWidth_; }
+		int getScreenHeight(){ screenHeight_; }
 
 		void swapBuffer();
 
 	private:
-		SDL_Window* _sdlWindow;
-		int _screenWidth, _screenHeight;
+		SDL_Window* sdlWindow_;
+		int screenWidth_, screenHeight_;
 	};
 
 }

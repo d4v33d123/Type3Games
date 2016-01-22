@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include "glTexture.h"
 #include <string>
-namespace Type3Engine
+namespace T3E
 {
 	class Sprite
 	{
@@ -15,9 +15,9 @@ namespace Type3Engine
 		void draw();
 
 	private:
-		float _x, _y, _width, _height;
-		GLuint _vboID;
-		GLTexture _texture;
+		float x_, y_, width_, height_;
+		GLuint vboID_;
+		GLTexture texture_;
 	};
 
 }

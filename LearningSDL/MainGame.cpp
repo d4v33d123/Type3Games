@@ -2,16 +2,17 @@
 #include <Type3Engine/errors.h>
 #include <iostream>
 #include <string>
+#include <Type3Engine/ResourceManager.h>
 
 
 MainGame::MainGame() : 
-	_screenHeight(768), 
-	_screenWidth(1024),
-	_time(0.0f), 
-	_gameState(GameState::PLAY),
-	_maxFPS(60.0f)
+	screenHeight_(768), 
+	screenWidth_(1024), 
+	time_(0.0f), 	   
+	gameState_(GameState::PLAY),
+	maxFPS_(60.0f)	   
 {
-	
+	camera_.init(screenWidth_, screenHeight_);
 }
 
 
@@ -23,12 +24,7 @@ void MainGame::run()
 {
 
 	initSystems();
-	_sprites.push_back(new Type3Engine::Sprite());
-	_sprites.back()->init(-1.0f, -1.0f, 1.0f, 1.0f,"Textures/jimmyJump_pack/PNG/CharacterRight_Standing.png");
-	_sprites.push_back(new Type3Engine::Sprite());
-	_sprites.back()->init(0.0f, -1.0f, 1.0f, 1.0f, "Textures/jimmyJump_pack/PNG/CharacterRight_Standing.png");
 
-	//_playerTexture = ImageLoader::loadPNG();
 
 	gameLoop();
 }
@@ -37,51 +33,52 @@ void MainGame::run()
 void MainGame::initSystems()
 {
 
-	Type3Engine::init();
+	T3E::init();
 	
-	_window.create("Game Engine", _screenWidth, _screenHeight, Type3Engine::BORDERLESS);
+	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
 	initShaders();
+
+	spriteBatch_.init();
+
+	fpsLimiter_.init(maxFPS_);
 
 }
 
 void MainGame::initShaders()
 {
-	_colourProgram.compileShaders("Shaders/ColourShading.vert.txt", "Shaders/ColourShading.pix.txt");
-	_colourProgram.addAttribute("vertexPosition");
-	_colourProgram.addAttribute("vertexColour");
-	_colourProgram.addAttribute("vertexUV");
-	_colourProgram.linkShaders();
-}
+	colourProgram_.compileShaders("Shaders/ColourShading.vert.txt", "Shaders/ColourShading.pix.txt");
+	colourProgram_.addAttribute("vertexPosition");
+	colourProgram_.addAttribute("vertexColour");
+	colourProgram_.addAttribute("vertexUV");
+	colourProgram_.linkShaders();
+}	
 
 void MainGame::gameLoop()
 {
 	//our game loop
-	while (_gameState != GameState::EXIT)
+	while (gameState_ != GameState::EXIT)
 	{
+		fpsLimiter_.begin();
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();
 
-
+		camera_.update();
 
 		processInput(); 
-		_time += 0.1f;
+		time_ += 0.1f;
 		renderGame();
-		calculateFPS();
 
-		// print once every 10 frames
+
+
+		fps_ = fpsLimiter_.end();
+
+				// print once every 10 frames
 		static int frameCounter = 0;
 		frameCounter++;
 		if (frameCounter == 10)
 		{
-			std::cout << _fps << std::endl;
+			std::cout << fps_ << std::endl;
 			frameCounter = 0;
-		}
-
-		float frameTicks = SDL_GetTicks() - startTicks;
-		//Limit the FPS to the max FPS
-		if (1000.0f / _maxFPS > frameTicks)
-		{
-			SDL_Delay(1000.0f / _maxFPS - frameTicks);
 		}
 		
 	}
@@ -92,19 +89,66 @@ void MainGame::processInput()
 {
 	// processing our input
 	SDL_Event evnt;
+
+	const float CAMERA_SPEED = 2.0f;
+	const float SCALE_SPEED = 0.1f;
+
 	while (SDL_PollEvent(&evnt))
 	{
 		switch (evnt.type)
 		{
 		case SDL_QUIT:
-			_gameState = GameState::EXIT;
+			gameState_ = GameState::EXIT;
 			break;
 		case SDL_MOUSEMOTION:
-			//std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
+			inputManager_.setMouseCoords(evnt.motion.x, evnt.motion.y);
 			break;
+		case SDL_KEYDOWN:
+			inputManager_.keyPress(evnt.key.keysym.sym);
+			break;
+		case SDL_KEYUP:
+			inputManager_.keyRelease(evnt.key.keysym.sym);
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			inputManager_.keyPress(evnt.button.button);
+			break;
+		case SDL_MOUSEBUTTONUP:
+			inputManager_.keyRelease(evnt.button.button);
+			break;
+		
 		default:
 			break;
 		}
+	}
+
+	if (inputManager_.isKeyPressed(SDLK_w))
+	{
+		camera_.setPosition(camera_.getPosition() + glm::vec2(0.0f, CAMERA_SPEED));
+	}
+
+	if (inputManager_.isKeyPressed(SDLK_s))
+	{
+		camera_.setPosition(camera_.getPosition() - glm::vec2(0.0f, CAMERA_SPEED));
+	}
+
+	if (inputManager_.isKeyPressed(SDLK_a))
+	{
+		camera_.setPosition(camera_.getPosition() - glm::vec2(CAMERA_SPEED, 0.0f));
+	}
+
+	if (inputManager_.isKeyPressed(SDLK_d))
+	{
+		camera_.setPosition(camera_.getPosition() + glm::vec2(CAMERA_SPEED, 0.0f));
+	}
+		
+	if (inputManager_.isKeyPressed(SDLK_q))
+	{
+		camera_.setScale(camera_.getScale() + SCALE_SPEED);
+	}
+		
+	if (inputManager_.isKeyPressed(SDLK_e))
+	{
+		camera_.setScale(camera_.getScale() - SCALE_SPEED);
 	}
 
 }
@@ -118,74 +162,45 @@ void MainGame::renderGame()
 	//clear both buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	_colourProgram.use();
+	colourProgram_.use();
 
-	GLuint timeLocation = _colourProgram.getUniformLocation("time");
-	glUniform1f(timeLocation, _time);
+	GLuint timeLocation = colourProgram_.getUniformLocation("time");
+	glUniform1f(timeLocation, time_);
 
 	glActiveTexture(GL_TEXTURE0);
-	GLint textureLocation = _colourProgram.getUniformLocation("mySampler");
+	GLint textureLocation = colourProgram_.getUniformLocation("mySampler");
 	glUniform1i(textureLocation, 0);
-	for (int i = 0; i < _sprites.size(); i++)
-	{
-		_sprites[i]->draw();
-	}
-	
+
+	//set the camera matrix
+	GLuint pLocation = colourProgram_.getUniformLocation("P");
+	glm::mat4 cameraMatrix = camera_.getCameraMatrix();
+
+	glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+
+	spriteBatch_.begin();
+
+	glm::vec4 pos(0.0f, 0.0f, 50.0f, 50.0f);
+	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
+	static T3E::GLTexture texture = T3E::ResourceManager::getTexture("Textures/jimmyJump_pack/PNG/CharacterRight_Standing.png");
+	T3E::Colour colour;
+	colour.r = 255;
+	colour.g = 255;
+	colour.b = 255;
+	colour.a = 255;
+
+	spriteBatch_.draw(pos, uv, texture.id, 0.0f, colour);
+	//spriteBatch_.draw(pos+ glm::vec4(50, 0, 0, 0), uv, texture.id, 0.0f, colour);
+
+
+	spriteBatch_.end();
+
+	spriteBatch_.renderBatch();
+
+
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
-	_colourProgram.stopUse();
+	colourProgram_.stopUse();
 	// swap our buffers 
-	_window.swapBuffer();
-}
-
-void MainGame::calculateFPS()
-{
-	static const int NUM_SAMPLES = 1000;
-	static float frameTimes[NUM_SAMPLES];
-	static int currentFrame = 0;
-
-
-	static float prevTicks = SDL_GetTicks();
-
-	float currentTicks;
-	currentTicks = SDL_GetTicks();
-
-	_frameTime = currentTicks - prevTicks;
-	frameTimes[currentFrame % NUM_SAMPLES] = _frameTime;
-
-	// set previous ticks to new ticks now
-	prevTicks = currentTicks;
-
-	currentFrame++;
-
-	int count;
-
-	if (currentFrame < NUM_SAMPLES)
-	{
-		count = currentFrame;
-	}
-	else
-	{
-		count = NUM_SAMPLES;
-	}
-
-	float frameTimeAverage = 0;
-	for (int i = 0; i < count; i++)
-	{
-		frameTimeAverage += frameTimes[i];
-	}
-	frameTimeAverage /= count;
-
-	if (frameTimeAverage > 0)
-	{
-		_fps = 1000.0 / frameTimeAverage;
-	}
-	else
-	{
-		_fps = 60.0f;
-	}
-
-
-
+	window_.swapBuffer();
 }

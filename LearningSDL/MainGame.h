@@ -9,6 +9,12 @@
 #include <Type3Engine/window.h>
 #include <vector>
 #include <Type3Engine/Type3Engine.h>
+#include <glm/glm.hpp>
+#include <Type3Engine/Camera2D.h>
+#include <Type3Engine/SpriteBatch.h>
+#include <Type3Engine/InputManager.h>
+#include <Type3Engine/Timing.h>
+
 
 
 enum class GameState {PLAY, EXIT};
@@ -34,20 +40,19 @@ private:
 	void calculateFPS();
 
 
-	Type3Engine::window _window;
-	int _screenWidth;
-	int _screenHeight;
-	GameState _gameState;
+	T3E::window window_;
+	int screenWidth_;
+	int screenHeight_;
+	GameState gameState_;
 
-	std::vector<Type3Engine::Sprite*> _sprites;
-
-
+	T3E::Camera2D camera_;
+	T3E::SpriteBatch spriteBatch_;
+	T3E::GLSLProgram colourProgram_;
+	T3E::InputManager inputManager_;
+	T3E::FpsLimiter fpsLimiter_;
 	
-	Type3Engine::GLSLProgram _colourProgram;
-	
-	float _time;
-	float _fps;
-	float _frameTime;
-	float _maxFPS;
+	float maxFPS_;
+	float time_;
+	float fps_;
 };
 

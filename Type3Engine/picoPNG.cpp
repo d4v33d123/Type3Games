@@ -1,6 +1,6 @@
 #include <vector>
 
-namespace Type3Engine
+namespace T3E
 {
 
 	/*

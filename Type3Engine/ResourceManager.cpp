@@ -1,11 +1,11 @@
 #include "ResourceManager.h"
 
-namespace Type3Engine
+namespace T3E
 {
-	TextureCache ResourceManager::_textureCache;
+	TextureCache ResourceManager::textureCache_;
 
 	GLTexture ResourceManager::getTexture(std::string texturePath)
 	{
-		return _textureCache.getTexture(texturePath);
+		return textureCache_.getTexture(texturePath);
 	}
 }

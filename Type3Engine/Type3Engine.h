@@ -1,5 +1,5 @@
 
-namespace Type3Engine
+namespace T3E
 {
 	extern int init();
 }

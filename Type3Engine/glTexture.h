@@ -1,7 +1,7 @@
 #pragma once
 #include <GL/glew.h>
 
-namespace Type3Engine
+namespace T3E
 {
 	struct GLTexture
 	{

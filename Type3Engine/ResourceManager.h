@@ -1,7 +1,7 @@
 #pragma once
 #include "TextureCache.h"
 #include <string>
-namespace Type3Engine
+namespace T3E
 {
 	class ResourceManager
 	{
@@ -9,7 +9,7 @@ namespace Type3Engine
 		static GLTexture getTexture(std::string texturePath);
 
 	private:
-		static TextureCache _textureCache;
+		static TextureCache textureCache_;
 	};
 
 }

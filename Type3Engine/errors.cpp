@@ -3,7 +3,7 @@
 #include <SDL/SDL.h>
 #include <iostream>
 #include <cstdlib>
-namespace Type3Engine
+namespace T3E
 {
 
 	void fatalError(std::string errorString)

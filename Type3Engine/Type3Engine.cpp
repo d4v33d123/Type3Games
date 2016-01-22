@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include "Type3Engine.h"
 
-namespace Type3Engine
+namespace T3E
 {
 
 	int init()

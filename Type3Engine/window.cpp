@@ -1,7 +1,7 @@
 #include "window.h"
 #include "errors.h"
 
-namespace Type3Engine
+namespace T3E
 {
 
 	window::window()
@@ -15,6 +15,10 @@ namespace Type3Engine
 
 	int window::create(std::string windowName, int screenWidth, int screenHeight, unsigned int currentFlag)
 	{
+		screenHeight_ = screenHeight;
+		screenWidth_ = screenWidth;
+
+
 		Uint32 flags = SDL_WINDOW_OPENGL;
 
 		if (currentFlag & INVISIBLE)
@@ -31,14 +35,14 @@ namespace Type3Engine
 		}
 
 		// setting up our window
-		_sdlWindow = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, flags);
-		if (_sdlWindow == nullptr)
+		sdlWindow_ = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, flags);
+		if (sdlWindow_ == nullptr)
 		{
 			fatalError("SDL WINDOW COULD NOT BE CREATED");
 		}
 
 		// setting up open gl context
-		SDL_GLContext glContext = SDL_GL_CreateContext(_sdlWindow);
+		SDL_GLContext glContext = SDL_GL_CreateContext(sdlWindow_);
 		if (glContext == nullptr)
 		{
 			fatalError("SDL_GL CONTEXT COULD NOT BE CREATED");
@@ -60,11 +64,15 @@ namespace Type3Engine
 		// set to 1 to turn on vsync
 		SDL_GL_SetSwapInterval(1);
 
+		//Enable alpha blending
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		return 0;
 	}
 
 	void window::swapBuffer()
 	{
-		SDL_GL_SwapWindow(_sdlWindow);
+		SDL_GL_SwapWindow(sdlWindow_);
 	}
 }

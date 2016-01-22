@@ -2,10 +2,10 @@
 #include "errors.h"
 #include <fstream>
 #include <vector>
-namespace Type3Engine
+namespace T3E
 {
 
-	GLSLProgram::GLSLProgram() : _numAttributes(0), _programID(0), _vertexShaderID(0), _pixelShaderID(0)
+	GLSLProgram::GLSLProgram() : numAttributes_(0), programID_(0), vertexShaderID_(0), pixelShaderID_(0)
 	{
 
 	}
@@ -19,22 +19,22 @@ namespace Type3Engine
 	void GLSLProgram::compileShaders(const std::string& vertexShaderFilePath, const std::string& pixelShaderFilePath)
 	{
 		// create our program ID
-		_programID = glCreateProgram();
+		programID_ = glCreateProgram();
 
-		_vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-		if (_vertexShaderID == 0)
+		vertexShaderID_ = glCreateShader(GL_VERTEX_SHADER);
+		if (vertexShaderID_ == 0)
 		{
 			fatalError("Vertex Shader failed to be created!");
 		}
 
-		_pixelShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-		if (_pixelShaderID == 0)
+		pixelShaderID_ = glCreateShader(GL_FRAGMENT_SHADER);
+		if (pixelShaderID_ == 0)
 		{
 			fatalError("Pixel Shader failed to be created!");
 		}
 
-		CompileShader(vertexShaderFilePath, _vertexShaderID);
-		CompileShader(pixelShaderFilePath, _pixelShaderID);
+		CompileShader(vertexShaderFilePath, vertexShaderID_);
+		CompileShader(pixelShaderFilePath, pixelShaderID_);
 
 
 	}
@@ -44,28 +44,28 @@ namespace Type3Engine
 
 		// attach our shaders to our program
 
-		glAttachShader(_programID, _vertexShaderID);
-		glAttachShader(_programID, _pixelShaderID);
+		glAttachShader(programID_, vertexShaderID_);
+		glAttachShader(programID_, pixelShaderID_);
 
 		//link our program
 
-		glLinkProgram(_programID);
+		glLinkProgram(programID_);
 
 		GLuint isLinked = 0;
 
-		glGetProgramiv(_programID, GL_LINK_STATUS, (int*)&isLinked);
+		glGetProgramiv(programID_, GL_LINK_STATUS, (int*)&isLinked);
 		if (isLinked == GL_FALSE)
 		{
 			GLint maxLength = 0;
-			glGetProgramiv(_programID, GL_INFO_LOG_LENGTH, &maxLength);
+			glGetProgramiv(programID_, GL_INFO_LOG_LENGTH, &maxLength);
 			//the maxLength includes the NULL character
 			std::vector<char> errorLog(maxLength);
-			glGetProgramInfoLog(_programID, maxLength, &maxLength, &errorLog[0]);
+			glGetProgramInfoLog(programID_, maxLength, &maxLength, &errorLog[0]);
 
 			//exit with failure
-			glDeleteProgram(_programID); //dont leak the program
-			glDeleteShader(_vertexShaderID); // or the vertex shader
-			glDeleteShader(_pixelShaderID); // or the pixel shader
+			glDeleteProgram(programID_); //dont leak the program
+			glDeleteShader(vertexShaderID_); // or the vertex shader
+			glDeleteShader(pixelShaderID_); // or the pixel shader
 
 			std::printf("%s\n", &(errorLog[0]));
 			fatalError("Program failed to link shaders!");
@@ -73,10 +73,10 @@ namespace Type3Engine
 		}
 
 		// always detatch shaders after a successful link
-		glDetachShader(_programID, _vertexShaderID);
-		glDetachShader(_programID, _pixelShaderID);
-		glDeleteShader(_vertexShaderID); // returning resources to opengl
-		glDeleteShader(_pixelShaderID);
+		glDetachShader(programID_, vertexShaderID_);
+		glDetachShader(programID_, pixelShaderID_);
+		glDeleteShader(vertexShaderID_); // returning resources to opengl
+		glDeleteShader(pixelShaderID_);
 
 
 	}
@@ -84,7 +84,7 @@ namespace Type3Engine
 	void GLSLProgram::addAttribute(const std::string& attribute)
 	{
 		// adds our attribute and increments our number of attributes variable
-		glBindAttribLocation(_programID, _numAttributes++, attribute.c_str());
+		glBindAttribLocation(programID_, numAttributes_++, attribute.c_str());
 	}
 
 	void GLSLProgram::CompileShader(const std::string& filePath, GLuint id)
@@ -139,8 +139,8 @@ namespace Type3Engine
 	void GLSLProgram::use()
 	{
 		//use our program
-		glUseProgram(_programID);
-		for (int i = 0; i < _numAttributes; i++)
+		glUseProgram(programID_);
+		for (int i = 0; i < numAttributes_; i++)
 		{
 			glEnableVertexAttribArray(i);
 		}
@@ -150,7 +150,7 @@ namespace Type3Engine
 	{
 		// stop using our program
 		glUseProgram(0);
-		for (int i = 0; i < _numAttributes; i++)
+		for (int i = 0; i < numAttributes_; i++)
 		{
 			glDisableVertexAttribArray(i);
 		}
@@ -158,7 +158,7 @@ namespace Type3Engine
 
 	GLint GLSLProgram::getUniformLocation(const std::string& uniformName)
 	{
-		GLint location = glGetUniformLocation(_programID, uniformName.c_str());
+		GLint location = glGetUniformLocation(programID_, uniformName.c_str());
 		if (location == GL_INVALID_INDEX)
 		{
 			fatalError("Uniform " + uniformName + " not found in shader!");

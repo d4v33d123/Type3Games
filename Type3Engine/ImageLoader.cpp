@@ -3,7 +3,7 @@
 #include "IOManager.h"
 #include "errors.h"
 
-namespace Type3Engine
+namespace T3E
 {
 
 	GLTexture ImageLoader::loadPNG(std::string filePath)

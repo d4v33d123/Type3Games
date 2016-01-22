@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-namespace Type3Engine
+namespace T3E
 {
 
 	bool IOManager::readFileToBuffer(std::string filePath, std::vector<unsigned char>& buffer)
