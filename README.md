@@ -1,8 +1,8 @@
-# Android version
+﻿# Android version
 
 ## Change Log of the first commit:
 
-### Changes from Desktop GLES test project
+### Changes from Desktop GLES test project (Visual studio project)
 - changed #pragma once with header guards (#pragma directives not supported by ndk compiler(?))
 - changed #include <SDL/SDL.h> to "SDL.h" (sdl path specified in mk file)
 - removed glesloader.h and changed its include instances with #include <GLES2/gl2.h>, #include <GLES2/gl2ext.h>
