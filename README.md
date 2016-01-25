@@ -1,5 +1,5 @@
 # Type3Games
-Type 3 games bhoyssssssssssssssssssssssssssssssssssssssss
+Type 3 games bhoysssssssssssssssssssssssssssssss
 ## sub header
 write some text  
 

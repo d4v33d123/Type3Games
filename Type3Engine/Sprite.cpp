@@ -20,14 +20,14 @@ namespace T3E
 		}
 	}
 
-	void Sprite::init(float x, float y, float width, float height, std::string texturePath)
+	void Sprite::init(float x, float y, float width, float height, std::string texturePath, float TileWidth, float TileHeight)
 	{
 		x_ = x;
 		y_ = y;
 		width_ = width;
 		height_ = height;
 
-		texture_ = ResourceManager::getTexture(texturePath);
+		tileSheet_.init(ResourceManager::getTexture(texturePath),glm::ivec2(TileWidth, TileHeight));
 
 
 		if (vboID_ == 0)
@@ -81,7 +81,7 @@ namespace T3E
 	{
 
 		// bind the texture
-		glBindTexture(GL_TEXTURE_2D, texture_.id);// dont want to unbind this
+		glBindTexture(GL_TEXTURE_2D, tileSheet_.texture.id);// dont want to unbind this
 
 	
 
