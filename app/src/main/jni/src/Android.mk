@@ -8,10 +8,12 @@ SDL_PATH := ../SDL
 GLM_PATH := ../GLM
 # here ndk path refers to a few ndk compiler specific headers, not the location of the ndk folder
 NDK_PATH := ../NDK
+#WWISE_PATH := ../WWISE/include
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(GLM_PATH)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(NDK_PATH)
+#LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(WWISE_PATH)
 
 # Add your application source files here...
 LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
@@ -25,6 +27,8 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
 	Type3Engine/TextureCache.cpp \
 	Type3Engine/Type3Engine.cpp \
 	Type3Engine/window.cpp \
+	Type3Engine/Camera.cpp \
+	Type3Engine/Cell.cpp \
 	MainGame.cpp \
 	main.cpp
 	
