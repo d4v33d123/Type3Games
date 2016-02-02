@@ -28,7 +28,8 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
 	Type3Engine/Type3Engine.cpp \
 	Type3Engine/window.cpp \
 	Type3Engine/Camera.cpp \
-	Type3Engine/Cell.cpp \
+	Type3Engine/Hex.cpp \
+	Cell.cpp \
 	MainGame.cpp \
 	main.cpp
 	

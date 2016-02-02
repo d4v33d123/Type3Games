@@ -9,7 +9,7 @@ namespace T3E
 	{
 	public:
 		void init(glm::vec3 position, glm::vec3 lookAt);//init parameters
-		void moveBy(glm::vec3 xyz);//add xyz*sensitivity to current position and keep lookat straight ahead
+		void moveDelta(glm::vec3 xyz);//add xyz to current position and keep lookat straight ahead
 		void zoom(float distance);//move by distance along z axis
 		void moveTo(glm::vec3 xyz);
 		
