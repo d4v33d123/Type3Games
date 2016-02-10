@@ -25,6 +25,7 @@
 #include "Type3Engine/Camera.h"
 //game classes
 #include "Cell.h"
+#include "BloodVessel.h"
 
 //test triangle
 //#include "Type3Engine/Vertex.h"
@@ -69,8 +70,11 @@ private:
 	Uint8 nOfFingers_;//n of fingers currently touching screen
 	T3E::Camera camera_;//2d camera
 	std::vector<T3E::Sprite*> sprites_;//sprite container
-	std::vector<T3E::Cell> grid_;
+	std::vector<T3E::Hex*> grid_;//hex grid with game elements
 	std::vector<T3E::Cell*> cells_;//living cells
+	std::vector<T3E::BloodVessel*> bloodVessels_;
+	
+	void createBloodVessel(int row, int column);
 	
 	//GRAPHICS
 	T3E::GLSLProgram cellProgram_;//shader programs

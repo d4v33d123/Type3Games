@@ -7,8 +7,8 @@ MainGame::MainGame() :
 	gameState_(GameState::PLAY),
 	maxFPS_(60.0f),
 	nOfFingers_(0),
-	ROWS(30),
-	COLUMNS(30),
+	ROWS(50),
+	COLUMNS(50),
 	PAN_SENSITIVITY(6.0f),
 	ZOOM_SENSITIVITY(6.0f)
 {
@@ -18,14 +18,38 @@ MainGame::~MainGame()
 {
 }
 
+void MainGame::createBloodVessel(int row, int column)
+{
+	//create a blood vessel
+	grid_[row*COLUMNS + column] = new T3E::BloodVessel();
+	grid_[row*COLUMNS + column]->init(column, row, COLUMNS, ROWS);
+	bloodVessels_.push_back(static_cast<T3E::BloodVessel*>(grid_[row*COLUMNS + column]));
+	
+	//loop trough neighbors and set their type to BLOOD_VESSEL
+	//technically they will still remain cells
+	//this is dirty af... but less overhead and more locality compared to creating 7 new pointers maybe is worth it?
+	for(int n = 0; n < 6; ++n)
+	{
+		int nr, nc;//neighbor's row and column
+		nr = grid_[row*COLUMNS + column]->getNeighbors()[n].row;
+		nc = grid_[row*COLUMNS + column]->getNeighbors()[n].col;
+		//not checking if coordinates are in range since this is done when checking neighbors of the centre hex
+		grid_[nr*COLUMNS + nc]->setType(T3E::Hex::BLOOD_VESSEL);
+	}
+	
+	//now update all the cells in range to be affected???
+	//or only affect cells that are born after the bv is created???
+}
+
 void MainGame::run()
 {
 	initSystems();
 	
 	//load sprites
 	sprites_.push_back(new T3E::Sprite());
-	//x, y, width, height
-	sprites_.back()->init(-0.5f, -0.5f, 1.0f, 1.0f,"textures/cell.png");
+	sprites_.back()->init(-0.5f, -0.5f, 1.0f, 1.0f,"textures/cell.png");//x, y, width, height
+	sprites_.push_back(new T3E::Sprite());
+	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");
 
 	gameLoop();
 }
@@ -44,23 +68,28 @@ void MainGame::initSystems()
 	camera_.init(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f,0.0f,0.0f));
 	camera_.setSensitivity(PAN_SENSITIVITY, ZOOM_SENSITIVITY);
 	camera_.moveTo(glm::vec3(22.0f,12.5f,1.0f));//move to where stem cell is
-	
+
 	//init projection matrix
 	//calculate aspect ratio
 	window_.updateSizeInfo();//can do just once here since screen orientation is set to landscape always
 	float ratio = float(window_.getScreenWidth())/float(window_.getScreenHeight());	
 	projectionM_ = glm::perspective(90.0f, ratio, 0.1f, 100.0f);//fov 90°, aspect ratio, near and far clipping plane
-		
+	
 	//fill grid with dead cells
 	grid_.reserve(ROWS*COLUMNS);
 	for(int r = 0; r < ROWS; ++r)
 		for(int c = 0; c < COLUMNS; ++c)
-			grid_[r*COLUMNS + c] = T3E::Cell(c, r, COLUMNS, ROWS);	
-	
-	//make a stem cell in the middleish
-	grid_[15*COLUMNS + 15].changeType(T3E::Cell::STEM);
-	cells_.push_back(&(grid_[15*COLUMNS + 15]));
-	
+		{
+			grid_[r*COLUMNS + c] = new T3E::Cell();
+			grid_[r*COLUMNS + c]->init(c, r, COLUMNS, ROWS);
+		}	
+	//create a stem cell in the middleish
+	grid_[15*COLUMNS + 15]->setType(T3E::Hex::STEM_CELL);
+	cells_.push_back(static_cast<T3E::Cell*>(grid_[15*COLUMNS + 15]));
+
+	createBloodVessel(19, 19);
+
+	//init shaders
 	initShaders();
 }
 
@@ -129,7 +158,63 @@ void MainGame::gameLoop()
 		processInput();
 		time_ += 0.1f;
 		renderGame();
-		calculateFPS();
+		calculateFPS();			
+		
+		/*
+		//TEMPORARY TEST CODE
+		//SELF SPAWNING BLOOD VESSELS
+		for(int pos = 0; pos < (ROWS*COLUMNS); ++pos)
+		{
+			//if cell is empty
+			if(grid_[pos]->getType() == T3E::Hex::DEAD_CELL)
+			{
+				int cellCount = 0;
+				int nr, nc;//neighbor's row and column
+				
+				//check each neighbor has a cell in it
+				for(int nbr = 0; nbr < 6; ++nbr)
+				{
+					nr = grid_[pos]->getNeighbors()[nbr].row;
+					nc = grid_[pos]->getNeighbors()[nbr].col;
+					//if nbr pos is valid
+					if(nr != -1)
+					{
+						T3E::Hex::type t = grid_[nr*COLUMNS + nc]->getType();
+						//if there's a cell inc counter
+						if(t != T3E::Hex::DEAD_CELL && t != T3E::Hex::BLOOD_VESSEL)
+							++cellCount;
+						else
+							break;
+					}
+				}
+				//if there's a hex ring
+				if(cellCount == 6)
+				{
+					//kill cells in the ring
+					for(int nbr = 0; nbr < 6; ++nbr)
+					{
+						nr = grid_[pos]->getNeighbors()[nbr].row;
+						nc = grid_[pos]->getNeighbors()[nbr].col;
+						grid_[nr*COLUMNS + nc]->setType(T3E::Hex::DYING_CELL);
+						//remove dead cells
+						int i = 0;
+						while (i < cells_.size())
+						{
+							if (cells_[i]->getType() == T3E::Hex::DYING_CELL)
+							{
+								cells_[i]->setType(T3E::Hex::DEAD_CELL);
+								cells_.erase( cells_.begin() + i );
+							}
+							else 
+								++i;
+						}
+					}
+					//create bv in centre
+					createBloodVessel(pos/COLUMNS, pos%COLUMNS);
+				}					
+			}
+		}
+		*/
 		
 		//for each living cell
 		for(int i = 0; i < cells_.size(); ++i)
@@ -144,14 +229,14 @@ void MainGame::gameLoop()
 				{
 					//pick a lucky neighboring hex
 					int lucky = rand()%6;
-					int c = cells_[i]->hex().getNeighbors()[lucky].col;
-					int r = cells_[i]->hex().getNeighbors()[lucky].row;		
+					int c = cells_[i]->getNeighbors()[lucky].col;
+					int r = cells_[i]->getNeighbors()[lucky].row;		
 					
 					//if neighbor position is valid (not out of bounds)
-					if(cells_[i]->hex().getNeighbors()[lucky].row != -1)
+					if(cells_[i]->getNeighbors()[lucky].row != -1)
 					{
 						//if neighbor position is an empty space (dead cell)
-						if(grid_[r*COLUMNS + c].getType() == T3E::Cell::DEAD)
+						if(grid_[r*COLUMNS + c]->getType() == T3E::Hex::DEAD_CELL)
 						{
 							//randomise split time
 							cells_[i]->newSplitTime();
@@ -163,47 +248,47 @@ void MainGame::gameLoop()
 							//create a new cell depending on current's type
 							switch(cells_[i]->getType())
 							{
+							//STEM
+							case T3E::Hex::STEM_CELL:
+								grid_[r*COLUMNS + c]->setType(T3E::Hex::NORMAL_CELL, cells_[i]->getDeathChance() + 5);
+								break;
+								
 							//NORMAL
-							case T3E::Cell::NORMAL:
+							case T3E::Hex::NORMAL_CELL:
 								//increase parent death chance by 5%
 								cells_[i]->incDeathChance(5);
 								//roll for mutation
 								noMutation = rand()%100;
 								if(noMutation)
 								{
-									grid_[r*COLUMNS + c].changeType(T3E::Cell::NORMAL, cells_[i]->getDeathChance());
+									grid_[r*COLUMNS + c]->setType(T3E::Hex::NORMAL_CELL, cells_[i]->getDeathChance());
 								}
 								
 								else
 								{
-									grid_[r*COLUMNS + c].changeType(T3E::Cell::MUTATED, cells_[i]->getDeathChance());
+									grid_[r*COLUMNS + c]->setType(T3E::Hex::MUTATED_CELL, cells_[i]->getDeathChance());
 								}
-								break;
-							
-							//STEM
-							case T3E::Cell::STEM:
-								grid_[r*COLUMNS + c].changeType(T3E::Cell::NORMAL, cells_[i]->getDeathChance());
 								break;
 								
 							//MUTATED
-							case T3E::Cell::MUTATED:
+							case T3E::Hex::MUTATED_CELL:
 								//increase parent death chance by 5%
 								cells_[i]->incDeathChance(5);
 								//roll for cancer
 								noCancer = rand()%100;
 								if(noCancer)
 								{
-									grid_[r*COLUMNS + c].changeType(T3E::Cell::MUTATED, cells_[i]->getDeathChance());
+									grid_[r*COLUMNS + c]->setType(T3E::Hex::MUTATED_CELL, cells_[i]->getDeathChance());
 								}
 								else
 								{
-									grid_[r*COLUMNS + c].changeType(T3E::Cell::CANCEROUS);
+									grid_[r*COLUMNS + c]->setType(T3E::Hex::CANCEROUS_CELL);
 								}
 								break;
 								
 							//CANCEROUS
-							case T3E::Cell::CANCEROUS:
-								grid_[r*COLUMNS + c].changeType(T3E::Cell::CANCEROUS);
+							case T3E::Hex::CANCEROUS_CELL:
+								grid_[r*COLUMNS + c]->setType(T3E::Hex::CANCEROUS_CELL);
 								break;
 								
 							default:
@@ -211,31 +296,41 @@ void MainGame::gameLoop()
 							}
 							
 							//add the new cell to the living cells vector
-							cells_.push_back(&(grid_[r*COLUMNS + c]));
+							cells_.push_back(static_cast<T3E::Cell*>(grid_[r*COLUMNS + c]));
+							//check if it's in range of a blood vessel
+							for(int bvs = 0; bvs < bloodVessels_.size(); ++bvs)
+							{
+								if(bloodVessels_[bvs]->inRange(cells_.back()->getC(), cells_.back()->getR(), bloodVessels_[bvs]->getRange()))
+								{
+									//cells_.back()->makeGreen();
+									//reset death chance
+									cells_.back()->setDeathChance(0);
+								}
+							}
 						}
 					}							
 				}
 				else//die
 				{
-					cells_[i]->changeType(T3E::Cell::DYING);
+					cells_[i]->setType(T3E::Hex::DYING_CELL);
 				}
 			}
 		}
-		
-		//remove dead cells; could put in previus loop
+			
+		//remove dead cells
 		int i = 0;
 		while (i < cells_.size())
 		{
-			if (cells_[i]->getType() == T3E::Cell::DYING)
+			if (cells_[i]->getType() == T3E::Hex::DYING_CELL)
 			{
-				cells_[i]->changeType(T3E::Cell::DEAD);
+				cells_[i]->setType(T3E::Hex::DEAD_CELL);
 				cells_.erase( cells_.begin() + i );
 			}
 			else 
 				++i;
 		}
 		
-		// print once every 10 frames... OR NOT! huehuehuehue
+		// print once every 10 frames
 		static int frameCounter = 0;
 		frameCounter++;
 		if (frameCounter == 10)
@@ -300,25 +395,38 @@ void MainGame::processInput()
 		case SDL_FINGERDOWN:
 			++nOfFingers_;
 			//get world coordinates of touch position -> NOT WORKING
-			/* 			
+						
 			worldPos.x = evnt.tfinger.x;
 			worldPos.y = evnt.tfinger.y;
 			
-			worldPos.x = (worldPos.x * 2.0f) - 1.0f;
-			worldPos.y = 1.0f - (worldPos.y * 2.0f);//y coord is inverted
+			
+			worldPos.x = ((worldPos.x * 2.0f) - 1.0f) * camera_.getPosition().z;
+			worldPos.y = (1.0f - (worldPos.y * 2.0f)) * camera_.getPosition().z;//y coord is inverted
 			worldPos.z = 0.0f;
 			worldPos.w = 1.0f;
 			viewProjInverse = projectionM_*viewM_;
 			viewProjInverse = glm::inverse(viewProjInverse);
 			worldPos = viewProjInverse * worldPos;
 			
-			// worldPos.x = worldPos.x/worldPos.w;
-			// worldPos.y = worldPos.y/worldPos.w;
+			/*
+			worldPos.x = (worldPos.x * 2.0f) - 1.0f;
+			worldPos.y = 1.0f - (worldPos.y * 2.0f);//y coord is inverted
+			
+			worldPos.x = worldPos.x*worldPos.z;
+			worldPos.y = worldPos.y*worldPos.z;
+			
+			worldPos.x = worldPos.x + camera_.getPosition().x;
+			worldPos.y = worldPos.y + camera_.getPosition().y;
+			*/
+			
+			worldPos.x = worldPos.x/worldPos.w;
+			
+			worldPos.y = worldPos.y/worldPos.w;
 			
 			// worldPos.x = 0.0f;
 			// worldPos.y = 0.0f;
 			SDL_Log("FINGERDOWN at world coord x: %f y: %f" , worldPos.x, worldPos.y);
-			
+			/*
 			//world coord to hex coord -> WORKING
 			layout_ = glm::mat2(sqrt(3.0f) / 3.0f, -1.0f / 3.0f, 0.0f, 2.0f / 3.0f);
 			
@@ -444,18 +552,43 @@ void MainGame::renderGame()
 	//RENDER CELLS
 	cellProgram_.use();
 	
-	for(int i = 0; i < cells_.size(); ++i)
+	//blood vessels
+	for(int i = 0; i < bloodVessels_.size(); ++i)
 	{
 		//move to hex position
-		int current = cells_[i]->hex().getR()*COLUMNS + cells_[i]->hex().getC();
-		
-		worldM_ = glm::translate(worldM_, glm::vec3(grid_[current].hex().getX(), grid_[current].hex().getY(), 0.0f));
+		worldM_ = glm::translate(worldM_, glm::vec3(bloodVessels_[i]->getX(), bloodVessels_[i]->getY(), 0.0f));
 		finalM_ = projectionM_*viewM_*worldM_;
 		
 		//send matrix to shaders
 		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//set tint
-		float tint[] = {grid_[current].getTint().x , grid_[current].getTint().y , grid_[current].getTint().z, grid_[current].getTint().w};
+		float tint[] = {bloodVessels_[i]->getTint().x , bloodVessels_[i]->getTint().y , bloodVessels_[i]->getTint().z, bloodVessels_[i]->getTint().w};
+		glUniform4fv(inputColour_location, 1, tint);
+		//set texture	
+		//glActiveTexture(GL_TEXTURE0 + grid_[current].getType());
+		glActiveTexture(GL_TEXTURE0+1);
+		glUniform1i(sampler0_location, 0);
+		//sprites_[grid_[current].getType()]->draw();
+		sprites_[1]->draw();
+		
+		//reset matrices
+		//make an identityM object to reset instead of creating new one a bagillion times?
+		//or having to fetch other non local obj even worse?
+		worldM_ = glm::mat4();
+		finalM_ = projectionM_*viewM_*worldM_;
+	}
+	
+	//cells
+	for(int i = 0; i < cells_.size(); ++i)
+	{
+		//move to hex position
+		worldM_ = glm::translate(worldM_, glm::vec3(cells_[i]->getX(), cells_[i]->getY(), 0.0f));
+		finalM_ = projectionM_*viewM_*worldM_;
+		
+		//send matrix to shaders
+		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+		//set tint
+		float tint[] = {cells_[i]->getTint().x , cells_[i]->getTint().y , cells_[i]->getTint().z, cells_[i]->getTint().w};
 		glUniform4fv(inputColour_location, 1, tint);
 		//set texture	
 		//glActiveTexture(GL_TEXTURE0 + grid_[current].getType());
@@ -470,7 +603,7 @@ void MainGame::renderGame()
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_*viewM_*worldM_;
 	}
-	
+		
 	cellProgram_.stopUse();
 
 	// swap our buffers 

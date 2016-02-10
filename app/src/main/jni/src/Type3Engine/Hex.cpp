@@ -2,11 +2,11 @@
 
 namespace T3E
 {
-	void Hex::init(int column, int row, int gridColumns, int gridRows, float hexSize)
+	void Hex::init(int column, int row, int gridColumns, int gridRows)
 	{
 		c_ = column;
 		r_ = row;
-		hexSize_ = hexSize;
+		hexSize_ = HEX_SIZE;
 			
 		//calculate world x and y coordinates of hex centre
 		//pointy top layout
@@ -38,5 +38,13 @@ namespace T3E
 				neighbors_[i].row = -1;
 			}
 		}
+	}
+	
+	bool Hex::inRange(float c, float r, float range)
+	{
+		int dist = (std::abs(c - c_) + std::abs(r - r_) + std::abs((-c-r) - (-c_-r_))) / 2;
+		if(dist > range)
+			return false;
+		return true;
 	}
 }
