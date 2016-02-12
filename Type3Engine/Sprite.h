@@ -13,11 +13,15 @@ namespace T3E
 		Sprite();
 		~Sprite();
 
-		void init(float x, float y, float width, float height, std::string texturePath, float TileWidth, float TileHeight);
+		void init(float x, float y, float width, float height, std::string texturePath, float TileWidth, float TileHeight, int fps);
 
 		void draw();
+		void Update(float deltaTime);
 
 	private:
+		int animationPosition_;
+		float counter;
+		int fps_;
 		float x_, y_, width_, height_;
 		GLuint vboID_;
 		TileSheet tileSheet_;
