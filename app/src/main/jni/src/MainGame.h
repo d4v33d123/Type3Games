@@ -27,9 +27,6 @@
 #include "Cell.h"
 #include "BloodVessel.h"
 
-//test triangle
-//#include "Type3Engine/Vertex.h"
-
 enum class GameState {PLAY, EXIT};
 
 class MainGame
@@ -44,7 +41,7 @@ private:
 	//grid dimensions
 	const int ROWS;
 	const int COLUMNS;
-	//camera sensiticity
+	//camera sensitivity
 	const int PAN_SENSITIVITY;
 	const int ZOOM_SENSITIVITY;
 	// Debug Cursor
@@ -91,13 +88,6 @@ private:
     glm::vec4 touch_to_world( glm::vec2 touch_coord );
     // Returns an SDL_Point where x represents the row and y represents the column
     SDL_Point world_to_grid( glm::vec4 world_coord );
-
-	/*CODE FOR TRIANGLES WITH PARALLAX
-	T3E::GLSLProgram triangleProgram_;
-	GLint triangle_finalM_location;
- 	GLuint triangleBufferName;
-	T3E::Vertex triangle[3];
-	float parallX, parallY;//parallax effect test*/
 };
 
 #endif

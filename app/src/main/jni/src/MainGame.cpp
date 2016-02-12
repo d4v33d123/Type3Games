@@ -87,6 +87,8 @@ void MainGame::initSystems()
 		{
 			grid_[r*COLUMNS + c] = new T3E::Cell();
 			grid_[r*COLUMNS + c]->init(c, r, COLUMNS, ROWS);
+			grid_[r*COLUMNS + c]->setType( T3E::Hex::NORMAL_CELL );
+			cells_.push_back(static_cast<T3E::Cell*>(grid_[r*COLUMNS + c]));
 		}	
 	//create a stem cell in the middleish
 	grid_[15 * COLUMNS + 15]->setType( T3E::Hex::STEM_CELL );
@@ -113,44 +115,10 @@ void MainGame::initShaders()
 	inputColour_location = cellProgram_.getUniformLocation("inputColour");
 	cell_finalM_location = cellProgram_.getUniformLocation("finalM");
 	sampler0_location = cellProgram_.getUniformLocation("sampler0");
-	
-	/*CODE FOR TRIANGLES WITH PARALLAX
-	//TRIANGLE PROGRAM
-	// compile
-	triangleProgram_.compileShaders("shaders/triangle_vs.txt", "shaders/triangle_ps.txt");
-	// add attributes
-	triangleProgram_.addAttribute("aPosition");
-	triangleProgram_.addAttribute("aColour");
-	// link
-	triangleProgram_.linkShaders();
-	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	triangle_finalM_location = triangleProgram_.getUniformLocation("finalM");*/
 }
 
 void MainGame::gameLoop()
 {
-	/*CODE FOR TRIANGLES WITH PARALLAX
-	//would not put in main loop in actual implementation
-	parallX = 0;
-	parallY = 0; 
-	
-	//init triangle
-	glGenBuffers(1, &triangleBufferName);
-	
-	//top right
-	triangle[0].setPosition(0.0f, 0.5f);
-	triangle[0].setColour(255, 153, 51, 255);
-	//top left
-	triangle[1].setPosition(-0.5f, -0.5f);
-	triangle[1].setColour(0, 255, 255, 255);	
-	//bottom left
-	triangle[2].setPosition(0.5f, -0.5f);
-	triangle[2].setColour(255, 0, 255, 255);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, triangleBufferName);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);*/
-	
 	//enable back face culling
 	glEnable(GL_CULL_FACE);//GL_BACK is default value
 	
@@ -221,6 +189,7 @@ void MainGame::gameLoop()
 		}
 		*/
 		
+		/*
 		//for each living cell
 		for(int i = 0; i < cells_.size(); ++i)
 		{
@@ -321,6 +290,7 @@ void MainGame::gameLoop()
 				}
 			}
 		}
+		*/
 			
 		//remove dead cells
 		int i = 0;
@@ -353,8 +323,7 @@ void MainGame::gameLoop()
 	}
 	
 	glDisable(GL_CULL_FACE);	
-	
-	//std::vector<T3E::Cell*>().swap(cells_); should we clear the vectors?	
+		
 	window_.destroy();//useful?
 	SDL_Quit();
 }
@@ -363,7 +332,7 @@ void MainGame::processInput()
 {
 	//TEST STUFF
 	//for screen to world coord conversion
-	glm::mat4 viewProjInverse;
+	//glm::mat4 viewProjInverse;
 	glm::vec4 worldPos;
     SDL_Point rowCol;
     int row, col;
@@ -408,8 +377,7 @@ void MainGame::processInput()
 			//if in range
 			if( ((row * COLUMNS + col) < (ROWS * COLUMNS )) && ((row * COLUMNS + col) >= 0) )
             {
-                // TODO: Get davide to change the math, why is this offset required?
-                T3E::Hex* hex = grid_[row * COLUMNS + col - 10];
+                T3E::Hex* hex = grid_[row * COLUMNS + col];
                 SDL_Log("Row %i col %i ", row, col);
 
                 if( hex->getType() == T3E::Hex::NORMAL_CELL || hex->getType() == T3E::Hex::MUTATED_CELL || hex->getType() == T3E::Hex::CANCEROUS_CELL )
@@ -432,17 +400,6 @@ void MainGame::processInput()
 			
 		case SDL_FINGERUP:
 			--nOfFingers_;		
-			/*HOW IN THE FUCKING HELL IS THIS AFFECTING FINGERDOWN?????
-			viewProjInverse = projectionM_*viewM_;
-			viewProjInverse = glm::inverse(viewProjInverse);
-			worldPos.x = (evnt.tfinger.x*2.0f) - 1.0f;
-			worldPos.y = 1 - (evnt.tfinger.y*2.0f);//y coord is inverted
-			worldPos.z = 0.0f;
-			worldPos.w = 1.0f;
-			worldPos = viewProjInverse*worldPos; 	
-
-			//SDL_Log("FINGERUP at world coord x: %f y: %f" , worldPos.x, worldPos.y);*/	
-
             // Reset the type of touch if the last finger was released
             if( nOfFingers_ == 0 ) finger_dragged_ = false;
 			break;
@@ -454,10 +411,6 @@ void MainGame::processInput()
 			if(nOfFingers_ < 2)
 			{
 				camera_.moveDelta(glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f));
-				
-/* 				//parallax test
-				parallX -= evnt.tfinger.dx*2;
-				parallY += evnt.tfinger.dy*2; */
 			}
 
 			break;
@@ -482,40 +435,6 @@ void MainGame::renderGame()
 	//update matrices
 	viewM_ = glm::lookAt(camera_.getPosition(), camera_.getLookAt(), camera_.getUp());
 	finalM_ = projectionM_*viewM_*worldM_;//order matters!
-
-	
-	/*CODE FOR TRIANGLES WITH PARALLAX
-	//RENDER TRIANGLE x 3 at different locations
-	triangleProgram_.use();
-	for(int i = -1; i < 2; ++i)
-	{
-		//send matrix to shaders
-		//translate world matrix to separate triangles and create parallax
-		glm::mat4 transM = glm::translate(worldM, glm::vec3(parallX + i, parallY + i, 0.0f));
-		finalM = finalM*transM;//shold be just worldM but whatever, it's a test
-		glUniformMatrix4fv(triangle_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM));
-		// bind the buffer object
-		glBindBuffer(GL_ARRAY_BUFFER, triangleBufferName);
-		// tell opengl that we want to use the first attribute array
-		glEnableVertexAttribArray(0);
-		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
-		// this is our pixel attribute pointer;
-		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
-		//this is out UV attribute pointer;
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
-		// draw our 6 verticies
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		// disable the vertex attrib array
-		glDisableVertexAttribArray(0);
-		// unbind the VBO
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
-		//reset matrix
-		finalM = projectionM*viewM*worldM;
-	}
-	triangleProgram_.stopUse();	
-	*/
 		
 	//RENDER CELLS
 	cellProgram_.use();
@@ -550,7 +469,7 @@ void MainGame::renderGame()
 	for(int i = 0; i < cells_.size(); ++i)
 	{
         // Don't render cells that are part of a blood vessle
-        if( cells_[i]->getType() == T3E::Hex::BLOOD_VESSEL ) continue;
+        if( cells_[i]->getType() == T3E::Hex::BLOOD_VESSEL ) continue;//###should take out of living cells vector
 
 		//move to hex position
 		worldM_ = glm::translate(worldM_, glm::vec3(cells_[i]->getX(), cells_[i]->getY(), 0.0f));
@@ -629,32 +548,27 @@ glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
     result.x = camera_.getPosition().x + ( result.x - camera_.getPosition().x ) * result.w * camera_.getPosition().z;
     result.y = camera_.getPosition().y + ( result.y - camera_.getPosition().y ) * result.w * camera_.getPosition().z;
 
-    //SDL_Log("World coord: %f %f", result.x, result.y);
+    SDL_Log("World coord: %f %f", result.x, result.y);
     return result;
 }
 
 SDL_Point MainGame::world_to_grid( glm::vec4 world_coord )
 {
-	float fracCol, fracRow, colD, rowD, zD, fracZ;
-	int col, row, z;
-	glm::mat2 layout_;//inverse of pointy top layout matrix
+	float fracCol, fracRow, fracZ;//fractional coordinates
+	int col, row, z;//final coordinates
+	float colD, rowD, zD;//difference between fractional and rounded coords
+	
+    glm::mat2 layoutInverse_= glm::mat2(sqrt(3.0f) / 3.0f, -1.0f / 3.0f, 0.0f, 2.0f / 3.0f);
+	fracCol = (layoutInverse_[0][0] * world_coord.x + layoutInverse_[0][1] * world_coord.y) / 0.54f;
+	fracRow = (layoutInverse_[1][0] * world_coord.x + layoutInverse_[1][1] * world_coord.y) / 0.54f;
 
-    //world coord to hex coord
-    layout_ = glm::mat2(sqrt(3.0f) / 3.0f, -1.0f / 3.0f, 0.0f, 2.0f / 3.0f);
-    
-    fracCol = world_coord.x/0.54f;
-    fracCol = layout_[0][0] * fracCol + layout_[0][1] * fracRow;
-    
-    fracRow = world_coord.y/0.54;
-    fracRow = layout_[1][0] * fracCol + layout_[1][1] * fracRow;
-    
-    fracZ = -fracCol -fracRow;
+	fracZ = -fracCol -fracRow;
     
     col = round(fracCol);
     row = round(fracRow);
     z = round(fracZ);
     
-    colD = abs(col - fracCol);
+	colD = abs(col - fracCol);
     rowD = abs(row - fracRow);
     zD = abs(z - fracZ);
     
@@ -667,11 +581,11 @@ SDL_Point MainGame::world_to_grid( glm::vec4 world_coord )
         row = -col-z;
     }
     else
+	{
         z = -row-col;
+	}
 
-    
-
-    return SDL_Point{ row, col };
+    return SDL_Point{ row, col};
 }
 
 void MainGame::calculateFPS()
