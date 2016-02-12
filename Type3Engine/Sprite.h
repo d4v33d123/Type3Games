@@ -22,7 +22,7 @@ namespace T3E
 		int animationPosition_;
 		float counter;
 		int fps_;
-		float x_, y_, width_, height_;
+		float x_, y_, width_, height_, tileWidth_, tileHeight_;
 		GLuint vboID_;
 		TileSheet tileSheet_;
 		GLTexture texture_;

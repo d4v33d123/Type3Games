@@ -28,6 +28,8 @@ namespace T3E
 		height_ = height;
 		fps_ = fps;
 		animationPosition_ = 0;
+		tileHeight_ = TileHeight;
+		tileWidth_ = TileWidth;
 
 		tileSheet_.init(ResourceManager::getTexture(texturePath),glm::ivec2(TileWidth, TileHeight));
 
@@ -103,9 +105,42 @@ namespace T3E
 
 	void Sprite::Update(float deltaTime)
 	{
+		int oldAnim = animationPosition_;
+
 		counter += deltaTime;
 		animationPosition_ = (int)(fps_ * counter);
 		
+		if (animationPosition_ != oldAnim)
+		{
+			Vertex vertexData[6];
+			//top right
+
+			//vertexData[0].setPosition(x_ + width_, y_ + height_);
+			vertexData[0].setUV(tileWidth_*animationPosition_ + tileWidth_, tileHeight_*animationPosition_ + tileHeight_);
+			//top left
+
+			//vertexData[1].setPosition(x, y + height_);
+			vertexData[1].setUV(tileWidth_*animationPosition_, tileHeight_*animationPosition_ + tileHeight_);
+			//bottom left
+
+			//vertexData[2].setPosition(x, y);
+			vertexData[2].setUV(tileWidth_*animationPosition_, tileHeight_*animationPosition_);
+
+			//bottom left
+			//vertexData[3].setPosition(x, y);
+			vertexData[3].setUV(tileWidth_*animationPosition_, tileHeight_*animationPosition_);
+			//bottom right
+			//vertexData[4].setPosition(x + width_, y);
+			vertexData[4].setUV(tileWidth_*animationPosition_ + tileWidth_, tileHeight_*animationPosition_);
+			//top right
+			//vertexData[5].setPosition(x + width_, y + height_);
+			vertexData[5].setUV(tileWidth_*animationPosition_ + tileWidth_, tileHeight_*animationPosition_ + tileHeight_);
+
+			glBindBuffer(GL_ARRAY_BUFFER, vboID_);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		}
 		
 	}
 
