@@ -13,12 +13,21 @@ MainGame::MainGame() :
 	ZOOM_SENSITIVITY(6.0f),
     finger_dragged_(false)
 {
+
+    // Set all hexes to cells
+    for( int row = 0; row < CHUNK_WIDTH; row++ )
+    for( int col = 0; col < CHUNK_WIDTH; col++ )
+        grid_.newCell( row, col, nullptr );
+
+    SDL_Log("Initialised grid");
+    SDL_Log("Num cells: %i", grid_.numCells() );
 }
 
 MainGame::~MainGame()
 {
 }
 
+/*
 void MainGame::createBloodVessel(int row, int column)
 {
 	//create a blood vessel
@@ -44,7 +53,7 @@ void MainGame::createBloodVessel(int row, int column)
 	
 	//now update all the cells in range to be affected???
 	//or only affect cells that are born after the bv is created???
-}
+}*/
 
 void MainGame::run()
 {
@@ -65,21 +74,22 @@ void MainGame::initSystems()
 	
 	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
 
-	//enable aplha blending	
+	// enable aplha blending	
 	glEnable(GL_BLEND);//should we instead use frame buffer fetch in shader?
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	
 	
-	//init camera at 0,0,1 looking at origin, up is y axis
+	// init camera at 0,0,1 looking at origin, up is y axis
 	camera_.init(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f,0.0f,0.0f));
 	camera_.setSensitivity(PAN_SENSITIVITY, ZOOM_SENSITIVITY);
-	camera_.moveTo(glm::vec3(22.0f,12.5f,1.0f));//move to where stem cell is
+	camera_.moveTo(glm::vec3( 10.0f, 10.0f, 1.0f));//move to where stem cell is
 
-	//init projection matrix
-	//calculate aspect ratio
+	// init projection matrix
+	// calculate aspect ratio
 	window_.updateSizeInfo();//can do just once here since screen orientation is set to landscape always
 	float ratio = float(window_.getScreenWidth())/float(window_.getScreenHeight());	
 	projectionM_ = glm::perspective(90.0f, ratio, 0.1f, 100.0f);//fov 90°, aspect ratio, near and far clipping plane
 	
+    /*
 	//fill grid with dead cells
 	grid_.reserve(ROWS*COLUMNS);
 	for(int r = 0; r < ROWS; ++r)
@@ -95,8 +105,9 @@ void MainGame::initSystems()
 	cells_.push_back(static_cast<T3E::Cell*>(grid_[15*COLUMNS + 15]));
 
 	createBloodVessel(19, 19);
+    */
 
-	//init shaders
+	// init shaders
 	initShaders();
 }
 
@@ -293,6 +304,7 @@ void MainGame::gameLoop()
 		*/
 			
 		//remove dead cells
+        /*
 		int i = 0;
 		while (i < cells_.size())
 		{
@@ -303,7 +315,7 @@ void MainGame::gameLoop()
 			}
 			else 
 				++i;
-		}
+		}*/
 		
 		// print once every 10 frames
 		static int frameCounter = 0;
@@ -374,7 +386,8 @@ void MainGame::processInput()
             row = rowCol.x;
             col = rowCol.y;
 			
-			//if in range
+			// if in range
+            /*
 			if( ((row * COLUMNS + col) < (ROWS * COLUMNS )) && ((row * COLUMNS + col) >= 0) )
             {
                 T3E::Hex* hex = grid_[row * COLUMNS + col];
@@ -391,7 +404,7 @@ void MainGame::processInput()
                     // Set the cell to a blood vessle
                     createBloodVessel( row, col );
                 }
-            }
+            }*/
             
             // Draw cursor for debug purposes
             cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
@@ -440,22 +453,22 @@ void MainGame::renderGame()
 	cellProgram_.use();
 	
 	//blood vessels
+    /*
 	for(int i = 0; i < bloodVessels_.size(); ++i)
 	{
 		//move to hex position
-		worldM_ = glm::translate(worldM_, glm::vec3(bloodVessels_[i]->getX(), bloodVessels_[i]->getY(), 0.0f));
+		//worldM_ = glm::translate(worldM_, glm::vec3(bloodVessels_[i]->getX(), bloodVessels_[i]->getY(), 0.0f));
 		finalM_ = projectionM_*viewM_*worldM_;
 		
 		//send matrix to shaders
 		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//set tint
-		float tint[] = {bloodVessels_[i]->getTint().x , bloodVessels_[i]->getTint().y , bloodVessels_[i]->getTint().z, bloodVessels_[i]->getTint().w};
+		//float tint[] = {bloodVessels_[i]->getTint().x , bloodVessels_[i]->getTint().y , bloodVessels_[i]->getTint().z, bloodVessels_[i]->getTint().w};
 		glUniform4fv(inputColour_location, 1, tint);
-		//set texture	
-		//glActiveTexture(GL_TEXTURE0 + grid_[current].getType());
+		
+        //set texture	
 		glActiveTexture(GL_TEXTURE0+1);
 		glUniform1i(sampler0_location, 0);
-		//sprites_[grid_[current].getType()]->draw();
 		sprites_[1]->draw();
 		
 		//reset matrices
@@ -464,32 +477,36 @@ void MainGame::renderGame()
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_ * viewM_ * worldM_;
 	}
+    */
 	
 	//cells
-	for(int i = 0; i < cells_.size(); ++i)
+	for(int i = 0; i < grid_.numCells(); ++i)
 	{
         // Don't render cells that are part of a blood vessle
-        if( cells_[i]->getType() == T3E::Hex::BLOOD_VESSEL ) continue;//###should take out of living cells vector
+        //if( cells_[i]->getType() == T3E::Hex::BLOOD_VESSEL ) continue;//###should take out of living cells vector
 
-		//move to hex position
-		worldM_ = glm::translate(worldM_, glm::vec3(cells_[i]->getX(), cells_[i]->getY(), 0.0f));
-		finalM_ = projectionM_*viewM_*worldM_;
+		// move to hex position
+		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
+		SDL_Log("Render at: %f %f",  grid_.getCell(i)->getX(), grid_.getCell(i)->getY() );
+        //worldM_ = glm::translate( worldM_, glm::vec3( 10.0f, 10.0f, 0.0f ) );
+		finalM_ = projectionM_ * viewM_ * worldM_;
 		
-		//send matrix to shaders
-		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//set tint
-		float tint[] = {cells_[i]->getTint().x , cells_[i]->getTint().y , cells_[i]->getTint().z, cells_[i]->getTint().w};
+		// send matrix to shaders
+		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
+
+		// set tint
+		//float tint[] = {cells_[i]->getTint().x , cells_[i]->getTint().y , cells_[i]->getTint().z, cells_[i]->getTint().w};
+        float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		glUniform4fv(inputColour_location, 1, tint);
-		//set texture	
-		//glActiveTexture(GL_TEXTURE0 + grid_[current].getType());
-		glActiveTexture(GL_TEXTURE0);
+
+		// set texture	
+        glActiveTexture(GL_TEXTURE0);
 		glUniform1i(sampler0_location, 0);
-		//sprites_[grid_[current].getType()]->draw();
 		sprites_[0]->draw();
 		
-		//reset matrices
-		//make an identityM object to reset instead of creating new one a bagillion times?
-		//or having to fetch other non local obj even worse?
+		// reset matrices
+		// make an identityM object to reset instead of creating new one a bagillion times?
+		// or having to fetch other non local obj even worse?
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_*viewM_*worldM_;
 	}

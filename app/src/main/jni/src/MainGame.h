@@ -26,6 +26,7 @@
 //game classes
 #include "Cell.h"
 #include "BloodVessel.h"
+#include "Grid.h"
 
 enum class GameState {PLAY, EXIT};
 
@@ -65,22 +66,24 @@ private:
 	T3E::window window_;
 	GameState gameState_;
 		
+    T3E::Grid grid_;
+
 	//GAMEPLAY
-	Uint8 nOfFingers_;//n of fingers currently touching screen
-	T3E::Camera camera_;//2d camera
-	std::vector<T3E::Sprite*> sprites_;//sprite container
-	std::vector<T3E::Hex*> grid_;//hex grid with game elements
-	std::vector<T3E::Cell*> cells_;//living cells
-	std::vector<T3E::BloodVessel*> bloodVessels_;
+	Uint8 nOfFingers_;                  // n of fingers currently touching screen
+	T3E::Camera camera_;                // 2d camera
+	std::vector<T3E::Sprite*> sprites_; // sprite container
+	//std::vector<T3E::Hex*> grid_;       // hex grid with game elements
+	//std::vector<T3E::Cell*> cells_;     // living cells
+	//std::vector<T3E::BloodVessel*> bloodVessels_;
     bool finger_dragged_;
 	
 	void createBloodVessel(int row, int column);
 	
 	//GRAPHICS
 	T3E::GLSLProgram cellProgram_;//shader programs
-	GLint cell_finalM_location, sampler0_location, inputColour_location;//shader uniform locations
-	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse;//transform matrices
-	glm::mat4 finalM_;//product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)	
+	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
+	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse; // transform matrices
+	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)	
 
     // Conversion Functions
     

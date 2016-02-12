@@ -1,6 +1,7 @@
 #include "BloodVessel.h"
 namespace T3E
 {
+    /*
 	void BloodVessel::init(int column, int row, int gridColumns, int gridRows)
 	{	
 		//init hex coorinates
@@ -12,4 +13,5 @@ namespace T3E
 		//range is how many surrounding hexes are affected + 1
 		range_= 3;
 	}
+    */
 }

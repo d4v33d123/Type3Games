@@ -2,6 +2,15 @@
 
 namespace T3E
 {
+    Cell::Cell()
+    {
+    }
+
+    Cell::~Cell()
+    {
+    }
+
+    /*
 	void Cell::init(int column, int row, int gridColumns, int gridRows)
 	{
 		//init hex coorinates
@@ -35,22 +44,22 @@ namespace T3E
 		{
 		case STEM_CELL:
 			type_ = t;
-			tint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);//white
+			tint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
 			deathChance_ = 0;
 			break;
 		case NORMAL_CELL:
 			type_ = t;
-			tint_ = glm::vec4(0.0f, 0.7f, 1.0f, 1.0f);//blue
+			tint_ = glm::vec4(0.0f, 0.7f, 1.0f, 1.0f); // blue
 			deathChance_ = parentDeathChance;
 			break;	
 		case MUTATED_CELL:
 			type_ = t;
-			tint_ = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);//orange
+			tint_ = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f); // orange
 			deathChance_ = parentDeathChance;
 			break;
 		case CANCEROUS_CELL:
 			type_ = t;
-			tint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);//magenta
+			tint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // magenta
 			deathChance_ = 0;
 			break;
 		default:
@@ -60,4 +69,5 @@ namespace T3E
 		//get a random split time
 		newSplitTime();
 	}
+    */
 }

@@ -1,14 +1,18 @@
 #ifndef CELL_H
 #define CELL_H
 
-#include "Type3Engine/Hex.h"
+#include "Hex.h"
 #include <cstdlib>//rand()
 
 namespace T3E
 {
-	class Cell: public Hex
+	class Cell: public Node
 	{
 	public:
+        Cell();
+        virtual ~Cell();
+
+        /*
 		//FOR TESTING STUFF
 		void makeGreen(){tint_ = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);};
 		void makeYellow(){tint_ = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);};
@@ -35,6 +39,7 @@ namespace T3E
 		int deathChance_;//chance to die instead of splitting
 		float splitTimer_;//time since last split; milliseconds
 		float splitTime_;//time to reach to start split; milliseconds
+        */
 	};
 }
 

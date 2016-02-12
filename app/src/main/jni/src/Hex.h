@@ -3,9 +3,42 @@
 
 #include "glm/glm.hpp"
 #include <vector>
+#include "Node.h"
 
 namespace T3E
 {
+    class Hex
+    {
+    public:
+        
+        Hex();
+        ~Hex();
+
+        void init( int row, int col );
+
+        // Getters
+        int getRow() { return row_; }
+        int getCol() { return col_; }
+        float getX() { return x_; }
+        float getY() { return y_; }
+        Node* getNode() { return node_; }
+        NodeType getType() { return type_; }
+
+        // Setters
+        void setNode( Node* node ) { node_ = node; }
+        void setType( NodeType type ) { type_ = type; }
+
+    private:
+        
+        Node* node_;    // Contains the functionality of the hex
+        NodeType type_; // The type of the hex's node
+        int row_, col_; // Grid coords
+        float x_, y_;   // World coords
+        float hexSize_; // Half width in OpenGL units TODO: this could be a #define instead? or constexpr
+        glm::mat2 layout_, layoutInverse_; // Point top hex grid base vectors
+    };
+
+    /*
 	class Hex
 	{
 	public:
@@ -45,6 +78,7 @@ namespace T3E
 		glm::mat2 layout_, layoutInverse_;//pointy top hex grid base vectors
 		std::vector<neighbor> neighbors_;//row and column coords of neighbors
 	};
+    */
 }
 
 #endif
