@@ -10,7 +10,8 @@ MainGame::MainGame() :
 	ROWS(50),
 	COLUMNS(50),
 	PAN_SENSITIVITY(6.0f),
-	ZOOM_SENSITIVITY(6.0f)
+	ZOOM_SENSITIVITY(6.0f),
+    finger_dragged_(false)
 {
 }
 
@@ -21,6 +22,9 @@ MainGame::~MainGame()
 void MainGame::createBloodVessel(int row, int column)
 {
 	//create a blood vessel
+    //TODO: Memory Leak!!!!
+    //This is overwriting the pointer whatever was in this position before without deleting it!
+    delete grid_[row*COLUMNS + column];
 	grid_[row*COLUMNS + column] = new T3E::BloodVessel();
 	grid_[row*COLUMNS + column]->init(column, row, COLUMNS, ROWS);
 	bloodVessels_.push_back(static_cast<T3E::BloodVessel*>(grid_[row*COLUMNS + column]));
@@ -34,6 +38,7 @@ void MainGame::createBloodVessel(int row, int column)
 		nr = grid_[row*COLUMNS + column]->getNeighbors()[n].row;
 		nc = grid_[row*COLUMNS + column]->getNeighbors()[n].col;
 		//not checking if coordinates are in range since this is done when checking neighbors of the centre hex
+        delete grid_[nr * COLUMNS + nc];
 		grid_[nr*COLUMNS + nc]->setType(T3E::Hex::BLOOD_VESSEL);
 	}
 	
@@ -84,7 +89,7 @@ void MainGame::initSystems()
 			grid_[r*COLUMNS + c]->init(c, r, COLUMNS, ROWS);
 		}	
 	//create a stem cell in the middleish
-	grid_[15*COLUMNS + 15]->setType(T3E::Hex::STEM_CELL);
+	grid_[15 * COLUMNS + 15]->setType( T3E::Hex::STEM_CELL );
 	cells_.push_back(static_cast<T3E::Cell*>(grid_[15*COLUMNS + 15]));
 
 	createBloodVessel(19, 19);
@@ -259,12 +264,12 @@ void MainGame::gameLoop()
 								cells_[i]->incDeathChance(5);
 								//roll for mutation
 								noMutation = rand()%100;
-								if(noMutation)
+								if(noMutation && grid_[r * COLUMNS + c]->getType() != T3E::Hex::BLOOD_VESSEL)
 								{
 									grid_[r*COLUMNS + c]->setType(T3E::Hex::NORMAL_CELL, cells_[i]->getDeathChance());
 								}
 								
-								else
+								else if( grid_[r * COLUMNS + c]->getType() != T3E::Hex::BLOOD_VESSEL )
 								{
 									grid_[r*COLUMNS + c]->setType(T3E::Hex::MUTATED_CELL, cells_[i]->getDeathChance());
 								}
@@ -276,11 +281,11 @@ void MainGame::gameLoop()
 								cells_[i]->incDeathChance(5);
 								//roll for cancer
 								noCancer = rand()%100;
-								if(noCancer)
+								if(noCancer && grid_[r * COLUMNS + c]->getType() != T3E::Hex::BLOOD_VESSEL )
 								{
 									grid_[r*COLUMNS + c]->setType(T3E::Hex::MUTATED_CELL, cells_[i]->getDeathChance());
 								}
-								else
+								else if( grid_[r * COLUMNS + c]->getType() != T3E::Hex::BLOOD_VESSEL );
 								{
 									grid_[r*COLUMNS + c]->setType(T3E::Hex::CANCEROUS_CELL);
 								}
@@ -360,11 +365,8 @@ void MainGame::processInput()
 	//for screen to world coord conversion
 	glm::mat4 viewProjInverse;
 	glm::vec4 worldPos;
-	//for world to hex coord conversion
-	float fracCol, fracRow, colD, rowD, zD, fracZ;
-	int col, row, z;
-	glm::mat2 layout_;//inverse of pointy top layout matrix
-	//END TEST STUFF
+    SDL_Point rowCol;
+    int row, col;
 	
 	// processing our input
 	SDL_Event evnt;
@@ -394,78 +396,38 @@ void MainGame::processInput()
 			
 		case SDL_FINGERDOWN:
 			++nOfFingers_;
-			//get world coordinates of touch position -> NOT WORKING
-						
-			worldPos.x = evnt.tfinger.x;
-			worldPos.y = evnt.tfinger.y;
 			
-			
-			worldPos.x = ((worldPos.x * 2.0f) - 1.0f) * camera_.getPosition().z;
-			worldPos.y = (1.0f - (worldPos.y * 2.0f)) * camera_.getPosition().z;//y coord is inverted
-			worldPos.z = 0.0f;
-			worldPos.w = 1.0f;
-			viewProjInverse = projectionM_*viewM_;
-			viewProjInverse = glm::inverse(viewProjInverse);
-			worldPos = viewProjInverse * worldPos;
-			
-			/*
-			worldPos.x = (worldPos.x * 2.0f) - 1.0f;
-			worldPos.y = 1.0f - (worldPos.y * 2.0f);//y coord is inverted
-			
-			worldPos.x = worldPos.x*worldPos.z;
-			worldPos.y = worldPos.y*worldPos.z;
-			
-			worldPos.x = worldPos.x + camera_.getPosition().x;
-			worldPos.y = worldPos.y + camera_.getPosition().y;
-			*/
-			
-			worldPos.x = worldPos.x/worldPos.w;
-			
-			worldPos.y = worldPos.y/worldPos.w;
-			
-			// worldPos.x = 0.0f;
-			// worldPos.y = 0.0f;
-			SDL_Log("FINGERDOWN at world coord x: %f y: %f" , worldPos.x, worldPos.y);
-			/*
-			//world coord to hex coord -> WORKING
-			layout_ = glm::mat2(sqrt(3.0f) / 3.0f, -1.0f / 3.0f, 0.0f, 2.0f / 3.0f);
-			
-			fracCol = worldPos.x/0.54f;
-			fracCol = layout_[0][0] * fracCol + layout_[0][1] * fracRow;
-			
-			fracRow = worldPos.y/0.54;
-			fracRow = layout_[1][0] * fracCol + layout_[1][1] * fracRow;
-			
-			fracZ = -fracCol-fracRow;
-			
-			col = round(fracCol);
-			row = round(fracRow);
-			z = round(fracZ);
-			
-			colD = abs(col - fracCol);
-			rowD = abs(row - fracRow);
-			zD = abs(z - fracZ);
-			
-			if((colD > rowD) && (colD > zD))
-			{
-				col = -row-z;
-			}
-			else if(rowD > zD)
-			{
-				row = -col-z;
-			}
-			else
-				z = -row-col;
+            // Convert the touch position to a world position
+            worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+
+            // Convert the world position to a row and column on the hex grid
+            rowCol = world_to_grid( worldPos );
+            row = rowCol.x;
+            col = rowCol.y;
 			
 			//if in range
-			if(((row*columns + col) < (rows*columns))&&((row*columns + col) >= 0))
-				grid_[row*columns + col].makeBlue();
-			// for(int r = 0; r < rows; ++r)
-				// for(int c = 0; c < columns; ++c)
-				// {
-					// grid_[15].makeBlue();
-				// }
-			*/
+			if( ((row * COLUMNS + col) < (ROWS * COLUMNS )) && ((row * COLUMNS + col) >= 0) )
+            {
+                // TODO: Get davide to change the math, why is this offset required?
+                T3E::Hex* hex = grid_[row * COLUMNS + col - 10];
+                SDL_Log("Row %i col %i ", row, col);
+
+                if( hex->getType() == T3E::Hex::NORMAL_CELL || hex->getType() == T3E::Hex::MUTATED_CELL || hex->getType() == T3E::Hex::CANCEROUS_CELL )
+                {
+                    T3E::Cell* cell = (T3E::Cell*)hex;
+
+                    cell->makeGreen();
+                }
+                else if( hex->getType() == T3E::Hex::DEAD_CELL )
+                {
+                    // Set the cell to a blood vessle
+                    createBloodVessel( row, col );
+                }
+            }
+            
+            // Draw cursor for debug purposes
+            cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+            
 			break;
 			
 		case SDL_FINGERUP:
@@ -479,10 +441,15 @@ void MainGame::processInput()
 			worldPos.w = 1.0f;
 			worldPos = viewProjInverse*worldPos; 	
 
-			//SDL_Log("FINGERUP at world coord x: %f y: %f" , worldPos.x, worldPos.y);*/			
+			//SDL_Log("FINGERUP at world coord x: %f y: %f" , worldPos.x, worldPos.y);*/	
+
+            // Reset the type of touch if the last finger was released
+            if( nOfFingers_ == 0 ) finger_dragged_ = false;
 			break;
 			
 		case SDL_FINGERMOTION:
+            finger_dragged_ = true;
+
 			//pan if only one finger is on screen; you don't want to pan during pinch motion
 			if(nOfFingers_ < 2)
 			{
@@ -491,7 +458,8 @@ void MainGame::processInput()
 /* 				//parallax test
 				parallX -= evnt.tfinger.dx*2;
 				parallY += evnt.tfinger.dy*2; */
-			} 
+			}
+
 			break;
 		
 		case SDL_MULTIGESTURE: 		
@@ -575,12 +543,15 @@ void MainGame::renderGame()
 		//make an identityM object to reset instead of creating new one a bagillion times?
 		//or having to fetch other non local obj even worse?
 		worldM_ = glm::mat4();
-		finalM_ = projectionM_*viewM_*worldM_;
+		finalM_ = projectionM_ * viewM_ * worldM_;
 	}
 	
 	//cells
 	for(int i = 0; i < cells_.size(); ++i)
 	{
+        // Don't render cells that are part of a blood vessle
+        if( cells_[i]->getType() == T3E::Hex::BLOOD_VESSEL ) continue;
+
 		//move to hex position
 		worldM_ = glm::translate(worldM_, glm::vec3(cells_[i]->getX(), cells_[i]->getY(), 0.0f));
 		finalM_ = projectionM_*viewM_*worldM_;
@@ -603,11 +574,104 @@ void MainGame::renderGame()
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_*viewM_*worldM_;
 	}
+
+    // Cursor
+    {
+        // Move to cursor position
+        worldM_ = glm::translate( worldM_, glm::vec3( cursor_pos_.x, cursor_pos_.y, 0.0f) );
+        finalM_ = projectionM_ * viewM_ * worldM_;
+
+        // Sent matrix to shaders
+        glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr( finalM_ ) );
+
+        // Set tint
+        float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        glUniform4fv( inputColour_location, 1, tint );
+
+        // Set texture
+        glActiveTexture( GL_TEXTURE0 );
+        glUniform1i( sampler0_location, 0 );
+        
+        sprites_[0]->draw();
+
+        // Reset matrices
+        worldM_ = glm::mat4();
+        finalM_ = projectionM_ * viewM_ * worldM_;
+    }
 		
 	cellProgram_.stopUse();
 
 	// swap our buffers 
 	window_.swapBuffer();
+}
+
+glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
+{
+    glm::vec4 result( touch_coord.x, touch_coord.y, 0.0f, 1.0f );
+
+    result.x = result.x * 2.0f - 1.0f;
+    result.y = result.y * 2.0f - 1.0f;
+    result.y *= -1.0f; // Invert to match OpenGL coords
+    
+    //SDL_Log("Touch at NDC: %f %f", result.x, result.y );
+
+    // Calculate the inverse matrix of the view and projection
+    viewProjInverse = glm::inverse( projectionM_ * viewM_ );
+
+    // multiply the touch position by that
+    result = viewProjInverse * result;
+    
+    // divide by w
+    result.x /= result.w;
+    result.y /= result.w;
+
+    // scale the position to account for zoom
+    result.x = camera_.getPosition().x + ( result.x - camera_.getPosition().x ) * result.w * camera_.getPosition().z;
+    result.y = camera_.getPosition().y + ( result.y - camera_.getPosition().y ) * result.w * camera_.getPosition().z;
+
+    //SDL_Log("World coord: %f %f", result.x, result.y);
+    return result;
+}
+
+SDL_Point MainGame::world_to_grid( glm::vec4 world_coord )
+{
+	float fracCol, fracRow, colD, rowD, zD, fracZ;
+	int col, row, z;
+	glm::mat2 layout_;//inverse of pointy top layout matrix
+
+    //world coord to hex coord
+    layout_ = glm::mat2(sqrt(3.0f) / 3.0f, -1.0f / 3.0f, 0.0f, 2.0f / 3.0f);
+    
+    fracCol = world_coord.x/0.54f;
+    fracCol = layout_[0][0] * fracCol + layout_[0][1] * fracRow;
+    
+    fracRow = world_coord.y/0.54;
+    fracRow = layout_[1][0] * fracCol + layout_[1][1] * fracRow;
+    
+    fracZ = -fracCol -fracRow;
+    
+    col = round(fracCol);
+    row = round(fracRow);
+    z = round(fracZ);
+    
+    colD = abs(col - fracCol);
+    rowD = abs(row - fracRow);
+    zD = abs(z - fracZ);
+    
+    if((colD > rowD) && (colD > zD))
+    {
+        col = -row-z;
+    }
+    else if(rowD > zD)
+    {
+        row = -col-z;
+    }
+    else
+        z = -row-col;
+
+    
+
+    return SDL_Point{ row, col };
 }
 
 void MainGame::calculateFPS()

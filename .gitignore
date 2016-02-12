@@ -1,4 +1,4 @@
-# built application files
+j# built application files
 *.apk
 *.ap_
 
@@ -35,6 +35,10 @@ proguard/
 
 # Windows clutter
 Thumbs.db
+
+# Vim clutter
+*.swp
+*.swo
 
 # Intellij IDEA (see https://intellij-support.jetbrains.com/entries/23393067)
 .idea/workspace.xml
