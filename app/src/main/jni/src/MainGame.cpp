@@ -377,32 +377,7 @@ void MainGame::processInput()
 			
             // Convert the touch position to a world position
             worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-
-            // Convert the world position to a row and column on the hex grid
-            rowCol = world_to_grid( worldPos );
-            row = rowCol.x;
-            col = rowCol.y;
-			
-			// if in range
-            /*
-			if( ((row * COLUMNS + col) < (ROWS * COLUMNS )) && ((row * COLUMNS + col) >= 0) )
-            {
-                T3E::Hex* hex = grid_[row * COLUMNS + col];
-                SDL_Log("Row %i col %i ", row, col);
-
-                if( hex->getType() == T3E::Hex::NORMAL_CELL || hex->getType() == T3E::Hex::MUTATED_CELL || hex->getType() == T3E::Hex::CANCEROUS_CELL )
-                {
-                    T3E::Cell* cell = (T3E::Cell*)hex;
-
-                    cell->makeGreen();
-                }
-                else if( hex->getType() == T3E::Hex::DEAD_CELL )
-                {
-                    // Set the cell to a blood vessle
-                    createBloodVessel( row, col );
-                }
-            }*/
-            
+                        
             // Draw cursor for debug purposes
             cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
             
@@ -411,7 +386,9 @@ void MainGame::processInput()
 		case SDL_FINGERUP:
 			--nOfFingers_;		
 
-            //if( nOfFingers_ == 0 )
+            // Only spawn cells when the last finger is lifted
+            // AND the cursor was not moved
+            if( nOfFingers_ == 0 && finger_dragged_ == false )
             {
                 // convert the touch to a world position
                 worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
