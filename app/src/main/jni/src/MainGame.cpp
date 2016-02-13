@@ -15,9 +15,9 @@ MainGame::MainGame() :
 {
 
     // Set all hexes to cells
-    for( int row = 0; row < CHUNK_WIDTH; row++ )
-    for( int col = 0; col < CHUNK_WIDTH; col++ )
-        grid_.newCell( row, col, nullptr );
+    //for( int row = 0; row < CHUNK_WIDTH; row++ )
+    //for( int col = 0; col < CHUNK_WIDTH; col++ )
+        //grid_.newCell( row, col, nullptr );
 
     SDL_Log("Initialised grid");
     SDL_Log("Num cells: %i", grid_.numCells() );
@@ -60,9 +60,9 @@ void MainGame::run()
 	initSystems();
 	
 	//load sprites
-	sprites_.push_back(new T3E::Sprite());
-	sprites_.back()->init(-0.5f, -0.5f, 1.0f, 1.0f,"textures/cell.png");//x, y, width, height
-	sprites_.push_back(new T3E::Sprite());
+	sprites_.push_back( new T3E::Sprite() );
+	sprites_.back()->init(-0.5f, -0.5f, 1.0f, 1.0f,"textures/cell.png"); // x, y, width, height
+	sprites_.push_back( new T3E::Sprite() );
 	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");
 
 	gameLoop();
@@ -81,13 +81,13 @@ void MainGame::initSystems()
 	// init camera at 0,0,1 looking at origin, up is y axis
 	camera_.init(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f,0.0f,0.0f));
 	camera_.setSensitivity(PAN_SENSITIVITY, ZOOM_SENSITIVITY);
-	camera_.moveTo(glm::vec3( 10.0f, 10.0f, 1.0f));//move to where stem cell is
+	camera_.moveTo(glm::vec3( 5.0f, 5.0f, 2.0f));
 
 	// init projection matrix
 	// calculate aspect ratio
-	window_.updateSizeInfo();//can do just once here since screen orientation is set to landscape always
+	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
 	float ratio = float(window_.getScreenWidth())/float(window_.getScreenHeight());	
-	projectionM_ = glm::perspective(90.0f, ratio, 0.1f, 100.0f);//fov 90°, aspect ratio, near and far clipping plane
+	projectionM_ = glm::perspective(90.0f, ratio, 0.1f, 100.0f); // fov 90°, aspect ratio, near and far clipping plane
 	
     /*
 	//fill grid with dead cells
@@ -342,9 +342,6 @@ void MainGame::gameLoop()
 
 void MainGame::processInput()
 {
-	//TEST STUFF
-	//for screen to world coord conversion
-	//glm::mat4 viewProjInverse;
 	glm::vec4 worldPos;
     SDL_Point rowCol;
     int row, col;
@@ -413,6 +410,17 @@ void MainGame::processInput()
 			
 		case SDL_FINGERUP:
 			--nOfFingers_;		
+
+            //if( nOfFingers_ == 0 )
+            {
+                // convert the touch to a world position
+                worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+                // convert the world pos to a grid row column
+                rowCol = world_to_grid( worldPos );
+                
+                grid_.newCell( rowCol.x, rowCol.y, nullptr );
+            }
+
             // Reset the type of touch if the last finger was released
             if( nOfFingers_ == 0 ) finger_dragged_ = false;
 			break;
@@ -487,7 +495,6 @@ void MainGame::renderGame()
 
 		// move to hex position
 		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
-		SDL_Log("Render at: %f %f",  grid_.getCell(i)->getX(), grid_.getCell(i)->getY() );
         //worldM_ = glm::translate( worldM_, glm::vec3( 10.0f, 10.0f, 0.0f ) );
 		finalM_ = projectionM_ * viewM_ * worldM_;
 		

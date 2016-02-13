@@ -5,6 +5,7 @@ namespace T3E
 {
     Grid::Grid()
     {
+        //*
         for( int col = 0; col < CHUNK_WIDTH; col++ )
         {
             for( int row = 0; row < CHUNK_WIDTH; row++ )
@@ -12,6 +13,7 @@ namespace T3E
                 grid_[ row * CHUNK_WIDTH + col ].init( row, col );
             }
         }
+        //*/
     }
 
     Grid::~Grid()
