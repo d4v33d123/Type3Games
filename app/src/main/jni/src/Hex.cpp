@@ -10,6 +10,11 @@ namespace T3E
     {
     }
 
+    Hex::~Hex()
+    {
+        delete node_;
+    }
+
     void Hex::init( int row, int col )
     {
         row_ = row;
@@ -23,11 +28,6 @@ namespace T3E
 
 
         SDL_Log("Set hex: %f %f", x_, y_ );
-    }
-
-    Hex::~Hex()
-    {
-        delete node_;
     }
 
     /*

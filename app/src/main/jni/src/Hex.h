@@ -5,6 +5,8 @@
 #include <vector>
 #include "Node.h"
 
+#define CHUNK_WIDTH 16
+
 namespace T3E
 {
     class Hex
@@ -17,16 +19,17 @@ namespace T3E
         void init( int row, int col );
 
         // Getters
-        int getRow() { return row_; }
-        int getCol() { return col_; }
-        float getX() { return x_; }
-        float getY() { return y_; }
-        Node* getNode() { return node_; }
-        NodeType getType() { return type_; }
+        inline int getRow() const { return row_; }
+        inline int getCol() const { return col_; }
+        inline float getX() const { return x_; }
+        inline float getY() const { return y_; }
+        inline Node* getNode() const { return node_; }
+        inline NodeType getType() const { return type_; }
 
         // Setters
-        void setNode( Node* node ) { node_ = node; }
-        void setType( NodeType type ) { type_ = type; }
+        inline void setNode( Node* node ) { node_ = node; }
+        inline void setType( NodeType type ) { type_ = type; }
+
 
     private:
         
@@ -37,6 +40,9 @@ namespace T3E
         float hexSize_; // Half width in OpenGL units TODO: this could be a #define instead? or constexpr
         glm::mat2 layout_, layoutInverse_; // Point top hex grid base vectors
     };
+
+    // Hex's are considered the same if they are in the same position, NOTE: their actual content is being ignored!
+    //inline bool operator == ( const Hex& lhs, const Hex& rhs ) { return ( lhs.getRow() == rhs.getRow() ) && ( lhs.getCol() == rhs.getCol() ); }
 
     /*
 	class Hex

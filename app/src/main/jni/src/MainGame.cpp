@@ -350,17 +350,17 @@ void MainGame::processInput()
 	SDL_Event evnt;
 	while (SDL_PollEvent(&evnt))
 	{
-		switch (evnt.type)
+		switch( evnt.type )
 		{
 		case SDL_QUIT:
 			gameState_ = GameState::EXIT;
 			break;
 			
 		case SDL_KEYDOWN:
-			if(evnt.key.keysym.sym == SDLK_AC_BACK)//android back key
+			if(evnt.key.keysym.sym == SDLK_AC_BACK) // android back key
 				gameState_ = GameState::EXIT;
 			
-			//EMULATOR ZOOM
+			// EMULATOR ZOOM
 			if(evnt.key.keysym.sym == SDLK_z)//zoom in
 			{
 				camera_.zoom(-0.05f);
@@ -386,7 +386,7 @@ void MainGame::processInput()
 		case SDL_FINGERUP:
 			--nOfFingers_;		
 
-            // Only spawn cells when the last finger is lifted
+            // Only spawn cells when the last finger is lifted,
             // AND the cursor was not moved
             if( nOfFingers_ == 0 && finger_dragged_ == false )
             {
@@ -405,17 +405,17 @@ void MainGame::processInput()
 		case SDL_FINGERMOTION:
             finger_dragged_ = true;
 
-			//pan if only one finger is on screen; you don't want to pan during pinch motion
-			if(nOfFingers_ < 2)
+			// pan if only one finger is on screen; you don't want to pan during pinch motion
+			if( nOfFingers_ < 2 )
 			{
-				camera_.moveDelta(glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f));
+				camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
 			}
 
 			break;
 		
 		case SDL_MULTIGESTURE: 		
-			//pinch zoom
-			camera_.zoom(-evnt.mgesture.dDist);
+			// pinch zoom
+			camera_.zoom( -evnt.mgesture.dDist );
 			break;
 			
 		default:
@@ -480,7 +480,7 @@ void MainGame::renderGame()
 
 		// set tint
 		//float tint[] = {cells_[i]->getTint().x , cells_[i]->getTint().y , cells_[i]->getTint().z, cells_[i]->getTint().w};
-        float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float tint[] = { 1.0f, 1.0f, 1.0f, 0.5f };
 		glUniform4fv(inputColour_location, 1, tint);
 
 		// set texture	

@@ -5,8 +5,6 @@
 #include <vector>
 #include "Hex.h"
 
-#define CHUNK_WIDTH 16
-
 namespace T3E
 {
     class Cell;
@@ -45,7 +43,7 @@ namespace T3E
 
         // [in] row of node to be deleted
         // [in] column of node to be deleted
-        void setEmpty( int row, int col ) {}
+        void setEmpty( int row, int col );
 
         inline Hex* getCell( int i ) { return cells_[i]; }
         inline int numCells() { return cells_.size(); }
