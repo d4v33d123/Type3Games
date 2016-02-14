@@ -12,15 +12,7 @@ MainGame::MainGame() :
 	PAN_SENSITIVITY(6.0f),
 	ZOOM_SENSITIVITY(6.0f),
     finger_dragged_(false)
-{
-
-        
-    // Set the first cell
-    grid_.newCell( 5, 5, nullptr );
-
-    SDL_Log("Initialised grid");
-    SDL_Log("Num cells: %i", grid_.numCells() );
-}
+{}
 
 MainGame::~MainGame()
 {
@@ -74,37 +66,22 @@ void MainGame::initSystems()
 	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
 
 	// enable aplha blending	
-	glEnable(GL_BLEND);//should we instead use frame buffer fetch in shader?
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	
+	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
+	glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 	
 	// init camera at 0,0,1 looking at origin, up is y axis
-	camera_.init(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f,0.0f,0.0f));
-	camera_.setSensitivity(PAN_SENSITIVITY, ZOOM_SENSITIVITY);
-	camera_.moveTo(glm::vec3( 5.0f, 5.0f, 2.0f));
+	camera_.init( glm::vec3( 0.0f, 0.0f, 1.0f ), glm::vec3( 0.0f,0.0f,0.0f ) );
+	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
+	camera_.moveTo(glm::vec3( 5.0f, 5.0f, 2.0f ) );
 
 	// init projection matrix
 	// calculate aspect ratio
 	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
-	float ratio = float(window_.getScreenWidth())/float(window_.getScreenHeight());	
-	projectionM_ = glm::perspective(90.0f, ratio, 0.1f, 100.0f); // fov 90°, aspect ratio, near and far clipping plane
-	
-    /*
-	//fill grid with dead cells
-	grid_.reserve(ROWS*COLUMNS);
-	for(int r = 0; r < ROWS; ++r)
-		for(int c = 0; c < COLUMNS; ++c)
-		{
-			grid_[r*COLUMNS + c] = new T3E::Cell();
-			grid_[r*COLUMNS + c]->init(c, r, COLUMNS, ROWS);
-			grid_[r*COLUMNS + c]->setType( T3E::Hex::NORMAL_CELL );
-			cells_.push_back(static_cast<T3E::Cell*>(grid_[r*COLUMNS + c]));
-		}	
-	//create a stem cell in the middleish
-	grid_[15 * COLUMNS + 15]->setType( T3E::Hex::STEM_CELL );
-	cells_.push_back(static_cast<T3E::Cell*>(grid_[15*COLUMNS + 15]));
-
-	createBloodVessel(19, 19);
-    */
+	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	
+	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
+	        
+    // Set the first cell
+    grid_.newCell( 5, 5, nullptr );
 
 	// init shaders
 	initShaders();
@@ -133,7 +110,7 @@ void MainGame::gameLoop()
 	glEnable(GL_CULL_FACE);//GL_BACK is default value
 	
 	//our game loop
-	while (gameState_ != GameState::EXIT)
+	while( gameState_ != GameState::EXIT )
 	{
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();
@@ -319,7 +296,7 @@ void MainGame::gameLoop()
 		// print once every 10 frames
 		static int frameCounter = 0;
 		frameCounter++;
-		if (frameCounter == 10)
+		if( frameCounter == 10 )
 		{
 			//SDL_Log("%f\n", _fps);
 			frameCounter = 0;
@@ -333,9 +310,9 @@ void MainGame::gameLoop()
 		}	
 	}
 	
-	glDisable(GL_CULL_FACE);	
+	glDisable( GL_CULL_FACE );
 		
-	window_.destroy();//useful?
+	window_.destroy(); // useful?
 	SDL_Quit();
 }
 
@@ -467,12 +444,8 @@ void MainGame::renderGame()
 	//cells
 	for(int i = 0; i < grid_.numCells(); ++i)
 	{
-        // Don't render cells that are part of a blood vessle
-        //if( cells_[i]->getType() == T3E::Hex::BLOOD_VESSEL ) continue;//###should take out of living cells vector
-
 		// move to hex position
 		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
-        //worldM_ = glm::translate( worldM_, glm::vec3( 10.0f, 10.0f, 0.0f ) );
 		finalM_ = projectionM_ * viewM_ * worldM_;
 		
 		// send matrix to shaders
@@ -480,7 +453,7 @@ void MainGame::renderGame()
 
 		// set tint
 		//float tint[] = {cells_[i]->getTint().x , cells_[i]->getTint().y , cells_[i]->getTint().z, cells_[i]->getTint().w};
-        float tint[] = { 1.0f, 1.0f, 1.0f, 0.5f };
+        float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		glUniform4fv(inputColour_location, 1, tint);
 
 		// set texture	
@@ -505,7 +478,7 @@ void MainGame::renderGame()
         glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr( finalM_ ) );
 
         // Set tint
-        float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float tint[] = { 0.0f, 0.0f, 0.5f, 0.2f };
         glUniform4fv( inputColour_location, 1, tint );
 
         // Set texture
@@ -523,34 +496,6 @@ void MainGame::renderGame()
 
 	// swap our buffers 
 	window_.swapBuffer();
-}
-
-glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
-{
-    glm::vec4 result( touch_coord.x, touch_coord.y, 0.0f, 1.0f );
-
-    result.x = result.x * 2.0f - 1.0f;
-    result.y = result.y * 2.0f - 1.0f;
-    result.y *= -1.0f; // Invert to match OpenGL coords
-    
-    //SDL_Log("Touch at NDC: %f %f", result.x, result.y );
-
-    // Calculate the inverse matrix of the view and projection
-    viewProjInverse = glm::inverse( projectionM_ * viewM_ );
-
-    // multiply the touch position by that
-    result = viewProjInverse * result;
-    
-    // divide by w
-    result.x /= result.w;
-    result.y /= result.w;
-
-    // scale the position to account for zoom
-    result.x = camera_.getPosition().x + ( result.x - camera_.getPosition().x ) * result.w * camera_.getPosition().z;
-    result.y = camera_.getPosition().y + ( result.y - camera_.getPosition().y ) * result.w * camera_.getPosition().z;
-
-    SDL_Log("World coord: %f %f", result.x, result.y);
-    return result;
 }
 
 void MainGame::tryNewCell( int row, int col )
@@ -572,6 +517,32 @@ void MainGame::tryNewCell( int row, int col )
             }
         }
     }
+}
+
+glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
+{
+    glm::vec4 result( touch_coord.x, touch_coord.y, 0.0f, 1.0f );
+
+    result.x = result.x * 2.0f - 1.0f;
+    result.y = result.y * 2.0f - 1.0f;
+    result.y *= -1.0f; // Invert to match OpenGL coords
+    
+    // Calculate the inverse matrix of the view and projection
+    viewProjInverse = glm::inverse( projectionM_ * viewM_ );
+
+    // multiply the touch position by that
+    result = viewProjInverse * result;
+    
+    // divide by w
+    result.x /= result.w;
+    result.y /= result.w;
+
+    // scale the position to account for zoom
+    result.x = camera_.getPosition().x + ( result.x - camera_.getPosition().x ) * result.w * camera_.getPosition().z;
+    result.y = camera_.getPosition().y + ( result.y - camera_.getPosition().y ) * result.w * camera_.getPosition().z;
+
+    SDL_Log("World coord: %f %f", result.x, result.y);
+    return result;
 }
 
 SDL_Point MainGame::world_to_grid( glm::vec4 world_coord )

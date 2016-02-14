@@ -39,7 +39,7 @@ namespace T3E
         // [in] column to create cell
         // [out/nullptr] the newly created blood vessel, nulptr if the caller doesn't care
         // [ret] true if the givenrow/col lie on the board & bloodVessel created, false otherwise
-        bool newBloodVessel( int row, int col, BloodVessel** createdBloodVessel ) {}
+        bool newBloodVessel( int row, int col, BloodVessel** createdBloodVessel );
 
         // [in] row of node to be deleted
         // [in] column of node to be deleted

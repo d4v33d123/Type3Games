@@ -6,17 +6,17 @@
 
 namespace T3E
 {
-	class BloodVessel: public Hex
+	class BloodVessel: public Node
 	{
 	public:		
 		//virtual void init(int column, int row, int gridColumns, int gridRows);//coords of central hex
 		//getters
-		glm::vec4 getTint() { return tint_; }
-		float getRange() { return range_; }
+		//glm::vec4 getTint() { return tint_; }
+		//float getRange() { return range_; }
 		
 	private:
-		float range_;
-		glm::vec4 tint_;//colour for shader
+		//float range_;
+		//glm::vec4 tint_;//colour for shader
 	};
 }
 

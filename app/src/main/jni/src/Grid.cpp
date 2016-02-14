@@ -1,5 +1,6 @@
 #include "Grid.h"
 #include "Cell.h"
+#include "BloodVessel.h"
 
 namespace T3E
 {
@@ -101,6 +102,54 @@ namespace T3E
         return true;
     }
 
+    bool Grid::newBloodVessel( int row, int col, BloodVessel** createdBloodVessel )
+    {
+        Node* current;
+        BloodVessel* newBloodVessel;
+
+        if( getNode( row, col, &current ) )
+        {
+            // If there was a node already there, clean it up!
+            if( current != nullptr )
+                setEmpty( row, col );
+
+            // Initialise the new blood vessel
+            newBloodVessel = new BloodVessel();
+                
+            // Save the new blood vessel to the correct hex in the grid
+            Hex* hex = &grid_[ row * CHUNK_WIDTH + col ];
+            hex->setNode( (Node*)newBloodVessel );
+            hex->setType( NodeType::BLOOD_VESSEL );
+
+            // And store it in the vector
+            bloodVessels_.push_back( hex );
+
+            // Set the neighbours nodes to also point to the new blood vessel
+            Hex* neighbours[6];
+            for( int i = 0; i < 6; i++ )
+            {
+                // getNeighbours returns a nullptr to represent nodes that do not exist
+                if( neighbours[i] == nullptr ) continue;
+
+                // Delete the old contents of the node
+                setEmpty( neighbours[i]->getRow(), neighbours[i]->getCol() );
+
+                // Set the neghbours pointer to point to the newBloodVessel
+                neighbours[i]->setNode( newBloodVessel );
+            }
+
+            // If the caller requested a ptr to the blood vessel, git it to them
+            if( createdBloodVessel != nullptr )
+                *createdBloodVessel = newBloodVessel;
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     void Grid::setEmpty( int row, int col )
     {
         if( !hexExists( row, col ) )
@@ -121,6 +170,7 @@ namespace T3E
                 }
             }
         }
+        // TODO: Remove blood vessels from the vector and empty their neighbours!!!!
 
         // Delete the node itself, set the hex's node to nullptr and set the hex to emtpy, 
         delete nodeToDelete;
