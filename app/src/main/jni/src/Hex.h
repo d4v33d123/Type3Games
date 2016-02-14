@@ -30,7 +30,6 @@ namespace T3E
         inline void setNode( Node* node ) { node_ = node; }
         inline void setType( NodeType type ) { type_ = type; }
 
-
     private:
         
         Node* node_;    // Contains the functionality of the hex
@@ -39,6 +38,7 @@ namespace T3E
         float x_, y_;   // World coords
         float hexSize_; // Half width in OpenGL units TODO: this could be a #define instead? or constexpr
         glm::mat2 layout_, layoutInverse_; // Point top hex grid base vectors
+        
     };
 
     // Hex's are considered the same if they are in the same position, NOTE: their actual content is being ignored!

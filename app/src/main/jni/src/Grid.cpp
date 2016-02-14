@@ -27,6 +27,45 @@ namespace T3E
         return true;
     }
 
+    bool Grid::getNeighbours( int row, int col, Hex** neighbours )
+    {
+        if( !hexExists( row, col ) )
+            return false;
+
+        int i = 0, nr = row, nc = col - 1;
+        
+        if( !hexExists( nr, nc) ) neighbours[i] = nullptr;
+        else neighbours[i] = &grid_[ nr * CHUNK_WIDTH + nc ];
+
+        i++; nr = row + 1;
+
+        if( !hexExists( nr, nc) ) neighbours[i] = nullptr;
+        else neighbours[i] = &grid_[ nr * CHUNK_WIDTH + nc ];
+
+        i++; nr = row - 1; nc = col;
+
+        if( !hexExists( nr, nc) ) neighbours[i] = nullptr;
+        else neighbours[i] = &grid_[ nr * CHUNK_WIDTH + nc ];
+
+        i++; nr = row + 1;
+
+        if( !hexExists( nr, nc) ) neighbours[i] = nullptr;
+        else neighbours[i] = &grid_[ nr * CHUNK_WIDTH + nc ];
+
+        i++; nr = row - 1; nc = col + 1;
+
+        if( !hexExists( nr, nc) ) neighbours[i] = nullptr;
+        else neighbours[i] = &grid_[ nr * CHUNK_WIDTH + nc ];
+
+        i++; nr = row;
+
+        if( !hexExists( nr, nc) ) neighbours[i] = nullptr;
+        else neighbours[i] = &grid_[ nr * CHUNK_WIDTH + nc ];
+
+        return true;
+
+    }
+
     bool Grid::newCell( int row, int col, Cell** createdCell )
     {
         Node* current;

@@ -14,10 +14,9 @@ MainGame::MainGame() :
     finger_dragged_(false)
 {
 
-    // Set all hexes to cells
-    //for( int row = 0; row < CHUNK_WIDTH; row++ )
-    //for( int col = 0; col < CHUNK_WIDTH; col++ )
-        //grid_.newCell( row, col, nullptr );
+        
+    // Set the first cell
+    grid_.newCell( 5, 5, nullptr );
 
     SDL_Log("Initialised grid");
     SDL_Log("Num cells: %i", grid_.numCells() );
@@ -345,6 +344,7 @@ void MainGame::processInput()
 	glm::vec4 worldPos;
     SDL_Point rowCol;
     int row, col;
+    T3E::Hex* neighbours;
 	
 	// processing our input
 	SDL_Event evnt;
@@ -395,7 +395,7 @@ void MainGame::processInput()
                 // convert the world pos to a grid row column
                 rowCol = world_to_grid( worldPos );
                 
-                grid_.newCell( rowCol.x, rowCol.y, nullptr );
+                tryNewCell( rowCol.x, rowCol.y );
             }
 
             // Reset the type of touch if the last finger was released
@@ -551,6 +551,27 @@ glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
 
     SDL_Log("World coord: %f %f", result.x, result.y);
     return result;
+}
+
+void MainGame::tryNewCell( int row, int col )
+{
+    T3E::Hex* neighbours[6];
+
+    // Check the cell has a live neighbour
+    if( grid_.getNeighbours( row, col, neighbours ) )
+    {
+        // Check at least one of the neighbours is alive
+        for( int i = 0; i < 6; i++ )
+        {
+            if( neighbours[i] != nullptr )
+            {
+                if( neighbours[i]->getType() == T3E::NodeType::CELL )
+                {
+                    grid_.newCell( row, col, nullptr );
+                }
+            }
+        }
+    }
 }
 
 SDL_Point MainGame::world_to_grid( glm::vec4 world_coord )

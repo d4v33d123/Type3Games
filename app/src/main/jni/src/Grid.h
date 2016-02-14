@@ -24,10 +24,10 @@ namespace T3E
 
         // [in] row of central node
         // [in] column of central node
-        // [out] pointer to Node*[6], array must have 6 elements!
+        // [out] pointer to Hex*[6], array must have 6 elements!
         // Nodes that are uninitalised have NodeType::EMPTY
         // Nodes that do not exist are returned as nullptrs
-        bool getNeighbours( int row, int col, Hex** neighbours ) {}
+        bool getNeighbours( int row, int col, Hex** neighbours );
 
         // [in] row to create cell
         // [in] column to create cell
