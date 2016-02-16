@@ -79,7 +79,7 @@ private:
 	
 	void createBloodVessel(int row, int column);
 
-    void tryNewCell( int row, int col );
+    void growAt( int row, int col );
 	
 	//GRAPHICS
 	T3E::GLSLProgram cellProgram_;//shader programs

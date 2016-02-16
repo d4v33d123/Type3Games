@@ -45,6 +45,10 @@ namespace T3E
         // [in] column of node to be deleted
         void setEmpty( int row, int col );
 
+        // TODO: decide if this shoud return true of false if the hex doesn't exist, which is more intuitive?
+        // [ret] false if the hex doesn't exist, true if it exists and is empty, false if it exists and is not empty
+        inline bool isEmpty( int row, int col ) { if( !hexExists( row, col ) ) return false; return grid_[row*CHUNK_WIDTH+col].getType() == NodeType::EMPTY; }
+
         inline Hex* getCell( int i ) { return cells_[i]; }
         inline int numCells() { return cells_.size(); }
 

@@ -347,7 +347,7 @@ void MainGame::processInput()
                 // convert the world pos to a grid row column
                 rowCol = world_to_grid( worldPos );
                 
-                tryNewCell( rowCol.x, rowCol.y );
+                growAt( rowCol.x, rowCol.y );
             }
 
             // Reset the type of touch if the last finger was released
@@ -469,25 +469,47 @@ void MainGame::renderGame()
 	window_.swapBuffer();
 }
 
-void MainGame::tryNewCell( int row, int col )
+void MainGame::growAt( int row, int col )
 {
     T3E::Hex* neighbours[6];
+    int adjacentCells = 0;
+    int adjacentBlood = 0;
+
+    // return immidiately if the growth coord is not avalible
+    if( !grid_.isEmpty( row, col ) ) return;
 
     // Check the cell has a live neighbour
     if( grid_.getNeighbours( row, col, neighbours ) )
     {
-        // Check at least one of the neighbours is alive
+        // Count the number of adjacent cells
         for( int i = 0; i < 6; i++ )
         {
             if( neighbours[i] != nullptr )
             {
-                if( neighbours[i]->getType() == T3E::NodeType::CELL )
+                switch( neighbours[i]->getType() )
                 {
-                    grid_.newCell( row, col, nullptr );
-                    return;
+                    case T3E::NodeType::CELL:
+                        adjacentCells++;
+                        break;
+
+                    case T3E::NodeType::BLOOD_VESSEL_CORE:
+                    case T3E::NodeType::BLOOD_VESSEL_EDGE:
+                        adjacentBlood++;
+                        break;
+                        
+                    default: continue;
                 }
             }
         }
+    }
+
+    if( (adjacentCells > 0 && adjacentCells < 6) || adjacentBlood > 0 )
+    {
+        grid_.newCell( row, col, nullptr );
+    }
+    else if( adjacentCells == 6 )
+    {
+        grid_.newBloodVessel( row, col, nullptr );
     }
 }
 
