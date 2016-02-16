@@ -18,34 +18,6 @@ MainGame::~MainGame()
 {
 }
 
-/*
-void MainGame::createBloodVessel(int row, int column)
-{
-	//create a blood vessel
-    //TODO: Memory Leak!!!!
-    //This is overwriting the pointer whatever was in this position before without deleting it!
-    delete grid_[row*COLUMNS + column];
-	grid_[row*COLUMNS + column] = new T3E::BloodVessel();
-	grid_[row*COLUMNS + column]->init(column, row, COLUMNS, ROWS);
-	bloodVessels_.push_back(static_cast<T3E::BloodVessel*>(grid_[row*COLUMNS + column]));
-	
-	//loop trough neighbors and set their type to BLOOD_VESSEL
-	//technically they will still remain cells
-	//this is dirty af... but less overhead and more locality compared to creating 7 new pointers maybe is worth it?
-	for(int n = 0; n < 6; ++n)
-	{
-		int nr, nc;//neighbor's row and column
-		nr = grid_[row*COLUMNS + column]->getNeighbors()[n].row;
-		nc = grid_[row*COLUMNS + column]->getNeighbors()[n].col;
-		//not checking if coordinates are in range since this is done when checking neighbors of the centre hex
-        delete grid_[nr * COLUMNS + nc];
-		grid_[nr*COLUMNS + nc]->setType(T3E::Hex::BLOOD_VESSEL);
-	}
-	
-	//now update all the cells in range to be affected???
-	//or only affect cells that are born after the bv is created???
-}*/
-
 void MainGame::run()
 {
 	initSystems();
@@ -82,6 +54,9 @@ void MainGame::initSystems()
 	        
     // Set the first cell
     grid_.newCell( 5, 5, nullptr );
+
+    // Set a test blood vessel
+    grid_.newBloodVessel( 7, 7, nullptr );
 
 	// init shaders
 	initShaders();
@@ -395,8 +370,7 @@ void MainGame::processInput()
 			camera_.zoom( -evnt.mgesture.dDist );
 			break;
 			
-		default:
-			break;
+		default: break;
 		}
 	}
 }
@@ -415,17 +389,17 @@ void MainGame::renderGame()
 	cellProgram_.use();
 	
 	//blood vessels
-    /*
-	for(int i = 0; i < bloodVessels_.size(); ++i)
+	for(int i = 0; i < grid_.numBloodVessels(); ++i)
 	{
 		//move to hex position
-		//worldM_ = glm::translate(worldM_, glm::vec3(bloodVessels_[i]->getX(), bloodVessels_[i]->getY(), 0.0f));
-		finalM_ = projectionM_*viewM_*worldM_;
+		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getBloodVessel(i)->getX(), grid_.getBloodVessel(i)->getY(), 0.0f ) );
+		finalM_ = projectionM_ * viewM_ * worldM_;
 		
 		//send matrix to shaders
 		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//set tint
 		//float tint[] = {bloodVessels_[i]->getTint().x , bloodVessels_[i]->getTint().y , bloodVessels_[i]->getTint().z, bloodVessels_[i]->getTint().w};
+        float tint[] = { 1.0f, 0.2f, 0.2f, 1.0f };
 		glUniform4fv(inputColour_location, 1, tint);
 		
         //set texture	
@@ -434,12 +408,9 @@ void MainGame::renderGame()
 		sprites_[1]->draw();
 		
 		//reset matrices
-		//make an identityM object to reset instead of creating new one a bagillion times?
-		//or having to fetch other non local obj even worse?
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_ * viewM_ * worldM_;
 	}
-    */
 	
 	//cells
 	for(int i = 0; i < grid_.numCells(); ++i)

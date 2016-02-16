@@ -1,6 +1,7 @@
 #include "Grid.h"
 #include "Cell.h"
 #include "BloodVessel.h"
+#include "SDL.h"
 
 namespace T3E
 {
@@ -104,6 +105,8 @@ namespace T3E
 
     bool Grid::newBloodVessel( int row, int col, BloodVessel** createdBloodVessel )
     {
+        SDL_Log("New blood vessel: ");
+
         Node* current;
         BloodVessel* newBloodVessel;
 
@@ -115,6 +118,8 @@ namespace T3E
 
             // Initialise the new blood vessel
             newBloodVessel = new BloodVessel();
+
+            SDL_Log("Created");
                 
             // Save the new blood vessel to the correct hex in the grid
             Hex* hex = &grid_[ row * CHUNK_WIDTH + col ];
@@ -124,19 +129,27 @@ namespace T3E
             // And store it in the vector
             bloodVessels_.push_back( hex );
 
+            SDL_Log("Stored in vector");
+
             // Set the neighbours nodes to also point to the new blood vessel
             Hex* neighbours[6];
+            getNeighbours( row, col, neighbours );
             for( int i = 0; i < 6; i++ )
             {
                 // getNeighbours returns a nullptr to represent nodes that do not exist
                 if( neighbours[i] == nullptr ) continue;
 
+                SDL_Log("Set empty: %i %i", neighbours[i]->getRow(), neighbours[i]->getCol() );
+                
                 // Delete the old contents of the node
                 setEmpty( neighbours[i]->getRow(), neighbours[i]->getCol() );
+
 
                 // Set the neghbours pointer to point to the newBloodVessel
                 neighbours[i]->setNode( newBloodVessel );
             }
+
+            SDL_Log("Got neighbours");
 
             // If the caller requested a ptr to the blood vessel, git it to them
             if( createdBloodVessel != nullptr )
@@ -147,6 +160,7 @@ namespace T3E
             return false;
         }
 
+        SDL_Log("Reached end");
         return true;
     }
 

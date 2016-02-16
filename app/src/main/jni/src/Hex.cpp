@@ -25,9 +25,6 @@ namespace T3E
         layoutInverse_  = glm::mat2( sqrt(3.0f) / 3.0f, -1.0f / 3.0f, 0.0f, 2.0f / 3.0f );
 		x_ = (layout_[0][0] * col_ + layout_[0][1] * row_) * hexSize_;
 		y_ = (layout_[1][0] * col_ + layout_[1][1] * row_) * hexSize_;
-
-
-        SDL_Log("Set hex: %f %f", x_, y_ );
     }
 
     /*

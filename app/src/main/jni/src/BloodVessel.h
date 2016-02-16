@@ -6,9 +6,12 @@
 
 namespace T3E
 {
-	class BloodVessel: public Node
+	class BloodVessel : public Node
 	{
-	public:		
+	public:
+        BloodVessel() {}
+        virtual ~BloodVessel() {}
+
 		//virtual void init(int column, int row, int gridColumns, int gridRows);//coords of central hex
 		//getters
 		//glm::vec4 getTint() { return tint_; }
