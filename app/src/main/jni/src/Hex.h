@@ -13,6 +13,9 @@ namespace T3E
     {
     public:
         
+        // Hex's are initialise to empty
+        // that is Node* == nullptr and NodeType == NodeType::EMPTY
+
         Hex();
         ~Hex();
 

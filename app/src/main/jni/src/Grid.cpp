@@ -105,8 +105,6 @@ namespace T3E
 
     bool Grid::newBloodVessel( int row, int col, BloodVessel** createdBloodVessel )
     {
-        SDL_Log("New blood vessel: ");
-
         Node* current;
         BloodVessel* newBloodVessel;
 
@@ -119,17 +117,13 @@ namespace T3E
             // Initialise the new blood vessel
             newBloodVessel = new BloodVessel();
 
-            SDL_Log("Created");
-                
             // Save the new blood vessel to the correct hex in the grid
-            Hex* hex = &grid_[ row * CHUNK_WIDTH + col ];
-            hex->setNode( (Node*)newBloodVessel );
-            hex->setType( NodeType::BLOOD_VESSEL );
+            const int hexPos = row * CHUNK_WIDTH + col;
+            grid_[ hexPos ].setNode( (Node*)newBloodVessel );
+            grid_[ hexPos ].setType( NodeType::BLOOD_VESSEL_CORE );
 
             // And store it in the vector
-            bloodVessels_.push_back( hex );
-
-            SDL_Log("Stored in vector");
+            bloodVessels_.push_back( &grid_[ hexPos ] );
 
             // Set the neighbours nodes to also point to the new blood vessel
             Hex* neighbours[6];
@@ -139,17 +133,13 @@ namespace T3E
                 // getNeighbours returns a nullptr to represent nodes that do not exist
                 if( neighbours[i] == nullptr ) continue;
 
-                SDL_Log("Set empty: %i %i", neighbours[i]->getRow(), neighbours[i]->getCol() );
-                
                 // Delete the old contents of the node
                 setEmpty( neighbours[i]->getRow(), neighbours[i]->getCol() );
 
-
                 // Set the neghbours pointer to point to the newBloodVessel
                 neighbours[i]->setNode( newBloodVessel );
+                neighbours[i]->setType( NodeType::BLOOD_VESSEL_EDGE );
             }
-
-            SDL_Log("Got neighbours");
 
             // If the caller requested a ptr to the blood vessel, git it to them
             if( createdBloodVessel != nullptr )
@@ -160,7 +150,6 @@ namespace T3E
             return false;
         }
 
-        SDL_Log("Reached end");
         return true;
     }
 
@@ -168,6 +157,7 @@ namespace T3E
     {
         if( !hexExists( row, col ) )
             return;
+
 
         int hexPos = row * CHUNK_WIDTH + col;
         Node* nodeToDelete = grid_[ hexPos ].getNode();
@@ -184,7 +174,45 @@ namespace T3E
                 }
             }
         }
-        // TODO: Remove blood vessels from the vector and empty their neighbours!!!!
+        else if( grid_[ hexPos ].getType() == NodeType::BLOOD_VESSEL_EDGE )
+        {
+            // If the node is the edge of a blood vessel
+            // Search for the core of the blood vessel
+            Hex* neighbours[6];
+            getNeighbours( row, col, neighbours );
+            for( int i = 0; i < 6; i++ )
+            {
+                if( neighbours[i]->getType() == NodeType::BLOOD_VESSEL_CORE )
+                {
+                    SDL_Log("Found edge");
+                    // then call setEmpty on the core!
+                    setEmpty( neighbours[i]->getRow(), neighbours[i]->getCol() );
+                    return;
+                }
+            }
+
+        }
+        else if( grid_[ hexPos ].getType() == NodeType::BLOOD_VESSEL_CORE )
+        {
+            // Remove the blood vessel from the vector
+            for( auto it = bloodVessels_.begin(); it != bloodVessels_.end(); ++it )
+            {
+                if( *it == &grid_[ hexPos ] )
+                {
+                    bloodVessels_.erase( it );
+                    break;
+                }
+            }
+
+            // Set the edges to empty
+            Hex* neighbours[6];
+            getNeighbours( row, col, neighbours );
+            for( int i = 0; i < 6; i++ )
+            {
+                grid_[ neighbours[i]->getRow() * CHUNK_WIDTH + neighbours[i]->getCol() ].setNode( nullptr );
+                grid_[ neighbours[i]->getRow() * CHUNK_WIDTH + neighbours[i]->getCol() ].setType( NodeType::EMPTY );
+            }
+        }
 
         // Delete the node itself, set the hex's node to nullptr and set the hex to emtpy, 
         delete nodeToDelete;
@@ -196,8 +224,8 @@ namespace T3E
     {
         if( row < 0 ) return false;
         if( col < 0 ) return false;
-        if( row > CHUNK_WIDTH - 1 ) return false;
-        if( col > CHUNK_WIDTH - 1 ) return false;
+        if( row >= CHUNK_WIDTH ) return false;
+        if( col >= CHUNK_WIDTH ) return false;
 
         return true;
     }

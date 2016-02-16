@@ -484,6 +484,7 @@ void MainGame::tryNewCell( int row, int col )
                 if( neighbours[i]->getType() == T3E::NodeType::CELL )
                 {
                     grid_.newCell( row, col, nullptr );
+                    return;
                 }
             }
         }
@@ -512,7 +513,6 @@ glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
     result.x = camera_.getPosition().x + ( result.x - camera_.getPosition().x ) * result.w * camera_.getPosition().z;
     result.y = camera_.getPosition().y + ( result.y - camera_.getPosition().y ) * result.w * camera_.getPosition().z;
 
-    SDL_Log("World coord: %f %f", result.x, result.y);
     return result;
 }
 
