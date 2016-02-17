@@ -2,7 +2,11 @@
 
 namespace T3E
 {
-    Cell::Cell()
+    Cell::Cell():
+	tint_ (glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
+	normalTint_(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
+	brightTint_(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
+	selected_(false)
     {
     }
 
@@ -10,25 +14,57 @@ namespace T3E
     {
     }
 
-    /*
-	void Cell::init(int column, int row, int gridColumns, int gridRows)
+	void Cell::init(CellState state, int deathChance)
 	{
-		//init hex coorinates
-		Hex::init(column, row, gridColumns, gridRows);
-		tint_ = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
-		splitTimer_ = 0.0f;
-		splitTime_ = -1.0f;
-		deathChance_ = 0;
-		//init type to dead
-		type_ = DEAD_CELL;
+		//init split time and timer
+		splitTimer_ = 0;
+		newSplitTime();
+		
+		switch(state)
+		{
+		case CellState::STEM:
+			state_ = state;
+			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
+			deathChance_ = 0;
+			break;
+		case CellState::NORMAL:
+			state_ = state;
+			normalTint_ = glm::vec4(0.0f, 0.7f, 1.0f, 1.0f); // blue
+			deathChance_ = deathChance;
+			break;	
+		case CellState::MUTATED:
+			state_ = state;
+			normalTint_ = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f); // orange
+			deathChance_ = deathChance;
+			break;
+		case CellState::CANCEROUS:
+			state_ = state;
+			normalTint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // magenta
+			deathChance_ = 0;
+			break;
+		default:
+			break;
+		}
+
+		tint_ = normalTint_;
+		brightTint_ = normalTint_*2.0f;
 	}
 	
 	bool Cell::update(float dTime)
 	{
-		if((splitTimer_ += dTime) >= splitTime_)
+		if(state_ != CellState::ARRESTED)
 		{
-			splitTimer_ = 0.0f;
-			return true;
+			//TODO: ANIMATION CODE HERE
+		
+			if((splitTimer_ += dTime) >= splitTime_)
+			{
+				//reset split timer
+				splitTimer_ = 0.0f;
+				//get a new random split time
+				newSplitTime();
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}
@@ -38,36 +74,23 @@ namespace T3E
 		splitTime_ = min + (rand() % max);
 	}
 	
-	void Cell::setType(type t, int parentDeathChance)
+	void Cell::arrest()
 	{
-		switch(t)
-		{
-		case STEM_CELL:
-			type_ = t;
-			tint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
-			deathChance_ = 0;
-			break;
-		case NORMAL_CELL:
-			type_ = t;
-			tint_ = glm::vec4(0.0f, 0.7f, 1.0f, 1.0f); // blue
-			deathChance_ = parentDeathChance;
-			break;	
-		case MUTATED_CELL:
-			type_ = t;
-			tint_ = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f); // orange
-			deathChance_ = parentDeathChance;
-			break;
-		case CANCEROUS_CELL:
-			type_ = t;
-			tint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // magenta
-			deathChance_ = 0;
-			break;
-		default:
-			type_ = t;
-			break;
-		}
-		//get a random split time
-		newSplitTime();
+		state_ = CellState::ARRESTED;
+		tint_ = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f); // grey
+		deathChance_ = 0;
+		splitTimer_ = 0.0f;
 	}
-    */
+	
+	void Cell::select()
+	{
+		selected_ = true;
+		tint_ = brightTint_;
+	}
+	
+	void Cell::unselect()
+	{
+		selected_ = false;
+		tint_ = normalTint_;
+	}
 }

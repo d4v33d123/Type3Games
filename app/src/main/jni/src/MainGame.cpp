@@ -7,11 +7,12 @@ MainGame::MainGame() :
 	gameState_(GameState::PLAY),
 	maxFPS_(60.0f),
 	nOfFingers_(0),
-	ROWS(50),
-	COLUMNS(50),
 	PAN_SENSITIVITY(6.0f),
 	ZOOM_SENSITIVITY(6.0f),
-    finger_dragged_(false)
+    finger_dragged_(false),
+	pressTimer_(0),
+	fingerPressed_(false),
+	cellSelected_(false)
 {}
 
 MainGame::~MainGame()
@@ -53,7 +54,7 @@ void MainGame::initSystems()
 	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
 	        
     // Set the first cell
-    grid_.newCell( 5, 5, nullptr );
+    grid_.newCell( 5, 5, T3E::CellState::STEM, 0, nullptr );
 
     // Set a test blood vessel
     grid_.newBloodVessel( 7, 7, nullptr );
@@ -89,185 +90,14 @@ void MainGame::gameLoop()
 	{
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();
-
-		processInput();
+		
 		time_ += 0.1f;
-		renderGame();
 		calculateFPS();			
-		
-		/*
-		//TEMPORARY TEST CODE
-		//SELF SPAWNING BLOOD VESSELS
-		for(int pos = 0; pos < (ROWS*COLUMNS); ++pos)
-		{
-			//if cell is empty
-			if(grid_[pos]->getType() == T3E::Hex::DEAD_CELL)
-			{
-				int cellCount = 0;
-				int nr, nc;//neighbor's row and column
+		if(grid_.update(frameTime_))
+			cellSelected_ = false;
+		renderGame();
+		processInput(frameTime_);
 				
-				//check each neighbor has a cell in it
-				for(int nbr = 0; nbr < 6; ++nbr)
-				{
-					nr = grid_[pos]->getNeighbors()[nbr].row;
-					nc = grid_[pos]->getNeighbors()[nbr].col;
-					//if nbr pos is valid
-					if(nr != -1)
-					{
-						T3E::Hex::type t = grid_[nr*COLUMNS + nc]->getType();
-						//if there's a cell inc counter
-						if(t != T3E::Hex::DEAD_CELL && t != T3E::Hex::BLOOD_VESSEL)
-							++cellCount;
-						else
-							break;
-					}
-				}
-				//if there's a hex ring
-				if(cellCount == 6)
-				{
-					//kill cells in the ring
-					for(int nbr = 0; nbr < 6; ++nbr)
-					{
-						nr = grid_[pos]->getNeighbors()[nbr].row;
-						nc = grid_[pos]->getNeighbors()[nbr].col;
-						grid_[nr*COLUMNS + nc]->setType(T3E::Hex::DYING_CELL);
-						//remove dead cells
-						int i = 0;
-						while (i < cells_.size())
-						{
-							if (cells_[i]->getType() == T3E::Hex::DYING_CELL)
-							{
-								cells_[i]->setType(T3E::Hex::DEAD_CELL);
-								cells_.erase( cells_.begin() + i );
-							}
-							else 
-								++i;
-						}
-					}
-					//create bv in centre
-					createBloodVessel(pos/COLUMNS, pos%COLUMNS);
-				}					
-			}
-		}
-		*/
-		
-		/*
-		//for each living cell
-		for(int i = 0; i < cells_.size(); ++i)
-		{
-			//if it's time to split
-			if(cells_[i]->update(frameTime_))
-			{
-				//roll for chance to die
-				int die = rand()%100;			
-				//if no death
-				if(die >= cells_[i]->getDeathChance())
-				{
-					//pick a lucky neighboring hex
-					int lucky = rand()%6;
-					int c = cells_[i]->getNeighbors()[lucky].col;
-					int r = cells_[i]->getNeighbors()[lucky].row;		
-					
-					//if neighbor position is valid (not out of bounds)
-					if(cells_[i]->getNeighbors()[lucky].row != -1)
-					{
-						//if neighbor position is an empty space (dead cell)
-						if(grid_[r*COLUMNS + c]->getType() == T3E::Hex::DEAD_CELL)
-						{
-							//randomise split time
-							cells_[i]->newSplitTime();
-							
-							//rolls
-							int noMutation;
-							int noCancer;
-							
-							//create a new cell depending on current's type
-							switch(cells_[i]->getType())
-							{
-							//STEM
-							case T3E::Hex::STEM_CELL:
-								grid_[r*COLUMNS + c]->setType(T3E::Hex::NORMAL_CELL, cells_[i]->getDeathChance() + 5);
-								break;
-								
-							//NORMAL
-							case T3E::Hex::NORMAL_CELL:
-								//increase parent death chance by 5%
-								cells_[i]->incDeathChance(5);
-								//roll for mutation
-								noMutation = rand()%100;
-								if(noMutation && grid_[r * COLUMNS + c]->getType() != T3E::Hex::BLOOD_VESSEL)
-								{
-									grid_[r*COLUMNS + c]->setType(T3E::Hex::NORMAL_CELL, cells_[i]->getDeathChance());
-								}
-								
-								else if( grid_[r * COLUMNS + c]->getType() != T3E::Hex::BLOOD_VESSEL )
-								{
-									grid_[r*COLUMNS + c]->setType(T3E::Hex::MUTATED_CELL, cells_[i]->getDeathChance());
-								}
-								break;
-								
-							//MUTATED
-							case T3E::Hex::MUTATED_CELL:
-								//increase parent death chance by 5%
-								cells_[i]->incDeathChance(5);
-								//roll for cancer
-								noCancer = rand()%100;
-								if(noCancer && grid_[r * COLUMNS + c]->getType() != T3E::Hex::BLOOD_VESSEL )
-								{
-									grid_[r*COLUMNS + c]->setType(T3E::Hex::MUTATED_CELL, cells_[i]->getDeathChance());
-								}
-								else if( grid_[r * COLUMNS + c]->getType() != T3E::Hex::BLOOD_VESSEL );
-								{
-									grid_[r*COLUMNS + c]->setType(T3E::Hex::CANCEROUS_CELL);
-								}
-								break;
-								
-							//CANCEROUS
-							case T3E::Hex::CANCEROUS_CELL:
-								grid_[r*COLUMNS + c]->setType(T3E::Hex::CANCEROUS_CELL);
-								break;
-								
-							default:
-								break;
-							}
-							
-							//add the new cell to the living cells vector
-							cells_.push_back(static_cast<T3E::Cell*>(grid_[r*COLUMNS + c]));
-							//check if it's in range of a blood vessel
-							for(int bvs = 0; bvs < bloodVessels_.size(); ++bvs)
-							{
-								if(bloodVessels_[bvs]->inRange(cells_.back()->getC(), cells_.back()->getR(), bloodVessels_[bvs]->getRange()))
-								{
-									//cells_.back()->makeGreen();
-									//reset death chance
-									cells_.back()->setDeathChance(0);
-								}
-							}
-						}
-					}							
-				}
-				else//die
-				{
-					cells_[i]->setType(T3E::Hex::DYING_CELL);
-				}
-			}
-		}
-		*/
-			
-		//remove dead cells
-        /*
-		int i = 0;
-		while (i < cells_.size())
-		{
-			if (cells_[i]->getType() == T3E::Hex::DYING_CELL)
-			{
-				cells_[i]->setType(T3E::Hex::DEAD_CELL);
-				cells_.erase( cells_.begin() + i );
-			}
-			else 
-				++i;
-		}*/
-		
 		// print once every 10 frames
 		static int frameCounter = 0;
 		frameCounter++;
@@ -291,7 +121,7 @@ void MainGame::gameLoop()
 	SDL_Quit();
 }
 
-void MainGame::processInput()
+void MainGame::processInput(float dTime)
 {
 	glm::vec4 worldPos;
     SDL_Point rowCol;
@@ -327,18 +157,24 @@ void MainGame::processInput()
 		case SDL_FINGERDOWN:
 			++nOfFingers_;
 			
+			fingerPressed_ = true;
+			//record position in case we need it later
+			pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
+			
             // Convert the touch position to a world position
             worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
                         
             // Draw cursor for debug purposes
             cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-            
 			break;
 			
 		case SDL_FINGERUP:
-			--nOfFingers_;		
-
-            // Only spawn cells when the last finger is lifted,
+			--nOfFingers_;
+			
+			fingerPressed_ = false;			
+			pressTimer_ = 0;
+            
+			// Only spawn cells when the last finger is lifted,
             // AND the cursor was not moved
             if( nOfFingers_ == 0 && finger_dragged_ == false )
             {
@@ -347,7 +183,22 @@ void MainGame::processInput()
                 // convert the world pos to a grid row column
                 rowCol = world_to_grid( worldPos );
                 
-                growAt( rowCol.x, rowCol.y );
+				//try to spawn a blood vessel
+				growBloodVesselAt( rowCol.x, rowCol.y );
+				
+				//if a cell was selected
+				if(cellSelected_)
+				{
+					//try to spawn
+					grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+					
+					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
+					cellSelected_ = false;					
+				}
+				
+				//try to select a cell
+				//also, if a new cell was created, select it
+				selectCell(rowCol.x, rowCol.y);
             }
 
             // Reset the type of touch if the last finger was released
@@ -356,7 +207,8 @@ void MainGame::processInput()
 			
 		case SDL_FINGERMOTION:
             finger_dragged_ = true;
-
+			fingerPressed_ = false;
+			
 			// pan if only one finger is on screen; you don't want to pan during pinch motion
 			if( nOfFingers_ < 2 )
 			{
@@ -373,6 +225,21 @@ void MainGame::processInput()
 		default: break;
 		}
 	}
+	
+	//check for finger pressure
+	if(fingerPressed_)
+	{
+		pressTimer_ += dTime;
+		//SDL_Log("%f", pressTimer_);
+		if(pressTimer_ >= 1000)
+		{
+			pressTimer_ = 0;
+			fingerPressed_ = false;
+			rowCol = world_to_grid(touch_to_world(pressPos_));
+			//try to arrest
+			grid_.arrestCell(rowCol.x, rowCol.y);
+		}
+	}	
 }
 
 void MainGame::renderGame()
@@ -398,13 +265,13 @@ void MainGame::renderGame()
 		//send matrix to shaders
 		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//set tint
-		//float tint[] = {bloodVessels_[i]->getTint().x , bloodVessels_[i]->getTint().y , bloodVessels_[i]->getTint().z, bloodVessels_[i]->getTint().w};
-        float tint[] = { 1.0f, 0.2f, 0.2f, 1.0f };
+		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
+		float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		glUniform4fv(inputColour_location, 1, tint);
 		
-        //set texture	
+        //use texture 1
 		glActiveTexture(GL_TEXTURE0+1);
-		glUniform1i(sampler0_location, 0);
+		glUniform1i(sampler0_location, 1);
 		sprites_[1]->draw();
 		
 		//reset matrices
@@ -415,6 +282,8 @@ void MainGame::renderGame()
 	//cells
 	for(int i = 0; i < grid_.numCells(); ++i)
 	{
+		T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();
+		
 		// move to hex position
 		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
 		finalM_ = projectionM_ * viewM_ * worldM_;
@@ -423,8 +292,7 @@ void MainGame::renderGame()
 		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
 
 		// set tint
-		//float tint[] = {cells_[i]->getTint().x , cells_[i]->getTint().y , cells_[i]->getTint().z, cells_[i]->getTint().w};
-        float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float tint[] = {current->getTint().x ,current->getTint().y , current->getTint().z, current->getTint().w};
 		glUniform4fv(inputColour_location, 1, tint);
 
 		// set texture	
@@ -469,14 +337,14 @@ void MainGame::renderGame()
 	window_.swapBuffer();
 }
 
-void MainGame::growAt( int row, int col )
+bool MainGame::growBloodVesselAt( int row, int col )
 {
     T3E::Hex* neighbours[6];
     int adjacentCells = 0;
-    int adjacentBlood = 0;
+    //int adjacentBlood = 0;
 
     // return immidiately if the growth coord is not avalible
-    if( !grid_.isEmpty( row, col ) ) return;
+    if( !grid_.isEmpty( row, col ) ) return false;
 
     // Check the cell has a live neighbour
     if( grid_.getNeighbours( row, col, neighbours ) )
@@ -486,6 +354,11 @@ void MainGame::growAt( int row, int col )
         {
             if( neighbours[i] != nullptr )
             {
+				if(neighbours[i]->getType() == T3E::NodeType::CELL)
+					adjacentCells++;
+				else
+					return false;
+				/* 
                 switch( neighbours[i]->getType() )
                 {
                     case T3E::NodeType::CELL:
@@ -498,18 +371,21 @@ void MainGame::growAt( int row, int col )
                         break;
                         
                     default: continue;
-                }
+                } */
             }
+			else
+				return false;
         }
     }
 
-    if( (adjacentCells > 0 && adjacentCells < 6) || adjacentBlood > 0 )
+    /* if( (adjacentCells > 0 && adjacentCells < 6) || adjacentBlood > 0 )
     {
-        grid_.newCell( row, col, nullptr );
-    }
-    else if( adjacentCells == 6 )
+        grid_.newCell( row, col, T3E::CellState::STEM, 0, nullptr );
+    } */
+    if( adjacentCells == 6 )
     {
         grid_.newBloodVessel( row, col, nullptr );
+		return true;
     }
 }
 
@@ -572,6 +448,18 @@ SDL_Point MainGame::world_to_grid( glm::vec4 world_coord )
 	}
 
     return SDL_Point{ row, col};
+}
+
+bool MainGame::selectCell(int row, int col)
+{
+	//if the coordinates contain a cell
+	if(grid_.selectCell(row, col))
+	{
+		cellSelected_ = true;
+		selectedPos_ = glm::vec2(row, col);
+		return true;
+	}
+	return false;
 }
 
 void MainGame::calculateFPS()

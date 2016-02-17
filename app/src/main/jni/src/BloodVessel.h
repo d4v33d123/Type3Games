@@ -11,7 +11,10 @@ namespace T3E
 	public:
         BloodVessel() {}
         virtual ~BloodVessel() {}
-
+		
+		// [in] time since last frame was rendered
+		//virtual void update(float dt){;};
+		
 		//virtual void init(int column, int row, int gridColumns, int gridRows);//coords of central hex
 		//getters
 		//glm::vec4 getTint() { return tint_; }

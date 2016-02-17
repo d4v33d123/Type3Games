@@ -8,7 +8,7 @@ namespace T3E
 		lookAt_ = lookAt;
 		
 		up_ = glm::vec3(0.0f,1.0f,0.0f);//up is +y axis
-		zoomRange_ = glm::vec2(0.4f, 5.0f);	
+		zoomRange_ = glm::vec2(1.0f, 5.0f);	
 		moveSensitivity_ = 2.0f;
 		zoomSensitivity_ = 1.0f;
 	}

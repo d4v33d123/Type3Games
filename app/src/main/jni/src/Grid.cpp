@@ -1,7 +1,5 @@
 #include "Grid.h"
-#include "Cell.h"
-#include "BloodVessel.h"
-#include "SDL.h"
+
 
 namespace T3E
 {
@@ -9,7 +7,7 @@ namespace T3E
     {
         // Initialise all the cells ( to empty )
         for( int col = 0; col < CHUNK_WIDTH; col++ )
-        for( int row = 0; row < CHUNK_WIDTH; row++ )
+			for( int row = 0; row < CHUNK_WIDTH; row++ )
                 grid_[ row * CHUNK_WIDTH + col ].init( row, col );
     }
 
@@ -68,7 +66,7 @@ namespace T3E
 
     }
 
-    bool Grid::newCell( int row, int col, Cell** createdCell )
+    bool Grid::newCell( int row, int col, CellState state, int deathChance, Cell** createdCell )
     {
         Node* current;
         Cell* newCell;
@@ -81,8 +79,9 @@ namespace T3E
 
             // Intialise the new cell
             newCell = new Cell();
-
-            // Save the new cell to the correct hex in the grid
+			newCell->init(state, deathChance);						
+            
+			// Save the new cell to the correct hex in the grid
             Hex* hex = &grid_[ row * CHUNK_WIDTH + col ];
             hex->setNode( (Node*)newCell );
             hex->setType( NodeType::CELL );
@@ -229,4 +228,235 @@ namespace T3E
 
         return true;
     }
+	
+	bool Grid::inRange(int rowA, int colA ,int rowB, int colB, int range)
+	{		
+		//calculate the squared distance (avoid sqrt operation)
+		int dSquared = (std::abs(colA - colB) + std::abs(rowA - rowB) + std::abs((-colA-rowA) - (-colB-rowB))) / 2;
+		if(dSquared > range)
+			return false;
+		return true;
+	}
+	
+	bool Grid::update(float dTime)
+	{
+		bool selectedCellDied = false;
+		
+		//TODO: use queue/list?
+		std::vector<birthInfo> newCells;
+		std::vector<deathInfo> deadCells;
+	
+		//update cells
+		for(auto hex = cells_.begin(); hex != cells_.end(); ++hex)
+        {
+			//get the hex's node and cast it to cell
+			Cell* current = (Cell*)((*hex)->getNode());
+			//update cell, check if it's time to split
+			if(current->update(dTime))
+			{
+				//roll for chance to die
+				int die = rand()%100;
+				if(die >= current->getDeathChance())
+				{
+					//get the neighbouring hexes
+					Hex* neighbours[6];
+					getNeighbours((*hex)->getRow(), (*hex)->getCol(), neighbours);
+					//pick a lucky neighbor and check if it's empty
+					int lucky = rand()%6;
+					if(neighbours[lucky] != nullptr)
+					{
+						if(neighbours[lucky]->getType() == NodeType::EMPTY)
+						{					
+							//rolls
+							int noMutation;
+							int noCancer;
+													
+							//create a new cell depending on current's type
+							switch(current->getState())
+							{
+							case CellState::STEM:
+								//spawn normal cell with 5% death chance
+								newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::NORMAL, 5));
+								break;
+								
+							case CellState::NORMAL:
+								//increase parent death chance by 5%
+								current->incDeathChance(5);
+								//roll for mutation
+								noMutation = rand()%100;
+								if(noMutation)
+								{
+									//spawn normal cell with parent's death chance
+									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::NORMAL, current->getDeathChance()));
+								}
+								else
+								{
+									//spawn mutated cell with parent's death chance
+									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, current->getDeathChance()));
+								}
+								break;
+								
+							case CellState::MUTATED:
+								//increase parent death chance by 5%
+								current->incDeathChance(5);
+								//roll for cancer
+								noCancer = rand()%100;
+								if(noCancer)
+								{
+									//spawn mutated cell with parent's death chance
+									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, current->getDeathChance()));
+								}
+								else
+								{
+									//spawn cancerous cell
+									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, 0));
+								}
+								break;
+								
+							case CellState::CANCEROUS:
+								//spawn cancerous cell
+								newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, 0));
+								break;
+								
+							default:
+								break;
+							}
+						}
+					}
+	
+				}
+				//if the cell died
+				else
+				{
+					selectedCellDied = current->isSelected();
+					deadCells.push_back(deathInfo((*hex)->getRow(), (*hex)->getCol()/*, hex - cells_.begin()*/));
+				}
+			}		
+		}
+		//remove dead cells
+		for(auto c = deadCells.begin(); c != deadCells.end(); ++c)
+		{
+			setEmpty( c->row, c->col );
+		}
+		//add new cells
+		for(auto c = newCells.begin(); c != newCells.end(); ++c)
+		{
+			newCell( c->row, c->col, c->state, c->deathChance, nullptr );
+			//getting pointer from newCell isn't working...
+			Cell* nc = (Cell*)(cells_.back()->getNode());
+			
+			//check if the new cell is in the range of a blood vessel
+			for( auto bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
+			{
+				//range 2 from centre of bv, so adjacent
+				if(inRange((*bvs)->getRow(), (*bvs)->getCol(), c->row, c->col, 2))
+				{
+					//nc->makeGreen();
+					//reset death chance
+					nc->setDeathChance(5);
+				}
+			}
+		}
+		
+		return selectedCellDied;
+	}
+	
+	/* 	
+	bool Grid::hexIsOfType(int row, int col, NodeType type)
+	{
+		 // If the hex does not lie on the board, return error
+        if( !hexExists( row, col ) )
+            return false;
+		
+		if(grid_[row * CHUNK_WIDTH + col].getType() == type)
+			return true;
+		
+        return false;
+	}
+	*/
+	
+	bool Grid::arrestCell(int row, int col)
+	{
+		 // If the hex does not lie on the board or is not a cell, return error
+        if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
+            return false;
+		
+		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		//only arrest normal cells
+		if(cell->getState() == CellState::NORMAL)
+		{
+			cell->arrest();
+			return true;
+		}
+		
+		return false;			
+	}
+	
+	bool Grid::selectCell(int row, int col)
+	{
+		 // If the hex does not lie on the board or is not a cell, return error
+        if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
+            return false;
+		
+		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		//only select normal and stem cells
+		if((cell->getState() == CellState::NORMAL) || (cell->getState() == CellState::STEM))
+		{
+			cell->select();
+			return true;
+		}
+		
+		return false;			
+	}
+	
+	bool Grid::unselectCell(int row, int col)
+	{
+		// If the hex does not lie on the board or is not a cell, return error
+        if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
+            return false;
+		
+		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		//only select normal and stem cells
+		if((cell->getState() == CellState::NORMAL) || (cell->getState() == CellState::STEM))
+		{
+			cell->unselect();
+			return true;
+		}
+		
+		return false;			
+	}
+	
+	bool Grid::spawnCell(int selRow, int selCol, int touchRow, int touchCol)
+	{
+		// If the hex does not lie on the board or is not a cell, return error
+        if( (!hexExists( selRow, selCol )) || (grid_[selRow * CHUNK_WIDTH + selCol].getType() != NodeType::CELL))
+            return false;
+				
+		// get the neighbours of the currently selected cell
+		T3E::Hex* neighbours[6];
+		getNeighbours( selRow, selCol, neighbours );
+		//check if the touched position is one of neighbours of the selected cell
+		for(int i = 0; i < 6; ++i)
+		{
+			if(neighbours[i] != nullptr)
+			{
+				if((neighbours[i]->getRow() == touchRow) && (neighbours[i]->getCol() == touchCol))
+				{
+					//if it's empty, spawn a cell
+					if(isEmpty(touchRow, touchCol))
+					{
+						Cell* selectedCell = (Cell*)(grid_[selRow * CHUNK_WIDTH + selCol].getNode());
+						if(newCell(touchRow, touchCol, selectedCell->getState(), selectedCell->getDeathChance(), nullptr))
+							return true;
+						//couldn't create cell
+						return false;
+					}
+					else
+						break;
+				}
+			}
+		}
+		//not one of the neighbours
+		return false;
+	}
 }

@@ -39,9 +39,6 @@ public:
 	void run();
 
 private:
-	//grid dimensions
-	const int ROWS;
-	const int COLUMNS;
 	//camera sensitivity
 	const int PAN_SENSITIVITY;
 	const int ZOOM_SENSITIVITY;
@@ -52,7 +49,7 @@ private:
 	void initSystems();
 	void initShaders();
 	void gameLoop();
-	void processInput();
+	void processInput(float dTime);
 	void renderGame();
 	void calculateFPS();
 	
@@ -72,14 +69,28 @@ private:
 	Uint8 nOfFingers_;                  // n of fingers currently touching screen
 	T3E::Camera camera_;                // 2d camera
 	std::vector<T3E::Sprite*> sprites_; // sprite container
-	//std::vector<T3E::Hex*> grid_;       // hex grid with game elements
-	//std::vector<T3E::Cell*> cells_;     // living cells
-	//std::vector<T3E::BloodVessel*> bloodVessels_;
-    bool finger_dragged_;
-	
-	void createBloodVessel(int row, int column);
 
-    void growAt( int row, int col );
+	// [in] row to test
+	// [in] column to test
+	// [ret] true if a bv was created, false otherwise
+	// try to create a cell or blood vessel at the specified position
+	// TODO: SHOULD THIS GO INTO GRID CLASS?
+    bool growBloodVesselAt( int row, int col );
+	
+	// [in] row to test
+	// [in] column to test
+	// [ret] true if successfully selected a cell, false otherwise
+	bool selectCell(int row, int col);
+	
+    //INPUT
+	bool finger_dragged_;
+	//detect when finger is down for a certain amount of time
+	bool fingerPressed_;
+	glm::vec2 pressPos_;
+	float pressTimer_;
+	//detect cell selection
+	glm::vec2 selectedPos_;
+	bool cellSelected_;
 	
 	//GRAPHICS
 	T3E::GLSLProgram cellProgram_;//shader programs
