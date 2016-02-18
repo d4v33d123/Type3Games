@@ -17,8 +17,8 @@ namespace T3E
 		auto mit = textureMap_.find(texturePath);
 
 		//check if it's not in the map
-		//if (mit == _textureMap.end())
-		//{
+		if (mit == textureMap_.end())
+		{
 			// load the texture
 			GLTexture newTexture = ImageLoader::loadPNG(texturePath);
 
@@ -30,7 +30,7 @@ namespace T3E
 			std::cout << "Loaded Texture\n";
 
 			return newTexture;
-		//}
+		}
 		std::cout << "Used Cached Texture!\n";
 		// return our texture if it is already in the map
 		return mit->second;

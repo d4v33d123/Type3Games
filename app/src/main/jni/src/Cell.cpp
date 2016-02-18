@@ -20,27 +20,33 @@ namespace T3E
 		splitTimer_ = 0;
 		newSplitTime();
 		
+		spriteSheet_.init(-0.453f, -0.453f, 0.96f, 0.96f, "textures/cellSheet.png", 1.0f/18, 1.0f/18, 18);
+		
 		switch(state)
 		{
 		case CellState::STEM:
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
 			deathChance_ = 0;
+			spriteSheet_.setSpeed(0.08);
 			break;
 		case CellState::NORMAL:
 			state_ = state;
 			normalTint_ = glm::vec4(0.0f, 0.7f, 1.0f, 1.0f); // blue
 			deathChance_ = deathChance;
+			spriteSheet_.setSpeed(0.15);
 			break;	
 		case CellState::MUTATED:
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f); // orange
 			deathChance_ = deathChance;
+			spriteSheet_.setSpeed(0.25);
 			break;
 		case CellState::CANCEROUS:
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // magenta
 			deathChance_ = 0;
+			spriteSheet_.setSpeed(0.4);
 			break;
 		default:
 			break;
@@ -54,7 +60,7 @@ namespace T3E
 	{
 		if(state_ != CellState::ARRESTED)
 		{
-			//TODO: ANIMATION CODE HERE
+			spriteSheet_.Update(dTime);
 		
 			if((splitTimer_ += dTime) >= splitTime_)
 			{

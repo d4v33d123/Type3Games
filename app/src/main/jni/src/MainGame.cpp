@@ -25,16 +25,19 @@ void MainGame::run()
 	
 	//load sprites
 	sprites_.push_back( new T3E::Sprite() );
-	sprites_.back()->init(-0.5f, -0.5f, 1.0f, 1.0f,"textures/cell.png"); // x, y, width, height
-	sprites_.push_back( new T3E::Sprite() );
+	// x, y, width, height
 	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");
 
+	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
+	music.play(-1);
 	gameLoop();
 }
 
 void MainGame::initSystems()
 {
 	T3E::init();
+	
+	audioEngine_.init();
 	
 	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
 
@@ -45,7 +48,7 @@ void MainGame::initSystems()
 	// init camera at 0,0,1 looking at origin, up is y axis
 	camera_.init( glm::vec3( 0.0f, 0.0f, 1.0f ), glm::vec3( 0.0f,0.0f,0.0f ) );
 	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
-	camera_.moveTo(glm::vec3( 5.0f, 5.0f, 2.0f ) );
+	camera_.moveTo(glm::vec3( 17.0f, 11.0f, 2.0f ) );
 
 	// init projection matrix
 	// calculate aspect ratio
@@ -54,10 +57,10 @@ void MainGame::initSystems()
 	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
 	        
     // Set the first cell
-    grid_.newCell( 5, 5, T3E::CellState::STEM, 0, nullptr );
+    grid_.newCell( 12, 12, T3E::CellState::STEM, 0, nullptr );
 
     // Set a test blood vessel
-    grid_.newBloodVessel( 7, 7, nullptr );
+    grid_.newBloodVessel( 14, 14, nullptr );
 
 	// init shaders
 	initShaders();
@@ -273,9 +276,9 @@ void MainGame::renderGame()
 		glUniform4fv(inputColour_location, 1, tint);
 		
         //use texture 1
-		glActiveTexture(GL_TEXTURE0+1);
-		glUniform1i(sampler0_location, 1);
-		sprites_[1]->draw();
+		glActiveTexture(GL_TEXTURE0+0);
+		glUniform1i(sampler0_location, 0);
+		sprites_[0]->draw();
 		
 		//reset matrices
 		worldM_ = glm::mat4();
@@ -299,15 +302,18 @@ void MainGame::renderGame()
 		glUniform4fv(inputColour_location, 1, tint);
 
 		// set texture	
-        glActiveTexture(GL_TEXTURE0);
-		glUniform1i(sampler0_location, 0);
-		sprites_[0]->draw();
+        glActiveTexture(GL_TEXTURE0+1);
+		
+		glUniform1i(sampler0_location, 1);
+		
+		current->getSprite()->draw();
 		
 		// reset matrices
 		// make an identityM object to reset instead of creating new one a bagillion times?
 		// or having to fetch other non local obj even worse?
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_*viewM_*worldM_;
+		
 	}
 
 	/*
@@ -346,7 +352,6 @@ bool MainGame::growBloodVesselAt( int row, int col )
 {
     T3E::Hex* neighbours[6];
     int adjacentCells = 0;
-    //int adjacentBlood = 0;
 
     // return immidiately if the growth coord is not avalible
     if( !grid_.isEmpty( row, col ) ) return false;
@@ -363,30 +368,12 @@ bool MainGame::growBloodVesselAt( int row, int col )
 					adjacentCells++;
 				else
 					return false;
-				/* 
-                switch( neighbours[i]->getType() )
-                {
-                    case T3E::NodeType::CELL:
-                        adjacentCells++;
-                        break;
-
-                    case T3E::NodeType::BLOOD_VESSEL_CORE:
-                    case T3E::NodeType::BLOOD_VESSEL_EDGE:
-                        adjacentBlood++;
-                        break;
-                        
-                    default: continue;
-                } */
             }
 			else
 				return false;
         }
     }
 
-    /* if( (adjacentCells > 0 && adjacentCells < 6) || adjacentBlood > 0 )
-    {
-        grid_.newCell( row, col, T3E::CellState::STEM, 0, nullptr );
-    } */
     if( adjacentCells == 6 )
     {
         grid_.newBloodVessel( row, col, nullptr );

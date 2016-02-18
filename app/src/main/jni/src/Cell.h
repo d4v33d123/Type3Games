@@ -2,6 +2,8 @@
 #define CELL_H
 
 #include "Hex.h"
+#include "SDL.h"
+#include "Type3Engine/AnimatedSprite.h"
 #include <cstdlib>//rand()
 
 namespace T3E
@@ -49,11 +51,13 @@ namespace T3E
 		CellState getState(){return state_;};
 		int getDeathChance(){return deathChance_;};
 		bool isSelected(){return selected_;};
+		AnimatedSprite* getSprite(){return &spriteSheet_;};
 		
 		//setters
 		void setDeathChance(int dc){deathChance_ = dc;};
 		
 	private:
+		AnimatedSprite spriteSheet_;
 		CellState state_;//see CellState enum
 		glm::vec4 tint_;//current colour
 		glm::vec4 normalTint_;//colour when non selected
