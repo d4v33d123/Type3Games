@@ -200,14 +200,17 @@ void MainGame::processInput(float dTime)
 				//also, if a new cell was created, select it
 				selectCell(rowCol.x, rowCol.y);
             }
-
+							
             // Reset the type of touch if the last finger was released
             if( nOfFingers_ == 0 ) finger_dragged_ = false;
 			break;
 			
 		case SDL_FINGERMOTION:
-            finger_dragged_ = true;
-			fingerPressed_ = false;
+			if(std::abs(evnt.tfinger.dx) > 0.002 || std::abs(evnt.tfinger.dy) > 0.002)
+			{
+				finger_dragged_ = true;
+				fingerPressed_ = false;
+			}			
 			
 			// pan if only one finger is on screen; you don't want to pan during pinch motion
 			if( nOfFingers_ < 2 )
@@ -307,7 +310,8 @@ void MainGame::renderGame()
 		finalM_ = projectionM_*viewM_*worldM_;
 	}
 
-    // Cursor
+	/*
+	// Cursor
     {
         // Move to cursor position
         worldM_ = glm::translate( worldM_, glm::vec3( cursor_pos_.x, cursor_pos_.y, 0.0f) );
@@ -330,6 +334,7 @@ void MainGame::renderGame()
         worldM_ = glm::mat4();
         finalM_ = projectionM_ * viewM_ * worldM_;
     }
+	*/
 		
 	cellProgram_.stopUse();
 
