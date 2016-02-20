@@ -17,6 +17,12 @@ MainGame::MainGame() :
 
 MainGame::~MainGame()
 {
+	//free memory
+	for (std::vector<T3E::Sprite*>::iterator it = sprites_.begin() ; it != sprites_.end(); ++it)
+	{
+		delete (*it);
+	} 
+	sprites_.clear();
 }
 
 void MainGame::run()
@@ -39,6 +45,7 @@ void MainGame::initSystems()
 	
 	audioEngine_.init();
 	
+	//TODO: change name of window
 	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
 
 	// enable aplha blending	
@@ -58,10 +65,40 @@ void MainGame::initSystems()
 	        
     // Set the first cell
     grid_.newCell( 12, 12, T3E::CellState::STEM, 0, nullptr );
-
+	
     // Set a test blood vessel
     grid_.newBloodVessel( 14, 14, nullptr );
-
+	
+	//init the hex vertex buffer
+	glGenBuffers(1, &hexBufferName);
+	
+	float size = 0.54;//get from hex bruh
+	float sizeCos30 = size*glm::cos(glm::radians(30.0f));
+	float sizeSin30 = size*glm::sin(glm::radians(30.0f));
+	//this is a buffer of lines, so think them 2 by 2
+	//1
+	hexVertexes[0].setPosition(0.0f, size);
+	hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
+	//2
+	hexVertexes[2].setPosition(-sizeCos30, sizeSin30);
+	hexVertexes[3].setPosition(-sizeCos30, -sizeSin30);
+	//3
+	hexVertexes[4].setPosition(-sizeCos30, -sizeSin30);
+	hexVertexes[5].setPosition(0.0f, -size);
+	//4
+	hexVertexes[6].setPosition(0.0f, -size);
+	hexVertexes[7].setPosition(sizeCos30, -sizeSin30);
+	//5
+	hexVertexes[8].setPosition(sizeCos30, -sizeSin30);
+	hexVertexes[9].setPosition(sizeCos30, sizeSin30);
+	//6
+	hexVertexes[10].setPosition(sizeCos30, sizeSin30);
+	hexVertexes[11].setPosition(0.0f, size);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
 	// init shaders
 	initShaders();
 }
@@ -81,6 +118,17 @@ void MainGame::initShaders()
 	inputColour_location = cellProgram_.getUniformLocation("inputColour");
 	cell_finalM_location = cellProgram_.getUniformLocation("finalM");
 	sampler0_location = cellProgram_.getUniformLocation("sampler0");
+	
+	//HEX PROGRAM
+	// compile
+	hexProgram_.compileShaders("shaders/hex_vs.txt", "shaders/hex_ps.txt");
+	// add attributes
+	hexProgram_.addAttribute("aPosition");
+	// link
+	hexProgram_.linkShaders();
+	// query uniform locations - could use "layout location" in shaders to set fixed locations
+	hex_inputColour_location = hexProgram_.getUniformLocation("inputColour");
+	hex_finalM_location = hexProgram_.getUniformLocation("finalM");
 }
 
 void MainGame::gameLoop()
@@ -120,7 +168,7 @@ void MainGame::gameLoop()
 	
 	glDisable( GL_CULL_FACE );
 		
-	window_.destroy(); // useful?
+	//window_.destroy(); // useful?
 	SDL_Quit();
 }
 
@@ -185,16 +233,15 @@ void MainGame::processInput(float dTime)
                 worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
                 // convert the world pos to a grid row column
                 rowCol = world_to_grid( worldPos );
-                
-				//try to spawn a blood vessel
-				growBloodVesselAt( rowCol.x, rowCol.y );
-				
+                				
 				//if a cell was selected
 				if(cellSelected_)
 				{
 					//try to spawn
-					grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-					
+					if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+						//try to move stem cell
+						grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+						
 					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
 					cellSelected_ = false;					
 				}
@@ -209,12 +256,14 @@ void MainGame::processInput(float dTime)
 			break;
 			
 		case SDL_FINGERMOTION:
-			if(std::abs(evnt.tfinger.dx) > 0.002 || std::abs(evnt.tfinger.dy) > 0.002)
+			//avoid microdrag detection
+			if(std::abs(evnt.tfinger.dx) > 0.01 || std::abs(evnt.tfinger.dy) > 0.01)
 			{
 				finger_dragged_ = true;
 				fingerPressed_ = false;
-			}			
-			
+			}
+			//SDL_Log("%f               %f", evnt.tfinger.dx,evnt.tfinger.dy);
+
 			// pan if only one finger is on screen; you don't want to pan during pinch motion
 			if( nOfFingers_ < 2 )
 			{
@@ -237,13 +286,15 @@ void MainGame::processInput(float dTime)
 	{
 		pressTimer_ += dTime;
 		//SDL_Log("%f", pressTimer_);
-		if(pressTimer_ >= 1000)
+		if(pressTimer_ >= 800)
 		{
 			pressTimer_ = 0;
 			fingerPressed_ = false;
 			rowCol = world_to_grid(touch_to_world(pressPos_));
 			//try to arrest
-			grid_.arrestCell(rowCol.x, rowCol.y);
+			if(!grid_.arrestCell(rowCol.x, rowCol.y))
+				//try to spawn a blood vessel
+				growBloodVesselAt( rowCol.x, rowCol.y );
 		}
 	}	
 }
@@ -258,7 +309,10 @@ void MainGame::renderGame()
 	viewM_ = glm::lookAt(camera_.getPosition(), camera_.getLookAt(), camera_.getUp());
 	finalM_ = projectionM_*viewM_*worldM_;//order matters!
 		
-	//RENDER CELLS
+	//RENDER THE HEX GRID
+	drawGrid();		
+		
+	//RENDER CELLS AND BLOOD VESSELS
 	cellProgram_.use();
 	
 	//blood vessels
@@ -309,38 +363,10 @@ void MainGame::renderGame()
 		current->getSprite()->draw();
 		
 		// reset matrices
-		// make an identityM object to reset instead of creating new one a bagillion times?
-		// or having to fetch other non local obj even worse?
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_*viewM_*worldM_;
 		
 	}
-
-	/*
-	// Cursor
-    {
-        // Move to cursor position
-        worldM_ = glm::translate( worldM_, glm::vec3( cursor_pos_.x, cursor_pos_.y, 0.0f) );
-        finalM_ = projectionM_ * viewM_ * worldM_;
-
-        // Sent matrix to shaders
-        glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr( finalM_ ) );
-
-        // Set tint
-        float tint[] = { 0.0f, 0.0f, 0.5f, 0.2f };
-        glUniform4fv( inputColour_location, 1, tint );
-
-        // Set texture
-        glActiveTexture( GL_TEXTURE0 );
-        glUniform1i( sampler0_location, 0 );
-        
-        sprites_[0]->draw();
-
-        // Reset matrices
-        worldM_ = glm::mat4();
-        finalM_ = projectionM_ * viewM_ * worldM_;
-    }
-	*/
 		
 	cellProgram_.stopUse();
 
@@ -503,4 +529,89 @@ void MainGame::calculateFPS()
 	{
 		fps_ = 60.0f;
 	}
+}
+
+void MainGame::drawGrid()
+{
+	//we need to draw the red hexes last if we want them to be on top of the others
+	std::vector<glm::vec3> redHexes;
+	
+	hexProgram_.use();
+	for(int r = 0; r < grid_.getSize(); ++r)
+	{
+		for(int c = 0; c < grid_.getSize(); ++c)
+		{
+			glm::vec3 coords = grid_.getHexDrawInfo(r, c);
+			//if hex exists
+			if(coords.x != -1)
+			{
+				//if in range of blood vessel draw it later
+				if(coords.z == 1)
+				{				
+					redHexes.push_back(coords);
+				}
+				else
+				{
+					//send matrix to shaders
+					//translate world matrix to separate triangles and create parallax
+					glm::mat4 transM = glm::translate(worldM_, glm::vec3(coords.x, coords.y, 0.0f));
+					finalM_ = finalM_*transM;//shold be just worldM but whatever, it's a test			
+					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+					//set correct tint
+					float tint[] = { 0.3f, 0.7f, 0.7f, 1.0f };
+					glUniform4fv(inputColour_location, 1, tint);
+					// bind the buffer object
+					glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
+					// tell opengl that we want to use the first attribute array
+					glEnableVertexAttribArray(0);
+					// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
+					glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
+					// this is our pixel attribute pointer;
+					glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
+					//this is out UV attribute pointer;
+					glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
+					// draw our verticies
+					glDrawArrays(GL_LINES, 0, 12);
+					// disable the vertex attrib array
+					glDisableVertexAttribArray(0);
+					// unbind the VBO
+					glBindBuffer(GL_ARRAY_BUFFER, 0);  
+					
+					//reset matrix
+					finalM_ = projectionM_*viewM_*worldM_;					
+				}
+			}
+		}
+	}
+	//now draw red hexes
+	for(std::vector<glm::vec3>::iterator coords = redHexes.begin(); coords != redHexes.end(); ++coords)
+	{
+		//send matrix to shaders
+		//translate world matrix to separate triangles and create parallax
+		glm::mat4 transM = glm::translate(worldM_, glm::vec3(coords->x, coords->y, 0.0f));
+		finalM_ = finalM_*transM;//shold be just worldM but whatever, it's a test			
+		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+		//set correct tint
+		float tint[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+		glUniform4fv(inputColour_location, 1, tint);
+		// bind the buffer object
+		glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
+		// tell opengl that we want to use the first attribute array
+		glEnableVertexAttribArray(0);
+		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
+		// this is our pixel attribute pointer;
+		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
+		//this is out UV attribute pointer;
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
+		// draw our verticies
+		glDrawArrays(GL_LINES, 0, 12);
+		// disable the vertex attrib array
+		glDisableVertexAttribArray(0);
+		// unbind the VBO
+		glBindBuffer(GL_ARRAY_BUFFER, 0);  
+		//reset matrix
+		finalM_ = projectionM_*viewM_*worldM_;
+	}
+	hexProgram_.stopUse();
 }

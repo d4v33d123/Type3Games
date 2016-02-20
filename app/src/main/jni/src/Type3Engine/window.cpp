@@ -8,6 +8,8 @@ namespace T3E
 
 	window::~window()
 	{
+		SDL_DestroyWindow(sdlWindow_);
+		sdlWindow_ = NULL;
 	}
 
 	int window::create(std::string windowName, int screenWidth, int screenHeight, unsigned int currentFlag)
@@ -60,11 +62,6 @@ namespace T3E
 	void window::swapBuffer()
 	{
 		SDL_GL_SwapWindow(sdlWindow_);
-	}
-	
-	void window::destroy()
-	{
-		SDL_DestroyWindow(sdlWindow_);
 	}
 	
 	void window::updateSizeInfo()

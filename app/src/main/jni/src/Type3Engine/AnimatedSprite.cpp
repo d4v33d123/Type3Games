@@ -17,8 +17,9 @@ namespace T3E
 			glDeleteBuffers(1, &vboID_);
 		}
 	}
-
-	void AnimatedSprite::init(float x, float y, float width, float height, std::string texturePath, float TileWidth, float TileHeight, int numSprites)
+	
+	//UV COORDS ARE SWAPPED!!! invert width with height and x with y for tiling, position in spritesheet etc
+	void AnimatedSprite::init(float x, float y, float width, float height, std::string texturePath, float tileX, float tileY, float tileWidth, float tileHeight, int numSprites)
 	{
 		x_ = x;
 		y_ = y;
@@ -27,8 +28,10 @@ namespace T3E
 		numSprites_ = numSprites;
 		animPosition_ = 0;
 		animSpeed_ = 0.7;
-		tileHeight_ = TileHeight;
-		tileWidth_ = TileWidth;
+		tileX_ = tileX;
+		tileY_ = tileY;
+		tileHeight_ = tileHeight;
+		tileWidth_ = tileWidth;
 		animEnd_ = 20;
 		//tileSheet_.init(ResourceManager::getTexture(texturePath),glm::ivec2(TileWidth, TileHeight));
 		texture_ = ResourceManager::getTexture(texturePath);
@@ -42,27 +45,26 @@ namespace T3E
 
 		Vertex vertexData[6];
 		
+		//UV COORDS ARE SWAPPED!!!
 		//top left
-
-		vertexData[0].setPosition(x, y + height);
-		vertexData[0].setUV(TileWidth*animPosition_,  TileHeight);
+		vertexData[0].setPosition(x_, y_ + height_);
+		vertexData[0].setUV(tileX_ + 0 , tileY_ + tileWidth_*animPosition_);		
 		//bottom left
-
-		vertexData[1].setPosition(x, y);
-		vertexData[1].setUV(TileWidth*animPosition_, 0);
-
+		vertexData[1].setPosition(x_, y_);
+		vertexData[1].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_ );
 		//bottom right
-		vertexData[2].setPosition(x + width, y);
-		vertexData[2].setUV(TileWidth*animPosition_ + TileWidth, 0);
+		vertexData[2].setPosition(x_ + width_, y_);
+		vertexData[2].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_+ tileWidth_);
+		
 		//bottom right
-		vertexData[3].setPosition(x + width, y);
-		vertexData[3].setUV(TileWidth*animPosition_ + TileWidth, 0);
+		vertexData[3].setPosition(x_ + width_, y_);
+		vertexData[3].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_+ tileWidth_);	
 		//top right
-		vertexData[4].setPosition(x + width, y + height);
-		vertexData[4].setUV(TileWidth*animPosition_ + TileWidth, TileHeight);
+		vertexData[4].setPosition(x_ + width_, y_ + height_);
+		vertexData[4].setUV(tileX_ + 0, tileY_ + tileWidth_*animPosition_+ tileWidth_);		
 		//top left
-		vertexData[5].setPosition(x, y + height);
-		vertexData[5].setUV(TileWidth*animPosition_,  TileHeight);
+		vertexData[5].setPosition(x_, y_ + height_);
+		vertexData[5].setUV(tileX_ + 0, tileY_ + tileWidth_*animPosition_);
 
 		for (int i = 0; i < 6; i++)
 		{
@@ -126,27 +128,26 @@ namespace T3E
 		{
 			Vertex vertexData[6];
 		
+			//UV COORDS ARE SWAPPED!!!
 			//top left
-
 			vertexData[0].setPosition(x_, y_ + height_);
-			vertexData[0].setUV(  tileHeight_, tileWidth_*animPosition_);
+			vertexData[0].setUV(tileX_ + 0 , tileY_ + tileWidth_*animPosition_);		
 			//bottom left
-
 			vertexData[1].setPosition(x_, y_);
-			vertexData[1].setUV(0, tileWidth_*animPosition_);
-
+			vertexData[1].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_ );
 			//bottom right
 			vertexData[2].setPosition(x_ + width_, y_);
-			vertexData[2].setUV(0, tileWidth_*animPosition_ + tileWidth_);
+			vertexData[2].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_+ tileWidth_);
+			
 			//bottom right
 			vertexData[3].setPosition(x_ + width_, y_);
-			vertexData[3].setUV(0, tileWidth_*animPosition_ + tileWidth_);
+			vertexData[3].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_+ tileWidth_);	
 			//top right
 			vertexData[4].setPosition(x_ + width_, y_ + height_);
-			vertexData[4].setUV(  tileHeight_, tileWidth_*animPosition_ + tileWidth_);
+			vertexData[4].setUV(tileX_ + 0, tileY_ + tileWidth_*animPosition_+ tileWidth_);		
 			//top left
 			vertexData[5].setPosition(x_, y_ + height_);
-			vertexData[5].setUV(  tileHeight_, tileWidth_*animPosition_);
+			vertexData[5].setUV(tileX_ + 0, tileY_ + tileWidth_*animPosition_);
 			
 			for (int i = 0; i < 6; i++)
 			{

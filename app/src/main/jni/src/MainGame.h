@@ -29,6 +29,10 @@
 #include "BloodVessel.h"
 #include "Grid.h"
 
+
+
+#include "Type3Engine/Vertex.h"//draw grid
+
 enum class GameState {PLAY, EXIT};
 
 class MainGame
@@ -103,11 +107,17 @@ private:
     T3E::AudioEngine audioEngine_;
 	
 	// Conversion Functions
-    
-    // Returns a vec4 where x and y are the touch world positions, z is 0.0f, w is a number
+     // Returns a vec4 where x and y are the touch world positions, z is 0.0f, w is a number
     glm::vec4 touch_to_world( glm::vec2 touch_coord );
     // Returns an SDL_Point where x represents the row and y represents the column
     SDL_Point world_to_grid( glm::vec4 world_coord );
+	
+	//Draw hex grid 	
+	T3E::GLSLProgram hexProgram_;
+	GLint hex_finalM_location, hex_inputColour_location;
+ 	GLuint hexBufferName;
+	T3E::Vertex hexVertexes[12];
+	void drawGrid();
 };
 
 #endif

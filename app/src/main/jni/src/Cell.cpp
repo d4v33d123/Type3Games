@@ -15,34 +15,32 @@ namespace T3E
     }
 
 	void Cell::init(CellState state, int deathChance)
-	{
-		//init split time and timer
-		splitTimer_ = 0;
-		newSplitTime();
-		
-		spriteSheet_.init(-0.453f, -0.453f, 0.96f, 0.96f, "textures/cellSheet.png", 1.0f/18, 1.0f/18, 18);
-		
+	{		
 		switch(state)
 		{
 		case CellState::STEM:
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
 			deathChance_ = 0;
 			spriteSheet_.setSpeed(0.08);
 			break;
 		case CellState::NORMAL:
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(0.0f, 0.7f, 1.0f, 1.0f); // blue
 			deathChance_ = deathChance;
 			spriteSheet_.setSpeed(0.15);
 			break;	
 		case CellState::MUTATED:
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f); // orange
 			deathChance_ = deathChance;
 			spriteSheet_.setSpeed(0.25);
 			break;
 		case CellState::CANCEROUS:
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // magenta
 			deathChance_ = 0;
@@ -51,7 +49,12 @@ namespace T3E
 		default:
 			break;
 		}
-
+		
+		//init split time and timer
+		splitTimer_ = 0;
+		newSplitTime();
+		
+		//tints
 		tint_ = normalTint_;
 		brightTint_ = normalTint_*2.0f;
 	}
@@ -77,7 +80,12 @@ namespace T3E
 	
 	void Cell::newSplitTime(int min, int max)
 	{
-		splitTime_ = min + (rand() % max);
+		if(state_ == CellState::CANCEROUS)
+		{
+			splitTime_ = (min*16) + (rand() % (max*2));
+		}
+		else
+			splitTime_ = min + (rand() % max);
 	}
 	
 	void Cell::arrest()

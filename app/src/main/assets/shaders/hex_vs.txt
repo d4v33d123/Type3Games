@@ -2,11 +2,12 @@
 //transform vertex to homogeneous space
 
 //input constants
+uniform lowp vec4 inputColour;
 uniform mat4 finalM;
 
 //input variables
 attribute vec4 aPosition;
-attribute lowp vec4 aColour;
+//attribute lowp vec4 aColour;
 
 //output variables
 varying lowp vec4 vColour;
@@ -17,5 +18,5 @@ void main()
 	gl_Position = finalM * aPosition;
 
 	//pass on unchanged colour
-    vColour = aColour;
+    vColour = inputColour;
 }

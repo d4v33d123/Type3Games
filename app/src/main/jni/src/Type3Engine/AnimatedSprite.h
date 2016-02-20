@@ -19,7 +19,8 @@ namespace T3E
 		AnimatedSprite();
 		~AnimatedSprite();
 
-		void init(float x, float y, float width, float height, std::string texturePath, float TileWidth, float TileHeight, int numSprites);
+		//UV COORDS ARE SWAPPED!!! invert width with height and x with y for tiling, position in spritesheet etc
+		void init(float x, float y, float width, float height, std::string texturePath, float tileX, float tileY, float tileWidth, float tileHeight, int numSprites);
 
 		void draw();
 		void Update(float deltaTime);
@@ -35,7 +36,7 @@ namespace T3E
 		int numSprites_;
 		float animCount_;
 		float animEnd_;
-		float width_, height_, tileWidth_, tileHeight_;		
+		float width_, height_, tileWidth_, tileHeight_, tileX_, tileY_;		
 		GLuint vboID_;
 		GLTexture texture_;
 		

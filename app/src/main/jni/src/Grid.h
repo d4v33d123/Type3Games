@@ -8,11 +8,9 @@
 #include "BloodVessel.h"
 #include "SDL.h"//log
 
+
 namespace T3E
 {
-    //class Cell;
-    //class BloodVessel;
-
     class Grid
     {
     public:
@@ -73,14 +71,6 @@ namespace T3E
 		// [ret] true if the distance between the two hexes is not greater than the range given
 		bool inRange(int rowA, int colA ,int rowB, int colB, int range);
 		
-		//TODO: obsolete?
-		// [in] row of hex to check
-		// [in] column of hex to check
-		// [in] NodeType to check against
-		// [ret] true if the given type matches the type of the hex at the given coordinates,
-		//		 false otherwise or if the hex doesn't exist
-		//bool hexIsOfType(int row, int col, NodeType type);
-		
 		// [in] row of cell to arrest
 		// [in] column of cell to arrest
 		// [ret] false if cell doesn't exist or is not CellState::NORMAL, true if success
@@ -103,6 +93,32 @@ namespace T3E
 		// [ret] true if new cell is created, false otherwise
 		bool spawnCell(int selRow, int selCol, int touchRow, int touchCol);
 		
+		//TODO: does this make getNode redundant?
+		// [in] row
+        // [in] column
+        // [out] hex at given row column if found
+        // [ret] true if given row/col lies on board, false otherwise
+		bool getHex(int row, int col, Hex** hex);
+		
+		//[ret] size of one of the grid's dimensions
+		//		assuming height = width
+		int getSize(){return CHUNK_WIDTH;};
+		
+		//TODO:kinda meh designed function, but i'm tired, pls rethink this
+		// [in] row of hex to be queried
+		// [in] column of hex to be queried
+		// [ret] vec3 where x and y are world coords of hex
+		//		z= 1 if hex is in blood vessel range or 0 otherwise
+		//		x and y will be -1 if hex doesnt exist(our grid is all in positive coords so that works for now)
+		glm::vec3 getHexDrawInfo(int row, int col);
+		
+		// [in] row of currently selected cell
+		// [in] column of currently selected cell
+		// [in] row of touched hex
+		// [in] column of touched hex
+		// [ret] true if stem was moved false otherwise
+		bool moveStemCell(int selRow, int selCol, int touchRow, int touchCol);
+		
     private:
 
 		struct birthInfo
@@ -119,10 +135,9 @@ namespace T3E
 		struct deathInfo
 		{
 			int row, col;
-			//int cellPos;
 			
-			deathInfo(int r, int c/*, int p*/)
-			:row(r) ,col(c)/*, cellPos(p)*/
+			deathInfo(int r, int c)
+			:row(r) ,col(c)
 			{}
 		};
 		
@@ -137,7 +152,6 @@ namespace T3E
         // Returns true if the given row/col lies on the grid
         bool hexExists( int row, int col );
     };
-
 }
 
 #endif

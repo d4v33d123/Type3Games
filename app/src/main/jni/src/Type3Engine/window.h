@@ -30,7 +30,6 @@ namespace T3E
 
 		void swapBuffer();
 		
-		void destroy();//destroy sdlWindow_
 		void updateSizeInfo();//updatescreenWidth_ and screenHeight_ with the current window size
 		
 	private:
