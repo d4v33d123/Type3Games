@@ -1,5 +1,9 @@
 ﻿# Android version
 
+## View the documentation!
+
+[Github Pages](http://d4v33d123.github.io/Type3Games/index.html)
+
 ## Change Log of the first commit:
 
 ### Changes from Desktop GLES test project (Visual studio project)
