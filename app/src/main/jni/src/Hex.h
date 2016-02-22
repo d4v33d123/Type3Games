@@ -40,8 +40,7 @@ namespace T3E
         int row_, col_; // Grid coords
         float x_, y_;   // World coords
         float hexSize_; // Half width in OpenGL units TODO: this could be a #define instead? or constexpr
-        glm::mat2 layout_, layoutInverse_; // Point top hex grid base vectors
-        
+        glm::mat2 layout_, layoutInverse_; // Point top hex grid base vectors        
     };
 
     // Hex's are considered the same if they are in the same position, NOTE: their actual content is being ignored!

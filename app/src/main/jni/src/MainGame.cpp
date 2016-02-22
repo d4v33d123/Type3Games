@@ -242,13 +242,13 @@ void MainGame::processInput(float dTime)
 						//try to move stem cell
 						grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
 						
-					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
-					cellSelected_ = false;					
+					SDL_Log("SELECT %d",grid_.unselectCell(selectedPos_.x, selectedPos_.y));
+					//cellSelected_ = false;					
 				}
 				
 				//try to select a cell
 				//also, if a new cell was created, select it
-				selectCell(rowCol.x, rowCol.y);
+				SDL_Log("SELECT %d",selectCell(rowCol.x, rowCol.y));
             }
 							
             // Reset the type of touch if the last finger was released
@@ -293,8 +293,10 @@ void MainGame::processInput(float dTime)
 			rowCol = world_to_grid(touch_to_world(pressPos_));
 			//try to arrest
 			if(!grid_.arrestCell(rowCol.x, rowCol.y))
-				//try to spawn a blood vessel
-				growBloodVesselAt( rowCol.x, rowCol.y );
+				//try to change stem cell mode
+				if(!grid_.setStemToSpawnMode(rowCol.x, rowCol.y))
+					//try to spawn a blood vessel
+					growBloodVesselAt( rowCol.x, rowCol.y );
 		}
 	}	
 }

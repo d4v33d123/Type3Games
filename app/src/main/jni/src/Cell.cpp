@@ -6,7 +6,8 @@ namespace T3E
 	tint_ (glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
 	normalTint_(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
 	brightTint_(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
-	selected_(false)
+	selected_(false),
+	alternateMode_(false)
     {
     }
 
@@ -22,6 +23,7 @@ namespace T3E
 			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
+			alternateTint_ = glm::vec4(1.0f, 0.7f, 0.7f, 1.0f);// pink
 			deathChance_ = 0;
 			spriteSheet_.setSpeed(0.08);
 			break;
@@ -57,6 +59,7 @@ namespace T3E
 		//tints
 		tint_ = normalTint_;
 		brightTint_ = normalTint_*2.0f;
+		brightAlternateTint_ = alternateTint_ * 2.0f;
 	}
 	
 	bool Cell::update(float dTime)
@@ -99,12 +102,28 @@ namespace T3E
 	void Cell::select()
 	{
 		selected_ = true;
-		tint_ = brightTint_;
+		if(alternateMode_)
+			tint_ = brightAlternateTint_;
+		else
+			tint_ = brightTint_;
 	}
 	
 	void Cell::unselect()
 	{
 		selected_ = false;
-		tint_ = normalTint_;
+		if(alternateMode_)
+			tint_ = alternateTint_;
+		else
+			tint_ = normalTint_;
+	}
+	
+	void Cell::toggleMode()
+	{
+		alternateMode_ = !alternateMode_;
+		
+		if(alternateMode_)
+			tint_ = alternateTint_;
+		else
+			tint_ = normalTint_;
 	}
 }

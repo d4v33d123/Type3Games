@@ -9,20 +9,14 @@ namespace T3E
 	class BloodVessel : public Node
 	{
 	public:
-        BloodVessel() {}
-        virtual ~BloodVessel() {}
+        BloodVessel();
+        virtual ~BloodVessel();
 		
-		// [in] time since last frame was rendered
-		//virtual void update(float dt){;};
-		
-		//virtual void init(int column, int row, int gridColumns, int gridRows);//coords of central hex
 		//getters
-		//glm::vec4 getTint() { return tint_; }
-		//float getRange() { return range_; }
+		float getRange() { return range_; };
 		
 	private:
-		//float range_;
-		//glm::vec4 tint_;//colour for shader
+		float range_;
 	};
 }
 

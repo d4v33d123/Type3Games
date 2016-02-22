@@ -359,8 +359,9 @@ namespace T3E
 			//check if the new cell is in the range of a blood vessel
 			for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
 			{
+				BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
 				//range 2 from centre of bv, so adjacent
-				if(inRange((*bvs)->getRow(), (*bvs)->getCol(), c->row, c->col, 2))
+				if(inRange((*bvs)->getRow(), (*bvs)->getCol(), c->row, c->col, bloodVessel->getRange()))
 				{
 					//nc->makeGreen();
 					//reset death chance
@@ -374,7 +375,7 @@ namespace T3E
 	
 	bool Grid::arrestCell(int row, int col)
 	{
-		 // If the hex does not lie on the board or is not a cell, return error
+		// If the hex does not lie on the board or is not a cell, return error
         if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
             return false;
 		
@@ -432,32 +433,36 @@ namespace T3E
 		
 		//make sure it's not a stem cell
 		Cell* selectedCell = (Cell*)(grid_[selRow * CHUNK_WIDTH + selCol].getNode());
-		if(selectedCell->getState() != CellState::STEM)
+		
+		//a stem cell must be in alternate mode to spawn
+		if(selectedCell->getState() == CellState::STEM)
+			if(!selectedCell->isInAlternateMode())
+				return false;
+
+		// get the neighbours of the currently selected cell
+		T3E::Hex* neighbours[6];
+		getNeighbours( selRow, selCol, neighbours );
+		//check if the touched position is one of neighbours of the selected cell
+		for(int i = 0; i < 6; ++i)
 		{
-			// get the neighbours of the currently selected cell
-			T3E::Hex* neighbours[6];
-			getNeighbours( selRow, selCol, neighbours );
-			//check if the touched position is one of neighbours of the selected cell
-			for(int i = 0; i < 6; ++i)
+			if(neighbours[i] != nullptr)
 			{
-				if(neighbours[i] != nullptr)
+				if((neighbours[i]->getRow() == touchRow) && (neighbours[i]->getCol() == touchCol))
 				{
-					if((neighbours[i]->getRow() == touchRow) && (neighbours[i]->getCol() == touchCol))
+					//if it's empty, spawn a cell
+					if(isEmpty(touchRow, touchCol))
 					{
-						//if it's empty, spawn a cell
-						if(isEmpty(touchRow, touchCol))
-						{
-							if(newCell(touchRow, touchCol, selectedCell->getState(), selectedCell->getDeathChance(), nullptr))
-								return true;
-							//couldn't create cell
-							return false;
-						}
-						else
-							break;
+						if(newCell(touchRow, touchCol, selectedCell->getState(), selectedCell->getDeathChance(), nullptr))
+							return true;
+						//couldn't create cell
+						return false;
 					}
+					else
+						break;
 				}
 			}
-		}		
+		}
+		
 		//not one of the neighbours or we selected a stem cell
 		return false;
 	}
@@ -521,13 +526,31 @@ namespace T3E
 		//check if in range of a blood vessel
 		for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
 		{
+			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
 			//range 2 from centre of bv, so adjacent
-			if(inRange((*bvs)->getRow(), (*bvs)->getCol(), row, col, 2))
+			if(inRange((*bvs)->getRow(), (*bvs)->getCol(), row, col, bloodVessel->getRange()))
 			{
 				data.z = 1;//will be drawn red
 			}
 		}
 		
 		return data;
+	}
+	
+	bool Grid::setStemToSpawnMode(int row, int col)
+	{
+		// If the hex does not lie on the board or is not a cell, return error
+        if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
+            return false;
+		
+		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		//only arrest normal cells
+		if(cell->getState() == CellState::STEM)
+		{
+			cell->toggleMode();
+			return true;
+		}
+		
+		return false;		
 	}
 }

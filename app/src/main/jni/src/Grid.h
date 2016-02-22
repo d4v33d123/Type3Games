@@ -119,6 +119,12 @@ namespace T3E
 		// [ret] true if stem was moved false otherwise
 		bool moveStemCell(int selRow, int selCol, int touchRow, int touchCol);
 		
+		// [in] row of cell to test
+		// [in] column of cell to test
+		// [ret] false if cell doesn't exist or is not CellState::STEM, true if success
+		// sets stem cell in spawn mode
+		bool setStemToSpawnMode(int row, int col);
+		
     private:
 
 		struct birthInfo

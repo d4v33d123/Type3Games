@@ -46,12 +46,16 @@ namespace T3E
 		void select();
 		void unselect();
 		
+		//swaps between normal and alternate mode
+		void toggleMode();
+		
 		//getters
 		glm::vec4 getTint(){return tint_;};
 		CellState getState(){return state_;};
 		int getDeathChance(){return deathChance_;};
 		bool isSelected(){return selected_;};
 		AnimatedSprite* getSprite(){return &spriteSheet_;};
+		bool isInAlternateMode(){return alternateMode_;};
 		
 		//setters
 		void setDeathChance(int dc){deathChance_ = dc;};
@@ -62,10 +66,14 @@ namespace T3E
 		glm::vec4 tint_;//current colour
 		glm::vec4 normalTint_;//colour when non selected
 		glm::vec4 brightTint_;//colour when selected
+		glm::vec4 alternateTint_;//colour when alternate
+		glm::vec4 brightAlternateTint_;//colour when alternate and selected
 		bool selected_;//cell is the current selection?
 		int deathChance_;//chance to die instead of splitting
 		float splitTimer_;//time since last split; milliseconds
 		float splitTime_;//time to reach to start split; milliseconds
+		
+		bool alternateMode_;//true when cell is in secondary mode (e.g. stem cell in spawn mode)
 	};
 }
 
