@@ -49,6 +49,7 @@ namespace T3E
 			spriteSheet_.setSpeed(0.4);
 			break;
 		default:
+			SDL_Log("This log goes to the memory of that one f***ing bug, may he be remembered and never repeated");
 			break;
 		}
 		
@@ -94,7 +95,8 @@ namespace T3E
 	void Cell::arrest()
 	{
 		state_ = CellState::ARRESTED;
-		tint_ = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f); // grey
+		normalTint_ = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f); // grey
+		tint_ = normalTint_;
 		deathChance_ = 0;
 		splitTimer_ = 0.0f;
 	}

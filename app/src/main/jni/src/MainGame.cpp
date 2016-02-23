@@ -241,12 +241,12 @@ void MainGame::processInput(float dTime)
 				//if a cell was selected
 				if(cellSelected_)
 				{
-					//try to spawn
+ 					//try to spawn
 					if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
 						//try to move stem cell
 						grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-						
-					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
+ 					
+					grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
 					//cellSelected_ = false;					
 				}
 				
@@ -264,8 +264,7 @@ void MainGame::processInput(float dTime)
 			if(std::abs(evnt.tfinger.dx) > 0.015 || std::abs(evnt.tfinger.dy) > 0.015)
 			{
 				finger_dragged_ = true;
-				fingerPressed_ = false;
-				
+				fingerPressed_ = false;	
 			}
 			
 			// pan if only one finger is on screen; you don't want to pan during pinch motion
@@ -273,8 +272,8 @@ void MainGame::processInput(float dTime)
 			{
 				camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
 			}
-
 			//SDL_Log("%f               %f", evnt.tfinger.dx,evnt.tfinger.dy);
+			
 			break;
 		
 		case SDL_MULTIGESTURE: 		
@@ -296,8 +295,8 @@ void MainGame::processInput(float dTime)
 			pressTimer_ = 0;
 			fingerPressed_ = false;
 			rowCol = world_to_grid(touch_to_world(pressPos_));
-
-			//try to arrest
+		
+ 			//try to arrest
 			if(!grid_.arrestCell(rowCol.x, rowCol.y))
 				//try to change stem cell mode
 				if(!grid_.setStemToSpawnMode(rowCol.x, rowCol.y))
@@ -487,6 +486,7 @@ bool MainGame::selectCell(int row, int col)
 		selectedPos_ = glm::vec2(row, col);
 		return true;
 	}
+	cellSelected_ = false;
 	return false;
 }
 
