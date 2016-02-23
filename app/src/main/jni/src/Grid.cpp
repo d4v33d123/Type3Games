@@ -312,7 +312,7 @@ namespace T3E
 								break;
 								
 							case CellState::NORMAL:
-								/* if(inBvRange)
+								if(inBvRange)
 								{
 									//increase parent death chance by 5%
 									current->incDeathChance(5);
@@ -329,7 +329,7 @@ namespace T3E
 										newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, current->getDeathChance()));
 									}
 									break;
-								} */
+								}
 								break;
 								
 							case CellState::MUTATED:								

@@ -50,6 +50,7 @@ namespace T3E
 			break;
 		default:
 			SDL_Log("This log goes to the memory of that one f***ing bug, may he be remembered and never repeated");
+			//mandatory treasure map with hint to solve this mysterious inscription - commit c263ddb77291b6dd94a99604cad51f4bc22b79cb
 			break;
 		}
 		
