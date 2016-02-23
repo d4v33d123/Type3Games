@@ -49,12 +49,13 @@ namespace T3E
 		//swaps between normal and alternate mode
 		void toggleMode();
 		
+		AnimatedSprite* getSprite(){return &spriteSheet_;};
+		
 		//getters
 		glm::vec4 getTint(){return tint_;};
 		CellState getState(){return state_;};
 		int getDeathChance(){return deathChance_;};
 		bool isSelected(){return selected_;};
-		AnimatedSprite* getSprite(){return &spriteSheet_;};
 		bool isInAlternateMode(){return alternateMode_;};
 		
 		//setters

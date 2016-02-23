@@ -43,6 +43,7 @@ namespace T3E
 
 		// setting up open gl context
 		SDL_GLContext glContext = SDL_GL_CreateContext(sdlWindow_);
+		
 		if (glContext == nullptr)
 		{
 			fatalError("SDL_GL CONTEXT COULD NOT BE CREATED");

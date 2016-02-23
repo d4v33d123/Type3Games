@@ -49,6 +49,7 @@ private:
 	const int ZOOM_SENSITIVITY;
 	// Debug Cursor
     glm::vec4 cursor_pos_;
+	//glm::vec4 cursor_pos_on_fup_;
 
 	//control functions
 	void initSystems();
@@ -74,13 +75,6 @@ private:
 	Uint8 nOfFingers_;                  // n of fingers currently touching screen
 	T3E::Camera camera_;                // 2d camera
 	std::vector<T3E::Sprite*> sprites_; // sprite container
-
-	// [in] row to test
-	// [in] column to test
-	// [ret] true if a bv was created, false otherwise
-	// try to create a cell or blood vessel at the specified position
-	// TODO: SHOULD THIS GO INTO GRID CLASS?
-    bool growBloodVesselAt( int row, int col );
 	
 	// [in] row to test
 	// [in] column to test

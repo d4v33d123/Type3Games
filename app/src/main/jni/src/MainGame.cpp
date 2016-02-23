@@ -142,13 +142,17 @@ void MainGame::gameLoop()
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();
 		
+		
 		time_ += 0.1f;
-		calculateFPS();			
+		calculateFPS();	
+
 		if(grid_.update(frameTime_))
 			cellSelected_ = false;
+		
 		renderGame();
+		//SDL_Log("MAINGAME::RENDER --------- renderdone");
 		processInput(frameTime_);
-				
+		
 		// print once every 10 frames
 		static int frameCounter = 0;
 		frameCounter++;
@@ -242,13 +246,13 @@ void MainGame::processInput(float dTime)
 						//try to move stem cell
 						grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
 						
-					SDL_Log("SELECT %d",grid_.unselectCell(selectedPos_.x, selectedPos_.y));
+					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
 					//cellSelected_ = false;					
 				}
 				
 				//try to select a cell
 				//also, if a new cell was created, select it
-				SDL_Log("SELECT %d",selectCell(rowCol.x, rowCol.y));
+				selectCell(rowCol.x, rowCol.y);
             }
 							
             // Reset the type of touch if the last finger was released
@@ -257,19 +261,20 @@ void MainGame::processInput(float dTime)
 			
 		case SDL_FINGERMOTION:
 			//avoid microdrag detection
-			if(std::abs(evnt.tfinger.dx) > 0.01 || std::abs(evnt.tfinger.dy) > 0.01)
+			if(std::abs(evnt.tfinger.dx) > 0.015 || std::abs(evnt.tfinger.dy) > 0.015)
 			{
 				finger_dragged_ = true;
 				fingerPressed_ = false;
+				
 			}
-			//SDL_Log("%f               %f", evnt.tfinger.dx,evnt.tfinger.dy);
-
+			
 			// pan if only one finger is on screen; you don't want to pan during pinch motion
 			if( nOfFingers_ < 2 )
 			{
 				camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
 			}
 
+			//SDL_Log("%f               %f", evnt.tfinger.dx,evnt.tfinger.dy);
 			break;
 		
 		case SDL_MULTIGESTURE: 		
@@ -291,12 +296,13 @@ void MainGame::processInput(float dTime)
 			pressTimer_ = 0;
 			fingerPressed_ = false;
 			rowCol = world_to_grid(touch_to_world(pressPos_));
+
 			//try to arrest
 			if(!grid_.arrestCell(rowCol.x, rowCol.y))
 				//try to change stem cell mode
 				if(!grid_.setStemToSpawnMode(rowCol.x, rowCol.y))
 					//try to spawn a blood vessel
-					growBloodVesselAt( rowCol.x, rowCol.y );
+					grid_.growBloodVesselAt( rowCol.x, rowCol.y );
 		}
 	}	
 }
@@ -310,13 +316,14 @@ void MainGame::renderGame()
 	//update matrices
 	viewM_ = glm::lookAt(camera_.getPosition(), camera_.getLookAt(), camera_.getUp());
 	finalM_ = projectionM_*viewM_*worldM_;//order matters!
-		
+	
+	
 	//RENDER THE HEX GRID
 	drawGrid();		
-		
+	
 	//RENDER CELLS AND BLOOD VESSELS
 	cellProgram_.use();
-	
+	//SDL_Log("MAINGAME::RENDER --------- drawingbv");
 	//blood vessels
 	for(int i = 0; i < grid_.numBloodVessels(); ++i)
 	{
@@ -340,8 +347,9 @@ void MainGame::renderGame()
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_ * viewM_ * worldM_;
 	}
-	
+	//SDL_Log("MAINGAME::RENDER --------- drawingcells");
 	//cells
+	
 	for(int i = 0; i < grid_.numCells(); ++i)
 	{
 		T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();
@@ -361,7 +369,7 @@ void MainGame::renderGame()
         glActiveTexture(GL_TEXTURE0+1);
 		
 		glUniform1i(sampler0_location, 1);
-		
+				
 		current->getSprite()->draw();
 		
 		// reset matrices
@@ -376,10 +384,9 @@ void MainGame::renderGame()
 	window_.swapBuffer();
 }
 
-bool MainGame::growBloodVesselAt( int row, int col )
+/* bool MainGame::growBloodVesselAt( int row, int col )
 {
     T3E::Hex* neighbours[6];
-    int adjacentCells = 0;
 
     // return immidiately if the growth coord is not avalible
     if( !grid_.isEmpty( row, col ) ) return false;
@@ -393,7 +400,11 @@ bool MainGame::growBloodVesselAt( int row, int col )
             if( neighbours[i] != nullptr )
             {
 				if(neighbours[i]->getType() == T3E::NodeType::CELL)
-					adjacentCells++;
+				{
+					T3E::Cell* nbr = (T3E::Cell*)(neighbours[i]->getNode());
+					if(nbr->getState() != T3E::CellState::STEM)
+						return false;					
+				}
 				else
 					return false;
             }
@@ -402,12 +413,9 @@ bool MainGame::growBloodVesselAt( int row, int col )
         }
     }
 
-    if( adjacentCells == 6 )
-    {
-        grid_.newBloodVessel( row, col, nullptr );
-		return true;
-    }
-}
+    grid_.newBloodVessel( row, col, nullptr );
+	return true;
+} */
 
 glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
 {

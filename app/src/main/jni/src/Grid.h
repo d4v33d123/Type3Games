@@ -8,7 +8,7 @@
 #include "BloodVessel.h"
 #include "SDL.h"//log
 
-
+//TODO: some functions are redundant or check unnecessary things
 namespace T3E
 {
     class Grid
@@ -91,6 +91,7 @@ namespace T3E
 		// [in] row of touched hex
 		// [in] column of touched hex
 		// [ret] true if new cell is created, false otherwise
+		// calles when player tries to spawn cell manually
 		bool spawnCell(int selRow, int selCol, int touchRow, int touchCol);
 		
 		//TODO: does this make getNode redundant?
@@ -124,6 +125,13 @@ namespace T3E
 		// [ret] false if cell doesn't exist or is not CellState::STEM, true if success
 		// sets stem cell in spawn mode
 		bool setStemToSpawnMode(int row, int col);
+		
+		
+		// [in] row to test
+		// [in] column to test
+		// [ret] true if a bv was created, false otherwise
+		// try to create a blood vessel at the specified position
+		bool growBloodVesselAt( int row, int col );
 		
     private:
 

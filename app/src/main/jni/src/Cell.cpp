@@ -42,7 +42,7 @@ namespace T3E
 			spriteSheet_.setSpeed(0.25);
 			break;
 		case CellState::CANCEROUS:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18);
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 2.0f/18, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // magenta
 			deathChance_ = 0;

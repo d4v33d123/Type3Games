@@ -27,11 +27,11 @@ namespace T3E
 			// insert it into the map
 			textureMap_.insert(make_pair(texturePath, newTexture));
 
-			std::cout << "Loaded Texture\n";
+			//SDL_Log("Loaded Texture");
 
 			return newTexture;
 		}
-		std::cout << "Used Cached Texture!\n";
+		//SDL_Log("Used Cached Texture!\n");
 		// return our texture if it is already in the map
 		return mit->second;
 	}

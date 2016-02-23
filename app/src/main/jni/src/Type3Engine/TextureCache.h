@@ -4,7 +4,7 @@
 #include <map>
 #include "glTexture.h"
 #include "ImageLoader.h"
-#include <iostream>
+#include "SDL.h"
 
 namespace T3E
 {
