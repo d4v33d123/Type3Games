@@ -5,7 +5,7 @@
 #include <vector>
 #include "Node.h"
 
-#define CHUNK_WIDTH 32
+#define CHUNK_WIDTH 48
 
 namespace T3E
 {

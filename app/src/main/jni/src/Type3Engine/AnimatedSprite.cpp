@@ -84,34 +84,29 @@ namespace T3E
 
 	void AnimatedSprite::draw()
 	{
-		SDL_Log("ANIMSPRITE::DRAW --------- 1");
 		// bind the texture
 		glBindTexture(GL_TEXTURE_2D, texture_.id);// dont want to unbind this		
-		//SDL_Log("ANIMSPRITE::DRAW --------- 2");
+
 		// bind the buffer object
 		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
-		//SDL_Log("ANIMSPRITE::DRAW --------- 3");
+
 		// tell opengl that we want to use the first attribute array
 		glEnableVertexAttribArray(0);
-		//SDL_Log("ANIMSPRITE::DRAW --------- 4");
+
 		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 		// this is our pixel attribute pointer;
 		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, colour));
 		//this is out UV attribute pointer;
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
-		//SDL_Log("ANIMSPRITE::DRAW --------- 5");
+
 		// draw our 6 verticies
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		//SDL_Log("err %d", glGetError());
-		SDL_Log("ANIMSPRITE::DRAW --------- 6");
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);
 
-		//SDL_Log("ANIMSPRITE::DRAW --------- 7");
 		// unbind the VBO
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//SDL_Log("ANIMSPRITE::DRAW --------- 8");
 	}
 
 	void AnimatedSprite::Update(float dTime)

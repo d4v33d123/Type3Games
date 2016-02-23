@@ -297,7 +297,6 @@ namespace T3E
 								}
 								if(inRange((*bvs)->getRow(), (*bvs)->getCol(), neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), bloodVessel->getRange()*2))
 									inBvCancerRange = true;
-									
 							}
 							
 							//create a new cell depending on current's type

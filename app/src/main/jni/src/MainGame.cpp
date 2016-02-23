@@ -55,7 +55,7 @@ void MainGame::initSystems()
 	// init camera at 0,0,1 looking at origin, up is y axis
 	camera_.init( glm::vec3( 0.0f, 0.0f, 1.0f ), glm::vec3( 0.0f,0.0f,0.0f ) );
 	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
-	camera_.moveTo(glm::vec3( 17.0f, 11.0f, 2.0f ) );
+	camera_.moveTo(glm::vec3( 30.0f, 18.5f, 2.0f ) );
 
 	// init projection matrix
 	// calculate aspect ratio
@@ -64,10 +64,10 @@ void MainGame::initSystems()
 	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
 	        
     // Set the first cell
-    grid_.newCell( 12, 12, T3E::CellState::STEM, 0, nullptr );
+    grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
 	
     // Set a test blood vessel
-    grid_.newBloodVessel( 14, 14, nullptr );
+    grid_.newBloodVessel( 24, 24, nullptr );
 	
 	//init the hex vertex buffer
 	glGenBuffers(1, &hexBufferName);
