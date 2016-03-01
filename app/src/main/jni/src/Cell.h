@@ -37,7 +37,7 @@ namespace T3E
 		void newSplitTime(int min = MIN_ST, int max = MAX_ST);
 	
 		// [in] amount to add to current death chance
-		void incDeathChance(int dc){deathChance_ += dc;};
+		void incDeathChance(int dc);
 		
 		// set state to arrested
 		void arrest();

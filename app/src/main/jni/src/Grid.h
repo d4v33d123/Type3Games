@@ -65,11 +65,20 @@ namespace T3E
 		// call update methods of grid elements, spawn/kill cells according to sim rules
 		bool update(float dTime);
 		
+		//TODO: use hexexist checks in getdistance and inrange ? or not since we check before anyway since it's only used internally?
+		
 		// [in] a hex from the grid
 		// [in] another hex from the grid
 		// [in] maximum range in number of hexes 
 		// [ret] true if the distance between the two hexes is not greater than the range given
 		bool inRange(int rowA, int colA ,int rowB, int colB, int range);
+		
+		// [in] row of a hex from the grid
+		// [in] col of a hex from the grid
+		// [in] row of another hex from the grid
+		// [in] col of another hex from the grid
+		// [ret] distance in n of hexes between the two given hex coords
+		int getDistance(int rowA, int colA ,int rowB, int colB);
 		
 		// [in] row of cell to arrest
 		// [in] column of cell to arrest
@@ -105,13 +114,14 @@ namespace T3E
 		//		assuming height = width
 		int getSize(){return CHUNK_WIDTH;};
 		
-		//TODO:kinda meh designed function, but i'm tired, pls rethink this
+		//TODO:kinda meh designed function?...
 		// [in] row of hex to be queried
 		// [in] column of hex to be queried
 		// [ret] vec3 where x and y are world coords of hex
-		//		z= 1 if hex is in blood vessel range or 0 otherwise
+		//		z = 1 if hex is in blood vessel range or 0 otherwise
+		//		w = lerp factor (1 = full neutral, 0 = full red)
 		//		x and y will be -1 if hex doesnt exist(our grid is all in positive coords so that works for now)
-		glm::vec3 getHexDrawInfo(int row, int col);
+		glm::vec4 getHexDrawInfo(int row, int col);
 		
 		// [in] row of currently selected cell
 		// [in] column of currently selected cell
@@ -125,7 +135,6 @@ namespace T3E
 		// [ret] false if cell doesn't exist or is not CellState::STEM, true if success
 		// sets stem cell in spawn mode
 		bool setStemToSpawnMode(int row, int col);
-		
 		
 		// [in] row to test
 		// [in] column to test

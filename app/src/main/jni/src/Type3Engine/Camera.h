@@ -17,7 +17,7 @@ namespace T3E
 		void setPosition(glm::vec3 position) { position_ = position; };
 		void setLookAt(glm::vec3 lookAt) { lookAt_ = lookAt; };
 		void setUp(glm::vec3 up) { up_ = up; };
-		void setZoomRange(glm::vec3 up) { up_ = up; };
+		void setZoomRange(glm::vec2 zr) { zoomRange_ = zr; };
 		void setSensitivity(float move, float zoom) { moveSensitivity_ = move; zoomSensitivity_ = zoom;};
 		
 		//getters

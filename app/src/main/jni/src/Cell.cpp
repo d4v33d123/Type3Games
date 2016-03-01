@@ -45,7 +45,7 @@ namespace T3E
 			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 2.0f/18, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // magenta
-			deathChance_ = 0;
+			deathChance_ = deathChance;
 			spriteSheet_.setSpeed(0.4);
 			break;
 		default:
@@ -128,5 +128,13 @@ namespace T3E
 			tint_ = alternateTint_;
 		else
 			tint_ = normalTint_;
+	}
+	
+	void Cell::incDeathChance(int dc)
+	{
+		deathChance_ += dc;
+		//death test rolls 0 to 99, so need to cap
+		if(deathChance_ > 99)
+			deathChance_ = 99;
 	}
 }

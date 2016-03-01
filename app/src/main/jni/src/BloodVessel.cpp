@@ -2,7 +2,7 @@
 namespace T3E
 {
 	BloodVessel::BloodVessel()
-	:range_(7)
+	:range_(5)
 	{}
 	
 	BloodVessel::~BloodVessel()

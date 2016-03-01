@@ -2,7 +2,7 @@
 //transform vertex to homogeneous space
 
 //input constants
-uniform lowp vec4 inputColour;
+uniform lowp float weight;
 uniform mat4 finalM;
 
 //input variables
@@ -12,11 +12,14 @@ attribute vec4 aPosition;
 //output variables
 varying lowp vec4 vColour;
 
-void main() 
+void main()
 {
 	//transform position with world view and projection matrices
 	gl_Position = finalM * aPosition;
 
+    lowp vec4 neutralColour = vec4(0.1, 0.3, 0.4, 1.0);//dark blueish
+    lowp vec4 highlightColour = vec4(1.0, 0.0, 0.0, 1.0);//red
+
 	//pass on unchanged colour
-    vColour = inputColour;
+    vColour = mix(highlightColour, neutralColour, weight);
 }

@@ -54,6 +54,7 @@ void MainGame::initSystems()
 	
 	// init camera at 0,0,1 looking at origin, up is y axis
 	camera_.init( glm::vec3( 0.0f, 0.0f, 1.0f ), glm::vec3( 0.0f,0.0f,0.0f ) );
+	camera_.setZoomRange( glm::vec2(1.0f, 8.0f) );
 	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
 	camera_.moveTo(glm::vec3( 30.0f, 18.5f, 2.0f ) );
 
@@ -127,7 +128,7 @@ void MainGame::initShaders()
 	// link
 	hexProgram_.linkShaders();
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	hex_inputColour_location = hexProgram_.getUniformLocation("inputColour");
+	lerp_weight_location = hexProgram_.getUniformLocation("weight");
 	hex_finalM_location = hexProgram_.getUniformLocation("finalM");
 }
 
@@ -383,39 +384,6 @@ void MainGame::renderGame()
 	window_.swapBuffer();
 }
 
-/* bool MainGame::growBloodVesselAt( int row, int col )
-{
-    T3E::Hex* neighbours[6];
-
-    // return immidiately if the growth coord is not avalible
-    if( !grid_.isEmpty( row, col ) ) return false;
-
-    // Check the cell has a live neighbour
-    if( grid_.getNeighbours( row, col, neighbours ) )
-    {
-        // Count the number of adjacent cells
-        for( int i = 0; i < 6; i++ )
-        {
-            if( neighbours[i] != nullptr )
-            {
-				if(neighbours[i]->getType() == T3E::NodeType::CELL)
-				{
-					T3E::Cell* nbr = (T3E::Cell*)(neighbours[i]->getNode());
-					if(nbr->getState() != T3E::CellState::STEM)
-						return false;					
-				}
-				else
-					return false;
-            }
-			else
-				return false;
-        }
-    }
-
-    grid_.newBloodVessel( row, col, nullptr );
-	return true;
-} */
-
 glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
 {
     glm::vec4 result( touch_coord.x, touch_coord.y, 0.0f, 1.0f );
@@ -544,32 +512,31 @@ void MainGame::calculateFPS()
 void MainGame::drawGrid()
 {
 	//we need to draw the red hexes last if we want them to be on top of the others
-	std::vector<glm::vec3> redHexes;
-	
+	std::vector<glm::vec4> redHexes;
+
 	hexProgram_.use();
 	for(int r = 0; r < grid_.getSize(); ++r)
 	{
 		for(int c = 0; c < grid_.getSize(); ++c)
 		{
-			glm::vec3 coords = grid_.getHexDrawInfo(r, c);
+			glm::vec4 drawData = grid_.getHexDrawInfo(r, c);
 			//if hex exists
-			if(coords.x != -1)
+			if(drawData.x != -1)
 			{
 				//if in range of blood vessel draw it later
-				if(coords.z == 1)
+				if(drawData.z == 1)
 				{				
-					redHexes.push_back(coords);
+					redHexes.push_back(drawData);
 				}
 				else
 				{
 					//send matrix to shaders
 					//translate world matrix to separate triangles and create parallax
-					glm::mat4 transM = glm::translate(worldM_, glm::vec3(coords.x, coords.y, 0.0f));
+					glm::mat4 transM = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
 					finalM_ = finalM_*transM;//shold be just worldM but whatever, it's a test			
 					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-					//set correct tint
-					float tint[] = { 0.3f, 0.7f, 0.7f, 1.0f };
-					glUniform4fv(inputColour_location, 1, tint);
+					//set distance as 1 (lerp 1 towards neutral grid colour) since hex is out of bv range
+					glUniform1f(lerp_weight_location, 1.0f);
 					// bind the buffer object
 					glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 					// tell opengl that we want to use the first attribute array
@@ -593,17 +560,17 @@ void MainGame::drawGrid()
 			}
 		}
 	}
+	
 	//now draw red hexes
-	for(std::vector<glm::vec3>::iterator coords = redHexes.begin(); coords != redHexes.end(); ++coords)
+	for(std::vector<glm::vec4>::iterator data = redHexes.begin(); data != redHexes.end(); ++data)
 	{
 		//send matrix to shaders
 		//translate world matrix to separate triangles and create parallax
-		glm::mat4 transM = glm::translate(worldM_, glm::vec3(coords->x, coords->y, 0.0f));
+		glm::mat4 transM = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
 		finalM_ = finalM_*transM;//shold be just worldM but whatever, it's a test			
 		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//set correct tint
-		float tint[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-		glUniform4fv(inputColour_location, 1, tint);
+		//send distance info
+		glUniform1f(lerp_weight_location, data->w);
 		// bind the buffer object
 		glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 		// tell opengl that we want to use the first attribute array

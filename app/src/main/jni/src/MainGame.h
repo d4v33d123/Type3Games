@@ -97,7 +97,7 @@ private:
 	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse; // transform matrices
 	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)	
 
-	//AUDIO (not quite as important as graphics but more important than conversion functions)
+	//AUDIO (not quite as important as graphics but more important than conversion functions kappa keepo)
     T3E::AudioEngine audioEngine_;
 	
 	// Conversion Functions
@@ -108,7 +108,7 @@ private:
 	
 	//Draw hex grid 	
 	T3E::GLSLProgram hexProgram_;
-	GLint hex_finalM_location, hex_inputColour_location;
+	GLint hex_finalM_location, lerp_weight_location;
  	GLuint hexBufferName;
 	T3E::Vertex hexVertexes[12];
 	void drawGrid();
