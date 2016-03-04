@@ -262,7 +262,7 @@ void MainGame::processInput(float dTime)
 			
 		case SDL_FINGERMOTION:
 			//avoid microdrag detection
-			if(std::abs(evnt.tfinger.dx) > 0.015 || std::abs(evnt.tfinger.dy) > 0.015)
+			if(std::abs(evnt.tfinger.dx) > 0.015 || std::abs(evnt.tfinger.dy) > 0.015) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
 			{
 				finger_dragged_ = true;
 				fingerPressed_ = false;	

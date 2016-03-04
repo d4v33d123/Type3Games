@@ -13,16 +13,20 @@ namespace T3E
 	
 	GLTexture ImageLoader::loadPNG(std::string filePath)
 	{
+		// create a blank texture
 		GLTexture texture = {};
 
+		// create variables for handling the decodePNG
 		std::vector<unsigned char> in;
 		std::vector<unsigned char> out;
 		unsigned long width, height;
 
+		
 		if (IOManager::readBinaryToBuffer(filePath, in) == false)
 		{
 			fatalError("Failed to load PNG file to buffer!");
 		}
+		
 		
 		int errorCode = decodePNG(out, width, height, &(in[0]), in.size());
 		
@@ -31,12 +35,14 @@ namespace T3E
 			fatalError("decodePNG failed with error: " + to_string(errorCode));
 		}
 
+		// generate the texture
 		glGenTextures(1, &(texture.id));
 
 		glBindTexture(GL_TEXTURE_2D, texture.id);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(out[0]));
 
+		// set the texture parameters
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -46,6 +52,7 @@ namespace T3E
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
+		// set the width and height 
 		texture.width = width;
 		texture.height = height;
 

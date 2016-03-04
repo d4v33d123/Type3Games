@@ -7,8 +7,10 @@ extern "C" {
 
 namespace T3E
 {
+	// play sound effect
 	void SoundEffect::play(int loops)
 	{
+		
 		if(Mix_PlayChannel(-1, m_chunk, loops) == -1)
 		{
 			if(Mix_PlayChannel(0, m_chunk, loops) == -1)
@@ -17,44 +19,46 @@ namespace T3E
 			}
 		}
 	}
-	
+	// play the music
 	void Music::play(int loops)
 	{
 		Mix_PlayMusic(m_music, loops);
 	}
-	
+	// pause the music
 	void Music::pause()
 	{
 		Mix_PauseMusic();
 	}
-	
+	// resume the music
 	void Music::resume()
 	{
 		Mix_ResumeMusic();
 	}
-	
+	// stop the music
 	void Music::stop()
 	{
 		Mix_HaltMusic();
 	}
-	
+	// constuctor
 	AudioEngine::AudioEngine()
 	{
 		
 	}
-	
+	// destructor
 	AudioEngine::~AudioEngine()
 	{
 		destroy();
 	}
-	
+	// initialise
 	void AudioEngine::init()
 	{
+		// check to see if MP3 and OGG are working, Could just be OGG since we are only using them
 		if(Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG) == -1)
 		{
 			fatalError("Mix_Init has encountered an error: " + std::string(Mix_GetError()));
 		}
 		
+		//  open 44.1KHz, signed 16bit, system byte order, stereo audio, using 1024 byte chunks
 		if(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
 		{
 			fatalError("Mix_OpenAudio has encountered an error: " + std::string(Mix_GetError()));
@@ -72,14 +76,17 @@ namespace T3E
 		}
 	}
 	
+	// Loading sound effects
 	SoundEffect AudioEngine::loadSoundEffect(const std::string& filePath)
 	{
+		// check the sound cache
 		auto it = m_effectMap.find(filePath);
 		
 		SoundEffect effect;
 		
 		if(it == m_effectMap.end())
 		{
+			// load the sound effect from memory and store it in the cache
 			Mix_Chunk* chunk = Mix_LoadWAV(filePath.c_str());
 			
 			if(chunk == nullptr)
@@ -92,20 +99,24 @@ namespace T3E
 		}
 		else
 		{
+			// get the sound effect from the memory
 			effect.m_chunk = it->second;
 		}
 		
 		return effect;
 	}
 	
+	// load the music
 	Music AudioEngine::loadMusic(const std::string& filePath)
 	{
+		// check the music cache
 		auto it = m_musicMap.find(filePath);
 		
 		Music music;
 		
 		if(it == m_musicMap.end())
 		{
+			// load the music from memory and store it in the cache
 			Mix_Music* mixMusic = Mix_LoadMUS(filePath.c_str());
 			
 			if(mixMusic == nullptr)
@@ -118,6 +129,7 @@ namespace T3E
 		}
 		else
 		{
+			// get the music from the cache
 			music.m_music = it->second;
 		}
 		

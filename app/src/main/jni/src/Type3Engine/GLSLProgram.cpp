@@ -11,22 +11,27 @@ namespace T3E
 	{
 	}
 
+	// compile the shaders
 	void GLSLProgram::compileShaders(const std::string& vertexShaderFilePath, const std::string& pixelShaderFilePath)
 	{
+		// create a new gl program
 		programID_ = glCreateProgram();
 
+		// get the vertex shader and check to see if it has been created
 		vertexShaderID_ = glCreateShader(GL_VERTEX_SHADER);
 		if (vertexShaderID_ == 0)
 		{
 			fatalError("Vertex Shader failed to be created!");
 		}
-
+		
+		// get the pixel shader and check to see if it has been created
 		pixelShaderID_ = glCreateShader(GL_FRAGMENT_SHADER);
 		if (pixelShaderID_ == 0)
 		{
 			fatalError("Pixel Shader failed to be created!");
 		}
 
+		// compile the vertex and pixel shaders
 		CompileShader(vertexShaderFilePath, vertexShaderID_);
 		CompileShader(pixelShaderFilePath, pixelShaderID_);
 	}
@@ -43,6 +48,7 @@ namespace T3E
 
 		GLuint isLinked = 0;
 
+		// check to see if the program is linked, if it is not then safely exit 
 		glGetProgramiv(programID_, GL_LINK_STATUS, (int*)&isLinked);
 		if (isLinked == GL_FALSE)
 		{
