@@ -32,6 +32,7 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
 	Type3Engine/AudioEngine.cpp \
 	Type3Engine/window.cpp \
 	Type3Engine/Camera.cpp \
+	Type3Engine/ConfigFile.cpp \
 	Hex.cpp \
 	BloodVessel.cpp \
 	Cell.cpp \

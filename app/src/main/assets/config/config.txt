@@ -1,0 +1,10 @@
+# This is a basic config file!
+# Comments start with a '#'
+# Each option has a name and a value
+# The name is from the start of the line to the colon
+# The value is everything after the colon
+
+# The camera's initial XYZ position
+cam_x: 30.0
+cam_y: 18.5
+cam_z: 2.0

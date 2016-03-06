@@ -1,4 +1,5 @@
 #include "MainGame.h"
+#include "Type3Engine/ConfigFile.h"
 
 MainGame::MainGame() : 
 	screenHeight_(800),
@@ -45,18 +46,27 @@ void MainGame::initSystems()
 	
 	audioEngine_.init();
 	
-	//TODO: change name of window
+	//TODO: change name of window to game name!
 	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
 
 	// enable aplha blending	
 	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
 	glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 	
+	T3E::ConfigFile configFile("config/config.txt");
+
+	float cam_x, cam_y, cam_z;
+
+	// Try to read a value from the config file, otherwise give a default
+	if( !configFile.getFloat("cam_x", &cam_x) ) cam_x = 10.0f;
+	if( !configFile.getFloat("cam_y", &cam_y) ) cam_y = 10.0f;
+	if( !configFile.getFloat("cam_z", &cam_z) ) cam_z = 2.0f;
+
 	// init camera at 0,0,1 looking at origin, up is y axis
 	camera_.init( glm::vec3( 0.0f, 0.0f, 1.0f ), glm::vec3( 0.0f,0.0f,0.0f ) );
 	camera_.setZoomRange( glm::vec2(1.0f, 8.0f) );
 	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
-	camera_.moveTo(glm::vec3( 30.0f, 18.5f, 2.0f ) );
+	camera_.moveTo(glm::vec3( cam_x, cam_y, cam_z ) );
 
 	// init projection matrix
 	// calculate aspect ratio
@@ -116,9 +126,9 @@ void MainGame::initShaders()
 	// link
 	cellProgram_.linkShaders();
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	inputColour_location = cellProgram_.getUniformLocation("inputColour");
 	cell_finalM_location = cellProgram_.getUniformLocation("finalM");
 	sampler0_location = cellProgram_.getUniformLocation("sampler0");
+	inputColour_location = cellProgram_.getUniformLocation("inputColour");
 	
 	//HEX PROGRAM
 	// compile
