@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>The Enemy Within: T3E::Grid Class Reference</title>
+<title>Type 3 Games: T3E::Grid Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">The Enemy Within
+   <div id="projectname">Type 3 Games
    </div>
   </td>
  </tr>
@@ -132,6 +132,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (float dTi
 <tr class="memitem:a340e289c86874c05b1cfbcff3b428523"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a340e289c86874c05b1cfbcff3b428523"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>inRange</b> (int rowA, int colA, int rowB, int colB, int range)</td></tr>
 <tr class="separator:a340e289c86874c05b1cfbcff3b428523"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acef5abb8d2591f9001c4c7a12c761cd5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acef5abb8d2591f9001c4c7a12c761cd5"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>getDistance</b> (int rowA, int colA, int rowB, int colB)</td></tr>
+<tr class="separator:acef5abb8d2591f9001c4c7a12c761cd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4ab55a230e2f7ffacea8a7d9597e7bb1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4ab55a230e2f7ffacea8a7d9597e7bb1"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>arrestCell</b> (int row, int col)</td></tr>
 <tr class="separator:a4ab55a230e2f7ffacea8a7d9597e7bb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -150,12 +153,18 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>getHex</b> (int row, 
 <tr class="memitem:a628d4185e6e574cb52f39ffd4cbbcecc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a628d4185e6e574cb52f39ffd4cbbcecc"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>getSize</b> ()</td></tr>
 <tr class="separator:a628d4185e6e574cb52f39ffd4cbbcecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7426eda480e812d7afff0ff59c80ca9b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7426eda480e812d7afff0ff59c80ca9b"></a>
-glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>getHexDrawInfo</b> (int row, int col)</td></tr>
-<tr class="separator:a7426eda480e812d7afff0ff59c80ca9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a2fc48d5edbe0ca58a9be1d7e8df8db"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a2fc48d5edbe0ca58a9be1d7e8df8db"></a>
+glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>getHexDrawInfo</b> (int row, int col)</td></tr>
+<tr class="separator:a6a2fc48d5edbe0ca58a9be1d7e8df8db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9f26676affdce36c78b8fe23836d287"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab9f26676affdce36c78b8fe23836d287"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>moveStemCell</b> (int selRow, int selCol, int touchRow, int touchCol)</td></tr>
 <tr class="separator:ab9f26676affdce36c78b8fe23836d287"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af75dca10e6a9365c4eb11b80272ee277"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af75dca10e6a9365c4eb11b80272ee277"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>setStemToSpawnMode</b> (int row, int col)</td></tr>
+<tr class="separator:af75dca10e6a9365c4eb11b80272ee277"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd93b0b6e7ef1b27b646dd2797eb344d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd93b0b6e7ef1b27b646dd2797eb344d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>growBloodVesselAt</b> (int row, int col)</td></tr>
+<tr class="separator:acd93b0b6e7ef1b27b646dd2797eb344d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_grid_8h_source.html">Grid.h</a></li>
