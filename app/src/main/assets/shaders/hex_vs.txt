@@ -2,6 +2,7 @@
 //transform vertex to homogeneous space
 
 //input constants
+uniform lowp float range;
 uniform lowp float weight;
 uniform mat4 finalM;
 
@@ -17,9 +18,17 @@ void main()
 	//transform position with world view and projection matrices
 	gl_Position = finalM * aPosition;
 
-    lowp vec4 neutralColour = vec4(0.1, 0.3, 0.4, 1.0);//dark blueish
+    lowp vec4 neutralColour = vec4(0.4, 0.4, 0.4, 1.0);//light grey
+    lowp vec4 midColour = vec4(0.1, 0.3, 0.4, 1.0);//dark blueish
     lowp vec4 highlightColour = vec4(1.0, 0.0, 0.0, 1.0);//red
 
-	//pass on unchanged colour
-    vColour = mix(highlightColour, neutralColour, weight);
+    //out of bv range
+    if(range == 2.0)
+        vColour = neutralColour;
+    //in bv large range
+    else if(range == 1.0)
+        vColour = mix(midColour, neutralColour, weight);
+    //in bv range
+    else
+        vColour = mix(highlightColour, midColour, weight);
 }

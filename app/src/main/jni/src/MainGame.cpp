@@ -138,6 +138,7 @@ void MainGame::initShaders()
 	// link
 	hexProgram_.linkShaders();
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
+	range_location = hexProgram_.getUniformLocation("range");
 	lerp_weight_location = hexProgram_.getUniformLocation("weight");
 	hex_finalM_location = hexProgram_.getUniformLocation("finalM");
 }
@@ -521,9 +522,10 @@ void MainGame::calculateFPS()
 
 void MainGame::drawGrid()
 {
-	//we need to draw the red hexes last if we want them to be on top of the others
-	std::vector<glm::vec4> redHexes;
-
+	//draw highlighted hexes last so they're always on top of the others
+	std::vector<glm::vec4> hexesInRange;
+	std::vector<glm::vec4> hexesInLargeRange;
+	
 	hexProgram_.use();
 	for(int r = 0; r < grid_.getSize(); ++r)
 	{
@@ -534,19 +536,24 @@ void MainGame::drawGrid()
 			if(drawData.x != -1)
 			{
 				//if in range of blood vessel draw it later
-				if(drawData.z == 1)
+				if(drawData.z == 0.0f)
 				{				
-					redHexes.push_back(drawData);
+					hexesInRange.push_back(drawData);
 				}
-				else
+				else if(drawData.z == 1.0f)
+				{
+					hexesInLargeRange.push_back(drawData);
+				}
+				else//hex is not in any range of any bv
 				{
 					//send matrix to shaders
-					//translate world matrix to separate triangles and create parallax
 					glm::mat4 transM = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
-					finalM_ = finalM_*transM;//shold be just worldM but whatever, it's a test			
+					finalM_ = finalM_*transM;			
 					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+					//send range info
+					glUniform1f(range_location, drawData.z);
 					//set distance as 1 (lerp 1 towards neutral grid colour) since hex is out of bv range
-					glUniform1f(lerp_weight_location, 1.0f);
+					glUniform1f(lerp_weight_location, drawData.w);
 					// bind the buffer object
 					glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 					// tell opengl that we want to use the first attribute array
@@ -571,14 +578,15 @@ void MainGame::drawGrid()
 		}
 	}
 	
-	//now draw red hexes
-	for(std::vector<glm::vec4>::iterator data = redHexes.begin(); data != redHexes.end(); ++data)
+	//now draw hexes in large range
+	for(std::vector<glm::vec4>::iterator data = hexesInLargeRange.begin(); data != hexesInLargeRange.end(); ++data)
 	{
 		//send matrix to shaders
-		//translate world matrix to separate triangles and create parallax
 		glm::mat4 transM = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
-		finalM_ = finalM_*transM;//shold be just worldM but whatever, it's a test			
+		finalM_ = finalM_*transM;		
 		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+		//send range info
+		glUniform1f(range_location, data->z);
 		//send distance info
 		glUniform1f(lerp_weight_location, data->w);
 		// bind the buffer object
@@ -600,5 +608,37 @@ void MainGame::drawGrid()
 		//reset matrix
 		finalM_ = projectionM_*viewM_*worldM_;
 	}
+	
+	//now draw hexes in range
+	for(std::vector<glm::vec4>::iterator data = hexesInRange.begin(); data != hexesInRange.end(); ++data)
+	{
+		//send matrix to shaders
+		glm::mat4 transM = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
+		finalM_ = finalM_*transM;		
+		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+		//send range info
+		glUniform1f(range_location, data->z);
+		//send distance info
+		glUniform1f(lerp_weight_location, data->w);
+		// bind the buffer object
+		glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
+		// tell opengl that we want to use the first attribute array
+		glEnableVertexAttribArray(0);
+		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
+		// this is our pixel attribute pointer;
+		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
+		//this is out UV attribute pointer;
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
+		// draw our verticies
+		glDrawArrays(GL_LINES, 0, 12);
+		// disable the vertex attrib array
+		glDisableVertexAttribArray(0);
+		// unbind the VBO
+		glBindBuffer(GL_ARRAY_BUFFER, 0);  
+		//reset matrix
+		finalM_ = projectionM_*viewM_*worldM_;
+	}
+	
 	hexProgram_.stopUse();
 }

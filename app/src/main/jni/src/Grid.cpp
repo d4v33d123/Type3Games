@@ -249,6 +249,60 @@ namespace T3E
 		return true;
 	}
 	
+	int Grid::calcDeathChance(int row, int col, int parentDchance, bool cancerous)
+	{
+		//check distance to closest blod vessel
+		float inRange = false;
+		int distToBv = 999;//high number to make sure first if is true
+		int dc;//death chance
+		
+		//get range from the first blood vessel of the bv vector(all have same range)
+		int bvRange = ((BloodVessel*)(bloodVessels_[0]->getNode()))->getRange();
+		for(std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs)
+		{
+			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
+			int dist = getDistance((*bvs)->getRow(), (*bvs)->getCol(), row, col);
+			if(dist < distToBv)
+				distToBv = dist;		
+		}							
+		
+		if(cancerous)
+		{
+			//cancer starts dying after 1.5 range
+			if(bvRange*1.5 >= distToBv)
+				dc = 0;
+			else
+				dc = parentDchance + distToBv*2;
+		}
+		else
+		{
+			//if in range of a blood vessel
+			if(bvRange >= distToBv)
+			{
+				dc = parentDchance + 5 - (bvRange - distToBv);
+				
+				//if adjacent to bv, reset death chance
+				// if(distToBv == 2)	
+					// dc = 5;
+				// else
+					// dc = parentDchance + 5;
+			}
+			else
+			{
+				//the further from bv the higher dc
+				dc = parentDchance + 5 + distToBv;
+			}
+		}
+
+		//cap death chance
+		if(dc > 99)
+			dc = 99;
+		if(dc < 5)
+			dc = 5;
+		
+		return dc;
+	}
+	
 	bool Grid::update(float dTime)
 	{		
 		bool selectedCellDied = false;
@@ -281,100 +335,60 @@ namespace T3E
 							//rolls
 							int noMutation;
 							int noCancer;
-														
-							//check distance to closest blod vessel
-							float inRange = false;
-							int distToBv = 999;
-							int dc, cancer_dc;//death chances
-							//get range from the first blood vessel of the bv vector(all have same range)
-							int bvRange = ((BloodVessel*)(bloodVessels_[0]->getNode()))->getRange();
-							for(std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs)
-							{
-								BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
-								int dist = getDistance((*bvs)->getRow(), (*bvs)->getCol(), neighbours[lucky]->getRow(), neighbours[lucky]->getCol());
-								if(dist < distToBv)
-									distToBv = dist;		
-							}							
-							
-							if(bvRange >= distToBv)
-								inRange = true;
-							
-							//cancer starts dying too after 1.5 range
-							if(bvRange*1.5 >= distToBv)
-								cancer_dc = 0;
-							else
-								cancer_dc = current->getDeathChance() + distToBv*2;
-							
-							//affect death chance of new cell based on data gathered
-							if(inRange)
-							{
-								dc = current->getDeathChance() + 5 - (bvRange - distToBv);
-								
-								//if adjacent to bv, reset death chance
-								// if(distToBv == 2)	
-									// dc = 5;
-								// else
-									// dc = current->getDeathChance() + 5;
-							}
-							else//when outside bv range
-							{
-								//the further from bv the higher dc
-								dc = current->getDeathChance() + 5 + distToBv;
-							}
-							
-							//cap death chance
-							if(dc > 99)
-								dc = 99;
-							if(dc < 5)
-								dc = 5;
-							if(cancer_dc > 99)
-								cancer_dc = 99;
+							//death chance of new cell
+							int dc;
 							
 							//create a new cell depending on current's type
 							switch(current->getState())
 							{
 							case CellState::STEM:
 								//spawn normal cell with 5% death chance
+								dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), false);
 								newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::NORMAL, dc));
 								break;
 								
 							case CellState::NORMAL:
-								//increase parent death chance by 5%
-								current->incDeathChance(5);
 								//roll for mutation
 								noMutation = rand()%100;
 								if(noMutation)
 								{
 									//spawn normal cell with parent's death chance
+									dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), false);
 									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::NORMAL, dc));
 								}
 								else
 								{
 									//spawn mutated cell with parent's death chance
+									dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), false);
 									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, dc));
 								}
+								//increase parent death chance by 5%
+								current->incDeathChance(5);
 								break;
 								
 							case CellState::MUTATED:
-								//increase parent death chance by 5%
-								current->incDeathChance(5);
 								//roll for cancer
 								noCancer = rand()%100;
 								if(noCancer)
 								{	
 									//spawn mutated cell with parent's death chance
+									dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), false);
 									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, dc));							
 								}
 								else
 								{
 									//spawn cancerous cell
-									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, cancer_dc));
+									dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), true);
+									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, dc));
 								}
+								//increase parent death chance by 5%
+								current->incDeathChance(5);
 								break;
 								
 							case CellState::CANCEROUS:
 								//spawn cancerous cell
-								newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, cancer_dc));
+								dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), true);
+								newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, dc));
 								break;
 								
 							default:
@@ -485,18 +499,8 @@ namespace T3E
 					//if it's empty
 					if(isEmpty(touchRow, touchCol))
 					{
-						int distToBv = 9999;
-						//check distance to closest blod vessel
-						for(std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs)
-						{
-							BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
-							int dist = getDistance((*bvs)->getRow(), (*bvs)->getCol(), touchRow, touchCol);
-							if(dist < distToBv)
-								distToBv = dist;
-						}
-						int dc = selectedCell->getDeathChance() + distToBv;
-						if(dc > 99)
-							dc = 99;
+						int dc = calcDeathChance(touchRow, touchCol, selectedCell->getDeathChance(), true);
+						
 						//spawn new cell with parent's death chance + 5
 						if(newCell(touchRow, touchCol, selectedCell->getState(), dc, nullptr))
 						{
@@ -545,7 +549,7 @@ namespace T3E
 						for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
 						{
 							BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
-							if(inRange((*bvs)->getRow(), (*bvs)->getCol(), touchRow, touchCol, bloodVessel->getRange()))
+							if(inRange((*bvs)->getRow(), (*bvs)->getCol(), touchRow, touchCol, bloodVessel->getRange()*1.5f))
 							{
 								if(newCell(touchRow, touchCol, CellState::STEM, 0, nullptr))
 								{
@@ -583,7 +587,7 @@ namespace T3E
 	{
 		glm::vec4 data;
         if( hexExists( row, col ) )
-			data = glm::vec4(grid_[ row * CHUNK_WIDTH + col ].getX(), grid_[ row * CHUNK_WIDTH + col ].getY(), 0, 0);
+			data = glm::vec4(grid_[ row * CHUNK_WIDTH + col ].getX(), grid_[ row * CHUNK_WIDTH + col ].getY(), 2, 0);
 		
 		int closest = 999;
 		//check if in range of a blood vessel
@@ -592,17 +596,28 @@ namespace T3E
 			//get distance
 			int distance = getDistance((*bvs)->getRow(), (*bvs)->getCol(), row, col);
 			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
-			//if in range and the closest encountered untill now
-			if(distance <= bloodVessel->getRange() && distance < closest)
+			//if it's closest encountered until now
+			if(distance < closest)
 			{
 				closest = distance;
-				data.z = 1;//is in range
-				data.w = distance * 1.0f/bloodVessel->getRange();//lerp factor
-				data.w /= 1.5f;//rig value towards highlight tint
+				//if in range
+				if(distance <= bloodVessel->getRange())
+				{				
+					data.z = 0;//is in range
+					data.w = distance * 1.0f/bloodVessel->getRange();//lerp factor
+					data.w /= 1.5f;//rig value towards highlight tint
+				}
+				//if in large range
+				else if(distance <= bloodVessel->getRange()*1.5)
+				{
+					data.z = 1;//is in large range
+					data.w = (distance - bloodVessel->getRange()) * 1.0f/(bloodVessel->getRange()*1.5 - bloodVessel->getRange());//lerp factor
+					data.w /= 3.0f;//rig value towards highlight tint
+				}
 			}
 		}
 		
-		if(data.z == 0)
+		if(data.z == 2)
 			data.w = 1.0f;
 		
 		return data;

@@ -141,7 +141,7 @@ namespace T3E
 		// [ret] true if a bv was created, false otherwise
 		// try to create a blood vessel at the specified position
 		bool growBloodVesselAt( int row, int col );
-		
+				
     private:
 
 		struct birthInfo
@@ -174,6 +174,13 @@ namespace T3E
         
         // Returns true if the given row/col lies on the grid
         bool hexExists( int row, int col );
+		
+		//[in] row new cell will spawn in
+		//[in] col new cell will spawn in
+		//[in] parent's death chance
+		//[in] will the new cell be a cancerous cell? y:true, n:false
+		//[ret] new cell's death chance
+ 		int calcDeathChance(int row, int col, int parentDchance, bool cancerous);
     };
 }
 
