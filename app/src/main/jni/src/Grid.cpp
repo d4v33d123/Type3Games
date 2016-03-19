@@ -303,7 +303,7 @@ namespace T3E
 		return dc;
 	}
 	
-	bool Grid::update(float dTime)
+	bool Grid::update(float dTime, SDL_Point fingerRowCol)
 	{		
 		bool selectedCellDied = false;
 		
@@ -311,6 +311,15 @@ namespace T3E
 		std::vector<birthInfo> newCells;
 		std::vector<deathInfo> deadCells;
 	
+		//try to create blood vessels at spawn points
+		for(std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end();)
+		{
+			if(growBloodVesselAt(sp->x, sp->y))
+				sp = bvSpawnPoints_.erase(sp);
+			else
+				++sp;
+		}	
+		
 		//update cells
 		for(std::vector<Hex*>::iterator hex = cells_.begin(); hex != cells_.end(); ++hex)
         {
@@ -401,8 +410,12 @@ namespace T3E
 				//if the cell died
 				else
 				{
-					selectedCellDied = current->isSelected();
-					deadCells.push_back(deathInfo((*hex)->getRow(), (*hex)->getCol()));
+					//make sure the player is not hovering the finger on this cell
+					if(fingerRowCol.x != (*hex)->getRow() || fingerRowCol.y != (*hex)->getCol())
+					{
+						selectedCellDied = current->isSelected();
+						deadCells.push_back(deathInfo((*hex)->getRow(), (*hex)->getCol()));
+					}
 				}
 			}		
 		}
@@ -645,14 +658,15 @@ namespace T3E
 		T3E::Hex* neighbours[6];
 		int adjacentCells = 0;
 
-		if(!hexExists( row, col ))
+		// If the hex does not lie on the board or is not a cell, return error
+        if( (!hexExists(row, col)) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
+            return false;
+
+		// return immediately if the growth coord is not a stem cell
+		Cell* selectedCell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		if(selectedCell->getState() != CellState::STEM)
 			return false;
 
-		// return immediately if the growth coord is not empty
-		if( !isEmpty( row, col ) )
-			return false;
-
-		// Check the cell has a live neighbour
 		if( getNeighbours( row, col, neighbours ) )
 		{
 			// Count the number of adjacent cells
@@ -690,5 +704,44 @@ namespace T3E
 		//calculate the squared distance (avoid sqrt operation)
 		int dSquared = (std::abs(colA - colB) + std::abs(rowA - rowB) + std::abs((-colA-rowA) - (-colB-rowB))) / 2;
 		return dSquared;
+	}
+	
+	bool Grid::setBvSpawn(int row, int col)
+	{
+		if(!hexExists( row, col ))
+			return false;
+
+		// return immediately if the growth coord is not empty
+		if( !isEmpty( row, col ) )
+			return false;
+
+		//get range from the first blood vessel of the bv vector(all have same range)
+		int bvRange = ((BloodVessel*)(bloodVessels_[0]->getNode()))->getRange();
+		
+		//the new spawn point must be outside all existing blood vessels and spawn points ranges
+		for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
+		{
+			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
+			if(inRange((*bvs)->getRow(), (*bvs)->getCol(), row, col, bvRange))
+				return false;
+		}
+		for(std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end(); ++sp)
+		{
+			if(inRange(sp->x, sp->y, row, col, bvRange))
+				return false;
+		}	
+		
+		bvSpawnPoints_.push_back(glm::vec2(row, col));
+        		
+		return true;
+	}
+	
+	glm::vec2 Grid::getBvSpawnCoords(int i)
+	{
+		glm::vec2 coords;
+		//get world coords of the hex at that row and column
+		coords.x = grid_[bvSpawnPoints_[i].x * CHUNK_WIDTH + bvSpawnPoints_[i].y].getX();
+		coords.y = grid_[bvSpawnPoints_[i].x * CHUNK_WIDTH + bvSpawnPoints_[i].y].getY();
+		return coords;
 	}
 }

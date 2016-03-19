@@ -24,6 +24,7 @@
 #include "Type3Engine/errors.h"
 #include "Type3Engine/Camera.h"
 #include "Type3Engine/AudioEngine.h"
+#include "Type3Engine/Button.h"
 //game classes
 #include "Cell.h"
 #include "BloodVessel.h"
@@ -82,6 +83,7 @@ private:
 	bool selectCell(int row, int col);
 	
     //INPUT
+	T3E::Button bvButton_;
 	bool finger_dragged_;
 	//detect when finger is down for a certain amount of time
 	bool fingerPressed_;
@@ -90,11 +92,13 @@ private:
 	//detect cell selection
 	glm::vec2 selectedPos_;
 	bool cellSelected_;
+	//interaction mode
+	bool bvCreationMode_;
 	
 	//GRAPHICS
 	T3E::GLSLProgram cellProgram_;//shader programs
 	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
-	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse; // transform matrices
+	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse, orthoM_; // transform matrices
 	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)	
 
 	//AUDIO (not quite as important as graphics but more important than conversion functions kappa keepo)

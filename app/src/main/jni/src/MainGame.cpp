@@ -13,7 +13,8 @@ MainGame::MainGame() :
     finger_dragged_(false),
 	pressTimer_(0),
 	fingerPressed_(false),
-	cellSelected_(false)
+	cellSelected_(false),
+	bvCreationMode_(false)
 {}
 
 MainGame::~MainGame()
@@ -33,7 +34,7 @@ void MainGame::run()
 	//load sprites
 	sprites_.push_back( new T3E::Sprite() );
 	// x, y, width, height
-	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");
+	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");	
 
 	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
@@ -73,7 +74,11 @@ void MainGame::initSystems()
 	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
 	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	
 	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
-	        
+	//init ortho matrix
+	//inverting top with bottom to avoid sprites being drawn upside down
+	//note that this will put origin at bottom left, while screen coords have origin at top left
+	orthoM_ = glm::ortho(0.0f, float( window_.getScreenWidth() ), 0.0f, float( window_.getScreenHeight() ));
+	
     // Set the first cell
     grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
 	
@@ -110,13 +115,15 @@ void MainGame::initSystems()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
+	//Create ui buttons
+	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, "textures/ui.png", 0, 0, 1.0f/2, 1.0f/2, 2);
 	// init shaders
 	initShaders();
 }
 
 void MainGame::initShaders()
 {
-	//CELL PRORGAM
+	 //CELL PRORGAM
 	// compile
 	cellProgram_.compileShaders("shaders/cell_vs.txt", "shaders/cell_ps.txt");
 	// add attributes
@@ -156,9 +163,9 @@ void MainGame::gameLoop()
 		
 		
 		time_ += 0.1f;
-		calculateFPS();	
+		calculateFPS();
 
-		if(grid_.update(frameTime_))
+		if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
 			cellSelected_ = false;
 		
 		renderGame();
@@ -240,8 +247,9 @@ void MainGame::processInput(float dTime)
 			
 			fingerPressed_ = false;			
 			pressTimer_ = 0;
+			pressPos_ = glm::vec2(-1, -1);
             
-			// Only spawn cells when the last finger is lifted,
+			// Only act when the last finger is lifted,
             // AND the cursor was not moved
             if( nOfFingers_ == 0 && finger_dragged_ == false )
             {
@@ -249,22 +257,37 @@ void MainGame::processInput(float dTime)
                 worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
                 // convert the world pos to a grid row column
                 rowCol = world_to_grid( worldPos );
-                				
-				//if a cell was selected
-				if(cellSelected_)
+
+				//get touch pos in screen coordinates for UI interaction
+				//invert y to match our ortho projection (origin at bottom left for ease of life)
+				glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+				if(bvButton_.touchCollides(screenCoords))
 				{
- 					//try to spawn
-					if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
-						//try to move stem cell
-						grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
- 					
-					grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-					//cellSelected_ = false;					
+					//toggle blood vessel creation mode
+					bvCreationMode_ = !bvCreationMode_;
+					//unselect cell
+					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
+					cellSelected_ = false;	
 				}
-				
-				//try to select a cell
-				//also, if a new cell was created, select it
-				selectCell(rowCol.x, rowCol.y);
+
+				if(!bvCreationMode_)
+				{
+					//if a cell was selected
+					if(cellSelected_)
+					{
+						//try to spawn
+						if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+							//try to move stem cell
+							grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+						
+						grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+						//cellSelected_ = false;					
+					}
+					
+					//try to select a cell
+					//also, if a new cell was created, select it
+					selectCell(rowCol.x, rowCol.y);					
+				}
             }
 							
             // Reset the type of touch if the last finger was released
@@ -308,12 +331,19 @@ void MainGame::processInput(float dTime)
 			fingerPressed_ = false;
 			rowCol = world_to_grid(touch_to_world(pressPos_));
 		
- 			//try to arrest
-			if(!grid_.arrestCell(rowCol.x, rowCol.y))
-				//try to change stem cell mode
-				if(!grid_.setStemToSpawnMode(rowCol.x, rowCol.y))
-					//try to spawn a blood vessel
-					grid_.growBloodVesselAt( rowCol.x, rowCol.y );
+			if(bvCreationMode_)
+			{
+				//try to set bv spawn point
+				if(grid_.setBvSpawn(rowCol.x, rowCol.y))
+					bvCreationMode_ = false;
+			}
+ 			else
+			{
+				//try to arrest
+				if(!grid_.arrestCell(rowCol.x, rowCol.y))
+					//try to change stem cell mode
+					grid_.setStemToSpawnMode(rowCol.x, rowCol.y);			
+			}
 		}
 	}	
 }
@@ -334,7 +364,6 @@ void MainGame::renderGame()
 	
 	//RENDER CELLS AND BLOOD VESSELS
 	cellProgram_.use();
-	//SDL_Log("MAINGAME::RENDER --------- drawingbv");
 	//blood vessels
 	for(int i = 0; i < grid_.numBloodVessels(); ++i)
 	{
@@ -358,9 +387,34 @@ void MainGame::renderGame()
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_ * viewM_ * worldM_;
 	}
-	//SDL_Log("MAINGAME::RENDER --------- drawingcells");
-	//cells
 	
+	//render position checkers of bv spawn points
+	for(int i = 0; i < grid_.numBvSpawns(); ++i)
+	{
+		glm::vec2 coords = grid_.getBvSpawnCoords(i);
+		
+		// move to hex position
+		worldM_ = glm::translate( worldM_, glm::vec3( coords.x, coords.y, 0.0f ) );
+		finalM_ = projectionM_ * viewM_ * worldM_;
+		
+		//send matrix to shaders
+		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+		//set tint
+		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
+		float tint[] = { 0.0f, 0.0f, 1.0f, 0.3f };
+		glUniform4fv(inputColour_location, 1, tint);
+		
+        //use texture 1
+		glActiveTexture(GL_TEXTURE0+0);
+		glUniform1i(sampler0_location, 0);
+		sprites_[0]->draw();
+		
+		//reset matrices
+		worldM_ = glm::mat4();
+		finalM_ = projectionM_ * viewM_ * worldM_;
+	}
+	
+	//cells
 	for(int i = 0; i < grid_.numCells(); ++i)
 	{
 		T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();
@@ -388,8 +442,27 @@ void MainGame::renderGame()
 		finalM_ = projectionM_*viewM_*worldM_;
 		
 	}
+	
+	//RENDER UI	
+	// send ortho matrix to shaders
+	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
+	//TODO: temporary highlight... will we need tint or will we have multiple sprites to show selection mode?
+	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	if(bvCreationMode_)
+	{
+		tint[0] = 2.5f;
+		tint[1] = 2.5f;
+		tint[2] = 2.5f;
+		tint[3] = 1.0f;
+	}		
+	glUniform4fv(inputColour_location, 1, tint);
+	// set texture	
+	glActiveTexture(GL_TEXTURE0+2);	
+	glUniform1i(sampler0_location, 2);
+	//draw sprite
+	bvButton_.getSprite()->draw();
 		
-	cellProgram_.stopUse();
+	cellProgram_.stopUse();	
 
 	// swap our buffers 
 	window_.swapBuffer();
