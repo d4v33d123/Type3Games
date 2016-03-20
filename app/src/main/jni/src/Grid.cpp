@@ -711,10 +711,6 @@ namespace T3E
 		if(!hexExists( row, col ))
 			return false;
 
-		// return immediately if the growth coord is not empty
-		if( !isEmpty( row, col ) )
-			return false;
-
 		//get range from the first blood vessel of the bv vector(all have same range)
 		int bvRange = ((BloodVessel*)(bloodVessels_[0]->getNode()))->getRange();
 		

@@ -81,14 +81,14 @@ void MainGame::initSystems()
 	
     // Set the first cell
     grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
-	
+
     // Set a test blood vessel
     grid_.newBloodVessel( 24, 24, nullptr );
 	
 	//init the hex vertex buffer
 	glGenBuffers(1, &hexBufferName);
 	
-	float size = 0.54;//get from hex bruh
+	float size = 0.54;//should get from hex?
 	float sizeCos30 = size*glm::cos(glm::radians(30.0f));
 	float sizeSin30 = size*glm::sin(glm::radians(30.0f));
 	//this is a buffer of lines, so think them 2 by 2

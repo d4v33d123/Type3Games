@@ -7,9 +7,18 @@ namespace T3E
 	normalTint_(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
 	brightTint_(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
 	selected_(false),
-	alternateMode_(false)
+	alternateMode_(false)	
     {
-    }
+		//init colour ranges
+		normalColourRange_[0] = glm::vec4(64.0f, 233.0f, 245.0f, 255.0f);
+		normalColourRange_[1] = glm::vec4(64.0f, 88.0f, 245.0f, 255.0f);
+		
+		mutatedColourRange_[0] = glm::vec4(245.0f, 203.0f, 64.0f, 255.0f);
+		mutatedColourRange_[1] = glm::vec4(245.0f, 145.0f, 64.0f, 255.0f);
+		
+		cancerousColourRange_[0] = glm::vec4(232.0f, 95.0f, 175.0f, 255.0f);
+		cancerousColourRange_[1] = glm::vec4(164.0f, 95.0f, 232.0f, 255.0f);
+	}
 
     Cell::~Cell()
     {
@@ -30,21 +39,21 @@ namespace T3E
 		case CellState::NORMAL:
 			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
-			normalTint_ = glm::vec4(0.0f, 0.7f, 1.0f, 1.0f); // blue
+			setNormalTint(CellState::NORMAL);
 			deathChance_ = deathChance;
 			spriteSheet_.setSpeed(0.15);
 			break;	
 		case CellState::MUTATED:
 			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
-			normalTint_ = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f); // orange
+			setNormalTint(CellState::MUTATED);
 			deathChance_ = deathChance;
 			spriteSheet_.setSpeed(0.25);
 			break;
 		case CellState::CANCEROUS:
 			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 2.0f/18, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
-			normalTint_ = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // magenta
+			setNormalTint(CellState::CANCEROUS);
 			deathChance_ = deathChance;
 			spriteSheet_.setSpeed(0.4);
 			break;
@@ -136,5 +145,43 @@ namespace T3E
 		//death test rolls 0 to 99, so need to cap
 		if(deathChance_ > 99)
 			deathChance_ = 99;
+	}
+	
+ 	void Cell::setNormalTint(CellState state)
+	{
+		int colourVariety = 1001;
+		float rangePos =  rand()%colourVariety;
+		glm::vec4 diff;//max-min
+		glm::vec4 result;
+		switch(state)
+		{
+		case CellState::NORMAL:			
+			diff = normalColourRange_[1] - normalColourRange_[0];
+			result.x = normalColourRange_[0].x + diff.x/colourVariety*rangePos;	
+			result.y = normalColourRange_[0].y + diff.y/colourVariety*rangePos;
+			result.z = normalColourRange_[0].z + diff.z/colourVariety*rangePos;
+			result.w = normalColourRange_[0].w + diff.w/colourVariety*rangePos;
+			normalTint_ =  result/255.0f;
+			break;
+		case CellState::MUTATED:
+			diff = mutatedColourRange_[1] - mutatedColourRange_[0];
+			result.x = mutatedColourRange_[0].x + diff.x/colourVariety*rangePos;	
+			result.y = mutatedColourRange_[0].y + diff.y/colourVariety*rangePos;
+			result.z = mutatedColourRange_[0].z + diff.z/colourVariety*rangePos;
+			result.w = mutatedColourRange_[0].w + diff.w/colourVariety*rangePos;
+			normalTint_ =  result/255.0f;
+			break;
+		case CellState::CANCEROUS:
+			diff = cancerousColourRange_[1] - cancerousColourRange_[0];
+			result.x = cancerousColourRange_[0].x + diff.x/colourVariety*rangePos;	
+			result.y = cancerousColourRange_[0].y + diff.y/colourVariety*rangePos;
+			result.z = cancerousColourRange_[0].z + diff.z/colourVariety*rangePos;
+			result.w = cancerousColourRange_[0].w + diff.w/colourVariety*rangePos;
+			normalTint_ =  result/255.0f;
+			break;
+		default:
+			SDL_Log("reached default case in Cell::setNormalTint()");
+			break;
+		}
 	}
 }
