@@ -32,7 +32,7 @@ namespace T3E
 			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
-			alternateTint_ = glm::vec4(1.0f, 0.7f, 0.7f, 1.0f);// pink
+			alternateTint_ = glm::vec4(0.2, 0.8f, 0.2f, 1.0f);// green
 			deathChance_ = 0;
 			spriteSheet_.setSpeed(0.08);
 			break;

@@ -292,13 +292,15 @@ namespace T3E
 				//the further from bv the higher dc
 				dc = parentDchance + 5 + distToBv;
 			}
+			
+			//cap dc
+			if(dc < 5)
+				dc = 5;
 		}
-
-		//cap death chance
+		
+		//cap dc
 		if(dc > 99)
 			dc = 99;
-		if(dc < 5)
-			dc = 5;
 		
 		return dc;
 	}
