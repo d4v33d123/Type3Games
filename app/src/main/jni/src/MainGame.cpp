@@ -31,10 +31,9 @@ void MainGame::run()
 {
 	initSystems();
 	
-	//load sprites
+	//bloodVessel TODO: put in bv class like cell
 	sprites_.push_back( new T3E::Sprite() );
-	// x, y, width, height
-	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");	
+	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");// x, y, width, height
 
 	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
@@ -116,7 +115,10 @@ void MainGame::initSystems()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 	//Create ui buttons
-	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, "textures/ui.png", 0, 0, 1.0f/2, 1.0f/2, 2);
+	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);	
+	//background sprite
+	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png");
+	
 	// init shaders
 	initShaders();
 }
@@ -125,17 +127,17 @@ void MainGame::initShaders()
 {
 	 //CELL PRORGAM
 	// compile
-	cellProgram_.compileShaders("shaders/cell_vs.txt", "shaders/cell_ps.txt");
+	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
 	// add attributes
-	cellProgram_.addAttribute("aPosition");
-	cellProgram_.addAttribute("aColour");
-	cellProgram_.addAttribute("aTexCoord");
+	tintedSpriteProgram_.addAttribute("aPosition");
+	tintedSpriteProgram_.addAttribute("aColour");
+	tintedSpriteProgram_.addAttribute("aTexCoord");
 	// link
-	cellProgram_.linkShaders();
+	tintedSpriteProgram_.linkShaders();
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	cell_finalM_location = cellProgram_.getUniformLocation("finalM");
-	sampler0_location = cellProgram_.getUniformLocation("sampler0");
-	inputColour_location = cellProgram_.getUniformLocation("inputColour");
+	cell_finalM_location = tintedSpriteProgram_.getUniformLocation("finalM");
+	sampler0_location = tintedSpriteProgram_.getUniformLocation("sampler0");
+	inputColour_location = tintedSpriteProgram_.getUniformLocation("inputColour");
 	
 	//HEX PROGRAM
 	// compile
@@ -155,6 +157,9 @@ void MainGame::gameLoop()
 	//enable back face culling
 	glEnable(GL_CULL_FACE);//GL_BACK is default value
 	
+	//set line width for grid
+	glLineWidth(5.0f);
+
 	//our game loop
 	while( gameState_ != GameState::EXIT )
 	{
@@ -358,12 +363,25 @@ void MainGame::renderGame()
 	viewM_ = glm::lookAt(camera_.getPosition(), camera_.getLookAt(), camera_.getUp());
 	finalM_ = projectionM_*viewM_*worldM_;//order matters!
 	
+	//render background
+	//TODO: ideally we want to use and stop use just once per shader, but we need to draw backgruong -> grid -> game elements in this order...
+	tintedSpriteProgram_.use();
+	// send ortho matrix to shaders
+	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
+	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	glUniform4fv(inputColour_location, 1, bgtint);
+	// set texture	
+	glActiveTexture(GL_TEXTURE0+3);	
+	glUniform1i(sampler0_location, 3);
+	//draw sprite
+	backgroundSprite_.draw();
+	tintedSpriteProgram_.stopUse();
 	
 	//RENDER THE HEX GRID
 	drawGrid();		
 	
 	//RENDER CELLS AND BLOOD VESSELS
-	cellProgram_.use();
+	tintedSpriteProgram_.use();
 	//blood vessels
 	for(int i = 0; i < grid_.numBloodVessels(); ++i)
 	{
@@ -462,7 +480,7 @@ void MainGame::renderGame()
 	//draw sprite
 	bvButton_.getSprite()->draw();
 		
-	cellProgram_.stopUse();	
+	tintedSpriteProgram_.stopUse();	
 
 	// swap our buffers 
 	window_.swapBuffer();

@@ -75,7 +75,7 @@ private:
 	//GAMEPLAY
 	Uint8 nOfFingers_;                  // n of fingers currently touching screen
 	T3E::Camera camera_;                // 2d camera
-	std::vector<T3E::Sprite*> sprites_; // sprite container
+	std::vector<T3E::Sprite*> sprites_; // sprite container TODO: remove this when bv sprite is in right place. maybe use for ui or smt
 	
 	// [in] row to test
 	// [in] column to test
@@ -96,12 +96,13 @@ private:
 	bool bvCreationMode_;
 	
 	//GRAPHICS
-	T3E::GLSLProgram cellProgram_;//shader programs
+	T3E::GLSLProgram tintedSpriteProgram_;//shader programs
 	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
 	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse, orthoM_; // transform matrices
 	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)	
-
-	//AUDIO (not quite as important as graphics but more important than conversion functions kappa keepo)
+	T3E::Sprite backgroundSprite_;
+	
+	//AUDIO
     T3E::AudioEngine audioEngine_;
 	
 	// Conversion Functions
