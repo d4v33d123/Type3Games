@@ -3,7 +3,15 @@
 
 namespace T3E
 {
-    Grid::Grid()
+    Grid::Grid() :
+	HEALTHYSCORE(10),
+	MUTATEDSCORE(5),
+	SPAWNEDSCORE(1),
+	ARRESTCOST(50),
+	BLOODVESSELCOST(200),
+	KILLCOST(100),
+	KILLCOSTMUTATED(300),
+	KILLARRESTED(300)
     {
         // Initialise all the cells ( to empty )
         for( int col = 0; col < CHUNK_WIDTH; col++ )
@@ -263,6 +271,28 @@ namespace T3E
 			//get the hex's node and cast it to cell
 			Cell* current = (Cell*)((*hex)->getNode());
 			//update cell, check if it's time to split
+			
+			/*
+			if((current->getRow() == selectedPos.x) && (current->getCol() == selectedPos.y) && (cellSelected == true))
+			{
+				//get the neighbouring hexes
+				Hex* neighbours[6];
+				getNeighbours((*hex)->getRow(), (*hex)->getCol(), neighbours);
+
+				for(int i = 0; i < 6; i++)
+				{
+					if(neighbours[i] != nullptr)
+					{
+						if(neighbours[i]->getType() == NodeType::EMPTY)
+						{
+							
+						}
+					}
+				}
+				
+			}
+			*/
+			
 			if(current->update(dTime))
 			{
 				//roll for chance to die
@@ -336,6 +366,7 @@ namespace T3E
 							case CellState::STEM:
 								//spawn normal cell with 5% death chance
 								newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::NORMAL, dc));
+								score_ += HEALTHYSCORE;
 								break;
 								
 							case CellState::NORMAL:
@@ -347,12 +378,15 @@ namespace T3E
 								{
 									//spawn normal cell with parent's death chance
 									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::NORMAL, dc));
+									score_ += HEALTHYSCORE;
 								}
 								else
 								{
 									//spawn mutated cell with parent's death chance
 									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, dc));
+									score_ += MUTATEDSCORE;
 								}
+								
 								break;
 								
 							case CellState::MUTATED:
@@ -363,13 +397,15 @@ namespace T3E
 								if(noCancer)
 								{	
 									//spawn mutated cell with parent's death chance
-									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, dc));							
+									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, dc));
+									score_ += MUTATEDSCORE;
 								}
 								else
 								{
 									//spawn cancerous cell
 									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, cancer_dc));
 								}
+								
 								break;
 								
 							case CellState::CANCEROUS:
@@ -417,9 +453,10 @@ namespace T3E
 		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
 		
 		//only arrest normal cells
-		if(cell->getState() == CellState::NORMAL)
+		if(cell->getState() == CellState::NORMAL && score_ >= ARRESTCOST)
 		{
 			cell->arrest();
+			score_ -= ARRESTCOST;
 			return true;
 		}
 		return false;			
@@ -503,6 +540,8 @@ namespace T3E
 							//now we increase parent's death chance aswell if it was normal
 							if(selectedCell->getState() == CellState::NORMAL)
 								selectedCell->incDeathChance(5);
+							
+							score_ += SPAWNEDSCORE;
 							return true;
 						}									
 					}
@@ -514,6 +553,36 @@ namespace T3E
 		
 		//couldn't create cell
 		return false;
+	}
+	
+	bool Grid::killCell(int row, int col)
+	{
+		 // If the hex does not lie on the board or is not a cell, return error
+        if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
+            return false;
+		
+		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		//different costs for normal and mutated cells
+		if(cell->getState() == CellState::NORMAL && score_ >= KILLCOST)
+		{
+			setEmpty(cell->row, cell->col);
+			score_ -= KILLCOST;
+			return true;
+		}
+		else if(cell->getState() == CellState::MUTATED && score_ >= KILLCOSTMUTATED)
+		{
+			setEmpty(cell->row, cell->col);
+			score_ -= KILLCOSTMUTATED;
+			return true;
+		}
+		else if(cell->getState() == CellState::ARRESTED && score_ >= KILLARRESTED)
+		{
+			setEmpty(cell->row, cell->col);
+			score_ -= KILLARRESTED;
+			return true;
+		}
+		
+		return false;		
 	}
 	
 	bool Grid::moveStemCell(int selRow, int selCol, int touchRow, int touchCol)
@@ -579,7 +648,7 @@ namespace T3E
         return true;
 	}
 	
-	glm::vec4 Grid::getHexDrawInfo(int row, int col)
+	glm::vec4 Grid::getHexDrawInfo(int row, int col, bool cellSelected, glm::vec2 selectedPos)
 	{
 		glm::vec4 data;
         if( hexExists( row, col ) )
@@ -600,6 +669,19 @@ namespace T3E
 				data.w = distance * 1.0f/bloodVessel->getRange();//lerp factor
 				data.w /= 1.5f;//rig value towards highlight tint
 			}
+		}
+		Hex* empty;
+		getHex(row, col, &empty);
+		if(cellSelected)
+		{
+			int distance = getDistance(selectedPos.x, selectedPos.y, row, col);
+			if((distance <= 1) && (empty->getType() == NodeType::EMPTY))
+			{
+				data.z = 2;//is empty and next to selected cell
+				data.w = distance * 1;
+				data.w /= 1.5;
+			}
+			
 		}
 		
 		if(data.z == 0)
@@ -625,7 +707,7 @@ namespace T3E
 		return false;		
 	}
 	
-	bool Grid::growBloodVesselAt( int row, int col )
+	bool Grid::growBloodVesselAt( int row, int col)
 	{
 		T3E::Hex* neighbours[6];
 		int adjacentCells = 0;
@@ -663,9 +745,10 @@ namespace T3E
 			}
 		}
 
-		if( adjacentCells == 6 )
+		if( adjacentCells == 6 && score_ >= BLOODVESSELCOST)
 		{
 			newBloodVessel( row, col, nullptr );
+			score_ -= BLOODVESSELCOST;
 			return true;
 		}
 	}

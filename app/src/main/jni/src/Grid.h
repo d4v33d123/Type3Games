@@ -103,6 +103,12 @@ namespace T3E
 		// calles when player tries to spawn cell manually
 		bool spawnCell(int selRow, int selCol, int touchRow, int touchCol);
 		
+		// [in] row of cell to delete
+		// [in] column of cell to delete
+		// [ret] true if new cell is deleted, false otherwise
+		// calles when player tries to kill cell manually
+		bool killCell(int row, int col);
+		
 		//TODO: does this make getNode redundant?
 		// [in] row
         // [in] column
@@ -121,7 +127,7 @@ namespace T3E
 		//		z = 1 if hex is in blood vessel range or 0 otherwise
 		//		w = lerp factor (1 = full neutral, 0 = full red)
 		//		x and y will be -1 if hex doesnt exist(our grid is all in positive coords so that works for now)
-		glm::vec4 getHexDrawInfo(int row, int col);
+		glm::vec4 getHexDrawInfo(int row, int col, bool cellSelected, glm::vec2 selectedPos);
 		
 		// [in] row of currently selected cell
 		// [in] column of currently selected cell
@@ -140,7 +146,12 @@ namespace T3E
 		// [in] column to test
 		// [ret] true if a bv was created, false otherwise
 		// try to create a blood vessel at the specified position
-		bool growBloodVesselAt( int row, int col );
+		bool growBloodVesselAt( int row, int col);
+		
+		// [ret] the score
+		inline int getScore() { return score_; }
+		
+		
 		
     private:
 
@@ -163,6 +174,19 @@ namespace T3E
 			:row(r) ,col(c)
 			{}
 		};
+		
+		// the score
+		int score_;
+		
+		// set of values that decide the score given/taken
+		const int HEALTHYSCORE;
+		const int MUTATEDSCORE;
+		const int SPAWNEDSCORE;
+		const int ARRESTCOST;
+		const int BLOODVESSELCOST;
+		const int KILLCOST;
+		const int KILLCOSTMUTATED;
+		const int KILLARRESTED;
 		
         std::array<Hex, CHUNK_WIDTH * CHUNK_WIDTH> grid_;
             

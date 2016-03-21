@@ -4,9 +4,11 @@
 //input constants
 uniform lowp float weight;
 uniform mat4 finalM;
+uniform bool Avaliable;
 
 //input variables
 attribute vec4 aPosition;
+
 //attribute lowp vec4 aColour;
 
 //output variables
@@ -19,7 +21,16 @@ void main()
 
     lowp vec4 neutralColour = vec4(0.1, 0.3, 0.4, 1.0);//dark blueish
     lowp vec4 highlightColour = vec4(1.0, 0.0, 0.0, 1.0);//red
+	lowp vec4 highlightColour2 = vec4(1.0, 1.0, 0.0, 1.0);//yellow?
 
 	//pass on unchanged colour
-    vColour = mix(highlightColour, neutralColour, weight);
+	if(Avaliable)
+	{
+		vColour = mix(highlightColour2, neutralColour, weight);
+	}
+	else
+	{
+		vColour = mix(highlightColour, neutralColour, weight);
+	}
+    
 }

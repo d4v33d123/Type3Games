@@ -5,6 +5,7 @@ MainGame::MainGame() :
 	screenHeight_(800),
 	screenWidth_(600),
 	time_(0.0f), 
+	score_(0),
 	gameState_(GameState::PLAY),
 	maxFPS_(60.0f),
 	nOfFingers_(0),
@@ -14,6 +15,7 @@ MainGame::MainGame() :
 	pressTimer_(0),
 	fingerPressed_(false),
 	cellSelected_(false)
+	
 {}
 
 MainGame::~MainGame()
@@ -37,6 +39,10 @@ void MainGame::run()
 
 	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
+	
+	bloodV_ = audioEngine_.loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
+	cellMove_ = audioEngine_.loadSoundEffect("sound/Player_CellDivide_Move.ogg");
+	
 	gameLoop();
 }
 
@@ -135,10 +141,12 @@ void MainGame::initShaders()
 	hexProgram_.compileShaders("shaders/hex_vs.txt", "shaders/hex_ps.txt");
 	// add attributes
 	hexProgram_.addAttribute("aPosition");
+	
 	// link
 	hexProgram_.linkShaders();
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
 	lerp_weight_location = hexProgram_.getUniformLocation("weight");
+	avaliable_for_highlight = hexProgram_.getUniformLocation("Avaliable");
 	hex_finalM_location = hexProgram_.getUniformLocation("finalM");
 }
 
@@ -160,8 +168,10 @@ void MainGame::gameLoop()
 		if(grid_.update(frameTime_))
 			cellSelected_ = false;
 		
+		score_ = grid_.getScore();
+		SDL_Log("SCORE : %i", score_);
 		renderGame();
-		//SDL_Log("MAINGAME::RENDER --------- renderdone");
+		
 		processInput(frameTime_);
 		
 		// print once every 10 frames
@@ -189,8 +199,8 @@ void MainGame::gameLoop()
 
 void MainGame::processInput(float dTime)
 {
-	glm::vec4 worldPos;
-    SDL_Point rowCol;
+	glm::vec4 worldPos, worldPos2;
+    SDL_Point rowCol, rowCol2;
     int row, col;
     T3E::Hex* neighbours;
 	
@@ -254,8 +264,16 @@ void MainGame::processInput(float dTime)
 				{
  					//try to spawn
 					if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+					{
 						//try to move stem cell
 						grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+						cellMove_.play();
+					}
+						
+					else
+					{
+						cellMove_.play();
+					}
  					
 					grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
 					//cellSelected_ = false;					
@@ -272,14 +290,26 @@ void MainGame::processInput(float dTime)
 			
 		case SDL_FINGERMOTION:
 			//avoid microdrag detection
-			if(std::abs(evnt.tfinger.dx) > 0.015 || std::abs(evnt.tfinger.dy) > 0.015) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
+			// convert the touch to a world position
+                worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+                // convert the world pos to a grid row column
+                rowCol = world_to_grid( worldPos );
+				
+				// convert the touch to a world position
+                worldPos2 = touch_to_world( glm::vec2( evnt.tfinger.x + evnt.tfinger.dx, evnt.tfinger.y + evnt.tfinger.dy) );
+                // convert the world pos to a grid row column
+                rowCol2 = world_to_grid( worldPos );
+			
+			SDL_Log("row1x %i, row1y %i, row2x %i, row2y %i", rowCol.x, rowCol.y ,rowCol2.x ,rowCol2.y );
+			if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
+			//if(rowCol.x != rowCol2.x && rowCol.y != rowCol2.y)
 			{
 				finger_dragged_ = true;
 				fingerPressed_ = false;	
 			}
 			
 			// pan if only one finger is on screen; you don't want to pan during pinch motion
-			if( nOfFingers_ < 2 )
+			if( nOfFingers_ < 2)
 			{
 				camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
 			}
@@ -311,8 +341,12 @@ void MainGame::processInput(float dTime)
 			if(!grid_.arrestCell(rowCol.x, rowCol.y))
 				//try to change stem cell mode
 				if(!grid_.setStemToSpawnMode(rowCol.x, rowCol.y))
+				{
 					//try to spawn a blood vessel
-					grid_.growBloodVesselAt( rowCol.x, rowCol.y );
+					grid_.growBloodVesselAt( rowCol.x, rowCol.y);
+					bloodV_.play();
+				}
+					
 		}
 	}	
 }
@@ -523,13 +557,14 @@ void MainGame::drawGrid()
 {
 	//we need to draw the red hexes last if we want them to be on top of the others
 	std::vector<glm::vec4> redHexes;
+	std::vector<glm::vec4> yellowHexes;
 
 	hexProgram_.use();
 	for(int r = 0; r < grid_.getSize(); ++r)
 	{
 		for(int c = 0; c < grid_.getSize(); ++c)
 		{
-			glm::vec4 drawData = grid_.getHexDrawInfo(r, c);
+			glm::vec4 drawData = grid_.getHexDrawInfo(r, c, cellSelected_, selectedPos_);
 			//if hex exists
 			if(drawData.x != -1)
 			{
@@ -537,6 +572,10 @@ void MainGame::drawGrid()
 				if(drawData.z == 1)
 				{				
 					redHexes.push_back(drawData);
+				}
+				else if(drawData.z == 2)
+				{
+					yellowHexes.push_back(drawData);					
 				}
 				else
 				{
@@ -547,6 +586,8 @@ void MainGame::drawGrid()
 					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 					//set distance as 1 (lerp 1 towards neutral grid colour) since hex is out of bv range
 					glUniform1f(lerp_weight_location, 1.0f);
+					//set whether or not to highlight the grid
+					glUniform1i(avaliable_for_highlight, 0);
 					// bind the buffer object
 					glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 					// tell opengl that we want to use the first attribute array
@@ -581,6 +622,40 @@ void MainGame::drawGrid()
 		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//send distance info
 		glUniform1f(lerp_weight_location, data->w);
+		//set whether or not to highlight the grid
+		glUniform1i(avaliable_for_highlight, 0);
+		// bind the buffer object
+		glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
+		// tell opengl that we want to use the first attribute array
+		glEnableVertexAttribArray(0);
+		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
+		// this is our pixel attribute pointer;
+		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
+		//this is out UV attribute pointer;
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
+		// draw our verticies
+		glDrawArrays(GL_LINES, 0, 12);
+		// disable the vertex attrib array
+		glDisableVertexAttribArray(0);
+		// unbind the VBO
+		glBindBuffer(GL_ARRAY_BUFFER, 0);  
+		//reset matrix
+		finalM_ = projectionM_*viewM_*worldM_;
+	}
+	
+	//now draw yellow hexes
+	for(std::vector<glm::vec4>::iterator data = yellowHexes.begin(); data != yellowHexes.end(); ++data)
+	{
+		//send matrix to shaders
+		//translate world matrix to separate triangles and create parallax
+		glm::mat4 transM = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
+		finalM_ = finalM_*transM;//shold be just worldM but whatever, it's a test			
+		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+		//send distance info
+		glUniform1f(lerp_weight_location, data->w);
+		//set whether or not to highlight the grid
+		glUniform1i(avaliable_for_highlight, 1);
 		// bind the buffer object
 		glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 		// tell opengl that we want to use the first attribute array

@@ -75,6 +75,8 @@ private:
 	Uint8 nOfFingers_;                  // n of fingers currently touching screen
 	T3E::Camera camera_;                // 2d camera
 	std::vector<T3E::Sprite*> sprites_; // sprite container
+	int score_;							// the player's score
+	
 	
 	// [in] row to test
 	// [in] column to test
@@ -95,11 +97,13 @@ private:
 	T3E::GLSLProgram cellProgram_;//shader programs
 	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
 	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse; // transform matrices
-	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)	
+	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)
+	bool avaliable_for_highlight;
 
 	//AUDIO (not quite as important as graphics but more important than conversion functions kappa keepo)
     T3E::AudioEngine audioEngine_;
-	
+	T3E::SoundEffect bloodV_;
+	T3E::SoundEffect cellMove_;
 	// Conversion Functions
      // Returns a vec4 where x and y are the touch world positions, z is 0.0f, w is a number
     glm::vec4 touch_to_world( glm::vec2 touch_coord );
