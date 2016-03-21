@@ -121,6 +121,7 @@ void MainGame::initSystems()
 	
 	//Create ui buttons
 	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);	
+	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png");
 	
@@ -179,6 +180,12 @@ void MainGame::gameLoop()
 
 		if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
 			cellSelected_ = false;
+		
+		if(grid_.playVessel())
+		{
+			bloodV_.play();
+			grid_.resetPlayVessel();
+		}
 		
 		score_ = grid_.getScore();
 		SDL_Log("SCORE : %i", score_);
@@ -289,21 +296,28 @@ void MainGame::processInput(float dTime)
 					//if a cell was selected
 					if(cellSelected_)
 					{
-						//try to spawn
-						if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+						if(killButton_.touchCollides(screenCoords))
 						{
-							//try to move stem cell
-							grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-							cellMove_.play();
+							grid_.killCell(selectedPos_.x, selectedPos_.y);
 						}
-							
 						else
 						{
-							cellMove_.play();
+							//try to spawn
+							if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+							{
+								//try to move stem cell
+								grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+								cellMove_.play();
+							}	
+							else
+							{
+								cellMove_.play();
+							}
+							
+							grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+							//cellSelected_ = false;
 						}
-						
-						grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-						//cellSelected_ = false;					
+											
 					}
 					
 					//try to select a cell
@@ -512,6 +526,7 @@ void MainGame::renderGame()
 	glUniform1i(sampler0_location, 2);
 	//draw sprite
 	bvButton_.getSprite()->draw();
+	killButton_.getSprite()->draw();
 		
 	tintedSpriteProgram_.stopUse();	
 

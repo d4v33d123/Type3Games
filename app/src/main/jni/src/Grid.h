@@ -149,6 +149,12 @@ namespace T3E
 		// try to create a blood vessel at the specified position
 		bool growBloodVesselAt( int row, int col );
 		
+		// [ret] true if to play blood vessel sound
+		inline bool playVessel() { return playVessel_; }
+		
+		// resets the blood vessel sound effect 
+		inline void resetPlayVessel() { playVessel_ = false; }
+		
 		
 		// [ret] the score
 		inline int getScore() { return score_; }
@@ -220,6 +226,9 @@ namespace T3E
 		//[in] will the new cell be a cancerous cell? y:true, n:false
 		//[ret] new cell's death chance
  		int calcDeathChance(int row, int col, int parentDchance, bool cancerous);
+		
+		// whether or not to play the blood vessel sound effect
+		bool playVessel_;
     };
 }
 

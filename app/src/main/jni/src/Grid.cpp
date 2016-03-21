@@ -325,7 +325,10 @@ namespace T3E
 		for(std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end();)
 		{
 			if(growBloodVesselAt(sp->x, sp->y))
+			{
 				sp = bvSpawnPoints_.erase(sp);
+				playVessel_ = true;
+			}
 			else
 				++sp;
 		}	

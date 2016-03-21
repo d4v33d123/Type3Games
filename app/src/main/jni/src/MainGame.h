@@ -87,6 +87,7 @@ private:
 	
     //INPUT
 	T3E::Button bvButton_;
+	T3E::Button killButton_;
 	bool finger_dragged_;
 	//detect when finger is down for a certain amount of time
 	bool fingerPressed_;
