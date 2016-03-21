@@ -15,7 +15,7 @@ MainGame::MainGame() :
 	pressTimer_(0),
 	fingerPressed_(false),
 	cellSelected_(false),
-	bvCreationMode_(false)
+	interactionMode_(InteractionMode::NORMAL)
 {}
 
 MainGame::~MainGame()
@@ -285,23 +285,45 @@ void MainGame::processInput(float dTime)
 				if(bvButton_.touchCollides(screenCoords))
 				{
 					//toggle blood vessel creation mode
-					bvCreationMode_ = !bvCreationMode_;
+					if(interactionMode_ == InteractionMode::BVCREATION)
+					{
+						interactionMode_ = InteractionMode::NORMAL;
+					}
+					else
+					{
+						interactionMode_ = InteractionMode::BVCREATION;
+					}
+					
+					//unselect cell
+					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
+					cellSelected_ = false;	
+				}
+				
+				if(killButton_.touchCollides(screenCoords))
+				{
+					//toggle blood vessel creation mode
+					if(interactionMode_ == InteractionMode::KILLMODE)
+					{
+						interactionMode_ = InteractionMode::NORMAL;
+					}
+					else
+					{
+						interactionMode_ = InteractionMode::KILLMODE;
+					}
+					
 					//unselect cell
 					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
 					cellSelected_ = false;	
 				}
 
-				if(!bvCreationMode_)
+				switch(interactionMode_)
 				{
-					//if a cell was selected
-					if(cellSelected_)
+					case InteractionMode::NORMAL:
 					{
-						if(killButton_.touchCollides(screenCoords))
+						//if a cell was selected
+						if(cellSelected_)
 						{
-							grid_.killCell(selectedPos_.x, selectedPos_.y);
-						}
-						else
-						{
+							
 							//try to spawn
 							if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
 							{
@@ -316,13 +338,27 @@ void MainGame::processInput(float dTime)
 							
 							grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
 							//cellSelected_ = false;
+							
+												
 						}
-											
+						
+						//try to select a cell
+						//also, if a new cell was created, select it
+						selectCell(rowCol.x, rowCol.y);
+						break;
 					}
-					
-					//try to select a cell
-					//also, if a new cell was created, select it
-					selectCell(rowCol.x, rowCol.y);
+					case InteractionMode::KILLMODE:
+					{
+						if(!grid_.killCell(rowCol.x, rowCol.y))
+						{
+							// play error noise
+						}
+						break;
+					}
+					case InteractionMode::BVCREATION:
+					{
+						break;
+					}
 				}
             }
 							
@@ -383,18 +419,24 @@ void MainGame::processInput(float dTime)
 			fingerPressed_ = false;
 			rowCol = world_to_grid(touch_to_world(pressPos_));
 		
-			if(bvCreationMode_)
+			switch(interactionMode_)
 			{
-				//try to set bv spawn point
-				if(grid_.setBvSpawn(rowCol.x, rowCol.y))
-					bvCreationMode_ = false;
-			}
- 			else
-			{
-				//try to arrest
-				if(!grid_.arrestCell(rowCol.x, rowCol.y))
-					//try to change stem cell mode
-					grid_.setStemToSpawnMode(rowCol.x, rowCol.y);			
+				case InteractionMode::NORMAL:
+				{
+					//try to arrest
+					if(!grid_.arrestCell(rowCol.x, rowCol.y))
+						//try to change stem cell mode
+						grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
+						
+					break;
+				}
+				case InteractionMode::BVCREATION:
+				{
+					//try to set bv spawn point
+					if(grid_.setBvSpawn(rowCol.x, rowCol.y))
+						interactionMode_ = InteractionMode::NORMAL;
+				}
+				
 			}
 		}
 	}	
@@ -513,7 +555,7 @@ void MainGame::renderGame()
 	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
 	//TODO: temporary highlight... will we need tint or will we have multiple sprites to show selection mode?
 	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	if(bvCreationMode_)
+	if(interactionMode_ != InteractionMode::NORMAL)
 	{
 		tint[0] = 2.5f;
 		tint[1] = 2.5f;
@@ -672,7 +714,7 @@ void MainGame::drawGrid()
 	{
 		for(int c = 0; c < grid_.getSize(); ++c)
 		{
-			glm::vec4 drawData = grid_.getHexDrawInfo(r, c, cellSelected_, selectedPos_);
+			glm::vec4 drawData = grid_.getHexDrawInfo(r, c, cellSelected_, selectedPos_, interactionMode_);
 			//if hex exists
 			if(drawData.x != -1)
 			{

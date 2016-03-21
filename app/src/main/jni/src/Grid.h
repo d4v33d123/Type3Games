@@ -8,6 +8,8 @@
 #include "BloodVessel.h"
 #include "SDL.h"//log
 
+enum class InteractionMode {NORMAL, BVCREATION, KILLMODE};
+
 //TODO: some functions are redundant or check unnecessary things
 namespace T3E
 {
@@ -128,7 +130,7 @@ namespace T3E
 		//		z = 0 if hex is in blood vessel range ,1 if in large range, 2 otherwise
 		//		w = lerp factor for colour
 		//		x and y will be -1 if hex doesnt exist(our grid is all in positive coords so that works for now)
-		glm::vec4 getHexDrawInfo(int row, int col, bool cellSelected, glm::vec2 selectedPos);
+		glm::vec4 getHexDrawInfo(int row, int col, bool cellSelected, glm::vec2 selectedPos, InteractionMode interactionMode_);
 		
 		// [in] row of currently selected cell
 		// [in] column of currently selected cell

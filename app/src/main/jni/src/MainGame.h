@@ -36,6 +36,7 @@
 
 enum class GameState {PLAY, EXIT};
 
+
 class MainGame
 {
 public:
@@ -69,7 +70,8 @@ private:
 	float maxFPS_;
 	T3E::window window_;
 	GameState gameState_;
-		
+	InteractionMode interactionMode_;
+	
     T3E::Grid grid_;
 
 	//GAMEPLAY

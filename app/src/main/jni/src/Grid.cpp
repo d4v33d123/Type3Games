@@ -11,7 +11,8 @@ namespace T3E
 	BLOODVESSELCOST(200),
 	KILLCOST(100),
 	KILLCOSTMUTATED(300),
-	KILLARRESTED(300)
+	KILLARRESTED(300),
+	playVessel_(false)
     {
         // Initialise all the cells ( to empty )
         for( int col = 0; col < CHUNK_WIDTH; col++ )
@@ -664,7 +665,7 @@ namespace T3E
         return true;
 	}
 	
-	glm::vec4 Grid::getHexDrawInfo(int row, int col, bool cellSelected, glm::vec2 selectedPos)
+	glm::vec4 Grid::getHexDrawInfo(int row, int col, bool cellSelected, glm::vec2 selectedPos, InteractionMode interactionMode_)
 	{
 		glm::vec4 data;
         if( hexExists( row, col ) )
@@ -696,20 +697,76 @@ namespace T3E
 					data.w /= 3.0f;//rig value towards highlight tint
 				}
 			}
-		}
-		Hex* empty;
-		getHex(row, col, &empty);
-		if(cellSelected)
-		{
-			int distance = getDistance(selectedPos.x, selectedPos.y, row, col);
-			if((distance <= 1) && (empty->getType() == NodeType::EMPTY))
+			switch(interactionMode_)
 			{
-				data.z = 3;//is empty and next to selected cell
-				data.w = distance * 1;
-				data.w /= 1.5;
+				case InteractionMode::NORMAL:
+				{
+					if(cellSelected)
+					{
+						Cell* sel = (Cell*)(grid_[selectedPos.x * CHUNK_WIDTH + selectedPos.y].getNode());
+						Hex* empty;
+						getHex(row, col, &empty);
+						int nextdoor = getDistance(selectedPos.x, selectedPos.y, row, col);
+						if((nextdoor <= 1) && (empty->getType() == NodeType::EMPTY))
+						{				
+							if(sel->getState() == CellState::STEM)
+							{
+								if(distance <= bloodVessel->getRange()*1.5)
+								{				
+									data.z = 3;//is empty and next to selected cell
+									data.w = nextdoor * 1;
+									data.w /= 1.5;
+								}
+						
+							}
+							else
+							{
+								data.z = 3;//is empty and next to selected cell
+								data.w = nextdoor * 1;
+								data.w /= 1.5;
+							}
+							
+						}
+					
+					}
+					break;
+				}
+				case InteractionMode::BVCREATION:
+				{
+					if(distance >= bloodVessel->getRange()*1.2 && score_ >= BLOODVESSELCOST)
+					{
+						data.z = 3;//is empty and next to selected cell
+						data.w = 1.0f;
+						data.w /= 1.5;
+					}
+					break;
+				}
+				case InteractionMode::KILLMODE:
+				{
+					// check to see if theres a cell in the hex
+					if((hexExists( row, col )) && (grid_[row * CHUNK_WIDTH + col].getType() == NodeType::CELL))
+					{
+						// create a cell with the correct position
+						Cell* killable = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+
+						// if it is a normal, arrested or a mutated cell highlight it
+						if(((killable->getState() == CellState::NORMAL)&&(score_ >= KILLCOST)) || ((killable->getState() == CellState::MUTATED)&&(score_ >= KILLCOSTMUTATED)) || ((killable->getState() == CellState::ARRESTED) && (score_ >= KILLARRESTED)))
+						{
+							SDL_Log("GGGGGGGGGGGGGGGGGGGGG");
+							data.z = 3;//is killable
+							data.w = 1.0f;
+							data.w /= 1.5;
+						}
+						SDL_Log("WWWWWWWWWWWWWWWWWWWWWWW");
+						break;
+					}
+					
+				}				
 			}
 			
 		}
+		
+		
 		
 		if(data.z == 2)
 			data.w = 1.0f;
