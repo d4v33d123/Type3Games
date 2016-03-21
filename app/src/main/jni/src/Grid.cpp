@@ -752,12 +752,10 @@ namespace T3E
 						// if it is a normal, arrested or a mutated cell highlight it
 						if(((killable->getState() == CellState::NORMAL)&&(score_ >= KILLCOST)) || ((killable->getState() == CellState::MUTATED)&&(score_ >= KILLCOSTMUTATED)) || ((killable->getState() == CellState::ARRESTED) && (score_ >= KILLARRESTED)))
 						{
-							SDL_Log("GGGGGGGGGGGGGGGGGGGGG");
 							data.z = 3;//is killable
 							data.w = 1.0f;
 							data.w /= 1.5;
 						}
-						SDL_Log("WWWWWWWWWWWWWWWWWWWWWWW");
 						break;
 					}
 					
