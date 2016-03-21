@@ -8,3 +8,41 @@
 cam_x: 30.0
 cam_y: 18.5
 cam_z: 2.0
+
+# Image paths
+bloodvessel_button_image: textures/bvbutton.png
+kill_button_image:        textures/bvbutton.png
+background_image:         textures/background.png
+
+# CELL PROPERTIES
+
+# Split Times are in milliseconds
+cell_min_split_time: 50
+cell_max_split_time: 500
+
+# a random colour value for each cell will be chosen between min and max
+# Colour values should be between 0 and 255
+
+# Colour range for normal cells
+normal_col_min_red: 64
+normal_col_max_red: 64
+normal_col_min_grn: 233
+normal_col_max_grn: 88
+normal_col_min_blu: 245
+normal_col_max_blu: 245
+
+# Colour range for mutated cells
+mutated_col_min_red: 245
+mutated_col_max_red: 245
+mutated_col_min_grn: 203
+mutated_col_max_grn: 145
+mutated_col_min_blu: 64
+mutated_col_max_blu: 64
+
+# Colour range for cancerous cells
+cancer_col_min_red: 232
+cancer_col_max_red: 164
+cancer_col_min_grn: 95
+cancer_col_max_grn: 95
+cancer_col_min_blu: 175
+cancer_col_max_blu: 232

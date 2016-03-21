@@ -57,7 +57,17 @@ void MainGame::initSystems()
 	// enable aplha blending	
 	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
 	glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+
+	// init projection matrix
+	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
+	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	// calculate aspect ratio
+	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
+	// init ortho matrix
+	// inverting top with bottom to avoid sprites being drawn upside down
+	// note that this will put origin at bottom left, while screen coords have origin at top left
+	orthoM_ = glm::ortho(0.0f, float( window_.getScreenWidth() ), 0.0f, float( window_.getScreenHeight() ));
 	
+	// Grab parameters from the config file
 	T3E::ConfigFile configFile("config/config.txt");
 
 	float cam_x, cam_y, cam_z;
@@ -72,17 +82,65 @@ void MainGame::initSystems()
 	camera_.setZoomRange( glm::vec2(1.0f, 8.0f) );
 	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
 	camera_.moveTo(glm::vec3( cam_x, cam_y, cam_z ) );
-
-	// init projection matrix
-	// calculate aspect ratio
-	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
-	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	
-	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
-	//init ortho matrix
-	//inverting top with bottom to avoid sprites being drawn upside down
-	//note that this will put origin at bottom left, while screen coords have origin at top left
-	orthoM_ = glm::ortho(0.0f, float( window_.getScreenWidth() ), 0.0f, float( window_.getScreenHeight() ));
 	
+	int min_split_time, max_split_time;
+	
+	// Set the cell split properties
+	if( !configFile.getInt("cell_min_split_time", &min_split_time) ) min_split_time = 500;
+	if( !configFile.getInt("cell_max_split_time", &max_split_time) ) max_split_time = 5000;
+	
+	T3E::Cell::MIN_ST = min_split_time;
+	T3E::Cell::MAX_ST = max_split_time;
+	
+	std::string bloodvessel_button_image, kill_button_image, background_image;
+
+	configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
+	configFile.getString( "kill_button_image",			&kill_button_image );
+	configFile.getString( "background_image",			&background_image );
+	
+	{
+		float r_min, r_max, g_min, g_max, b_min, b_max;
+
+		// Set the colour range of the normal cell
+		configFile.getFloat("normal_col_min_red", &r_min);
+		configFile.getFloat("normal_col_max_red", &r_max);
+		configFile.getFloat("normal_col_min_grn", &g_min);
+		configFile.getFloat("normal_col_max_grn", &g_max);
+		configFile.getFloat("normal_col_min_blu", &b_min);
+		configFile.getFloat("normal_col_max_blu", &b_max);
+
+		T3E::Cell::normalColourRange_[0] = glm::vec4( r_min, g_min, b_min, 255.0f );
+		T3E::Cell::normalColourRange_[1] = glm::vec4( r_max, g_max, b_max, 255.0f );		
+	}
+	{
+		float r_min, r_max, g_min, g_max, b_min, b_max;
+
+		// Set the colour range of the mutated cell
+		configFile.getFloat("mutated_col_min_red", &r_min);
+		configFile.getFloat("mutated_col_max_red", &r_max);
+		configFile.getFloat("mutated_col_min_grn", &g_min);
+		configFile.getFloat("mutated_col_max_grn", &g_max);
+		configFile.getFloat("mutated_col_min_blu", &b_min);
+		configFile.getFloat("mutated_col_max_blu", &b_max);
+
+		T3E::Cell::mutatedColourRange_[0] = glm::vec4( r_min, g_min, b_min, 255.0f );
+		T3E::Cell::mutatedColourRange_[1] = glm::vec4( r_max, g_max, b_max, 255.0f );		
+	}
+	{
+		float r_min, r_max, g_min, g_max, b_min, b_max;
+
+		// Set the colour range of the cancer cell
+		configFile.getFloat("cancer_col_min_red", &r_min);
+		configFile.getFloat("cancer_col_max_red", &r_max);
+		configFile.getFloat("cancer_col_min_grn", &g_min);
+		configFile.getFloat("cancer_col_max_grn", &g_max);
+		configFile.getFloat("cancer_col_min_blu", &b_min);
+		configFile.getFloat("cancer_col_max_blu", &b_max);
+
+		T3E::Cell::cancerousColourRange_[0] = glm::vec4( r_min, g_min, b_min, 255.0f );
+		T3E::Cell::cancerousColourRange_[1] = glm::vec4( r_max, g_max, b_max, 255.0f );		
+	}
+
     // Set the first cell
     grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
 
@@ -119,12 +177,11 @@ void MainGame::initSystems()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
-	//Create ui buttons
-	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);	
-	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);
-	//background sprite
-	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png");
-	
+	// Initialise the UI
+	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, bloodvessel_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );	
+	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, kill_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );
+	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()), background_image );
+
 	// init shaders
 	initShaders();
 }
@@ -163,7 +220,7 @@ void MainGame::initShaders()
 void MainGame::gameLoop()
 {
 	//enable back face culling
-	glEnable(GL_CULL_FACE);//GL_BACK is default value
+	glEnable(GL_CULL_FACE); // GL_BACK is default value
 	
 	//set line width for grid
 	glLineWidth(5.0f);
@@ -384,7 +441,6 @@ void MainGame::processInput(float dTime)
 			//if(rowCol.x != rowCol2.x && rowCol.y != rowCol2.y)
 			*/
 			if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
-			
 			{
 				finger_dragged_ = true;
 				fingerPressed_ = false;	

@@ -16,6 +16,8 @@ j# built application files
 # generated files
 bin/
 gen/
+html/
+docs/
 
 # Ignore gradle files
 .gradle/

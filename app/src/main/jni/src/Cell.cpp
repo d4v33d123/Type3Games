@@ -1,5 +1,22 @@
 #include "Cell.h"
 
+// Set default values, changed by the config.txt
+int T3E::Cell::MIN_ST = 500;
+int T3E::Cell::MAX_ST = 5000;
+
+glm::vec4 T3E::Cell::normalColourRange_[2] = {
+	glm::vec4( 0.0f, 0.0f, 255.0f, 255.0f ),
+	glm::vec4( 0.0f, 0.0f, 255.0f, 255.0f )
+};
+glm::vec4 T3E::Cell::mutatedColourRange_[2] = {
+	glm::vec4( 255.0f, 180.0f, 0.0f, 255.0f ),
+	glm::vec4( 255.0f, 180.0f, 0.0f, 255.0f )
+};
+glm::vec4 T3E::Cell::cancerousColourRange_[2] = {
+	glm::vec4( 255.0f, 0.0f, 255.0f, 255.0f ),
+	glm::vec4( 255.0f, 0.0f, 255.0f, 255.0f )
+};
+
 namespace T3E
 {
     Cell::Cell():
@@ -9,15 +26,6 @@ namespace T3E
 	selected_(false),
 	alternateMode_(false)	
     {
-		//init colour ranges
-		normalColourRange_[0] = glm::vec4(64.0f, 233.0f, 245.0f, 255.0f);
-		normalColourRange_[1] = glm::vec4(64.0f, 88.0f, 245.0f, 255.0f);
-		
-		mutatedColourRange_[0] = glm::vec4(245.0f, 203.0f, 64.0f, 255.0f);
-		mutatedColourRange_[1] = glm::vec4(245.0f, 145.0f, 64.0f, 255.0f);
-		
-		cancerousColourRange_[0] = glm::vec4(232.0f, 95.0f, 175.0f, 255.0f);
-		cancerousColourRange_[1] = glm::vec4(164.0f, 95.0f, 232.0f, 255.0f);
 	}
 
     Cell::~Cell()
@@ -183,5 +191,11 @@ namespace T3E
 			SDL_Log("reached default case in Cell::setNormalTint()");
 			break;
 		}
+	}
+
+	void setNormalColourRange( float r_min, float r_max, float g_min, float g_max, float b_min, float b_max )
+	{
+		T3E::Cell::normalColourRange_[0] = glm::vec4(r_min, g_min, b_max, 255.0f);
+		T3E::Cell::normalColourRange_[1] = glm::vec4(r_max, g_max, b_min, 255.0f);		
 	}
 }

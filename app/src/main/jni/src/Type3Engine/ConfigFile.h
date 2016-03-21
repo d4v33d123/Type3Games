@@ -22,7 +22,11 @@ public:
 
 	bool getInt( std::string key, int* value );
 
+	bool getString( std::string key, std::string* value );
+
 private:
+
+	std::string trimWhitespace( const std::string& str );
 
 	std::map< std::string, std::string > data_;
 };

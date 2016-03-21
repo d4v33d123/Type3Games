@@ -57,7 +57,7 @@ bool ConfigFile::load( std::string filename )
 			std::string key, value;
 
 			key = line.substr(0, split_point);
-			value = line.substr(split_point + 1);
+			value = trimWhitespace( line.substr(split_point + 1) );
 
 			SDL_Log("Paired '%s': '%s'", key.c_str(), value.c_str() );
 
@@ -78,7 +78,6 @@ bool ConfigFile::getFloat( std::string key, float* value )
 	// For some reason the modern c++11 std::stof functions are not avalible in the ndk
 	// So have to use the <cstdlib> atof functions
 	*value = atof(it->second.c_str());
-	SDL_Log("Returned %s %f", key.c_str(), *value);
 
 	return true;
 }
@@ -93,6 +92,31 @@ bool ConfigFile::getInt( std::string key, int* value )
 	*value = atoi(it->second.c_str());
 
 	return true;
+}
+
+bool ConfigFile::getString( std::string key, std::string* value )
+{
+	auto it = data_.find(key);
+
+	// If the iterator points to the end, the key was not found
+	if( it == data_.end() ) return false;
+
+	*value = it->second;
+	SDL_Log("Retrived %s as '%s'", key.c_str(), value->c_str() );
+
+	return true;
+}
+
+std::string ConfigFile::trimWhitespace( const std::string& str )
+{
+	const size_t strBegin = str.find_first_not_of(" \t");
+    if (strBegin == std::string::npos)
+        return ""; // no content
+
+    const size_t strEnd = str.find_last_not_of(" \t");
+    const size_t strRange = strEnd - strBegin + 1;
+
+    return str.substr(strBegin, strRange);
 }
 
 }
