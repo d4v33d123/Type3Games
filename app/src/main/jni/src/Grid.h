@@ -59,11 +59,12 @@ namespace T3E
         inline int numBloodVessels() { return bloodVessels_.size(); }
 
 		// [in] time since last frame was rendered
+		// [in] finger position (row column), to avoid killing cell that is being hovered
 		// [ret] true if a selected cell died
 		// TODO: this return is quite unrelated to the function,
 		// 		 but I couldn't think of a better way to unset the cellSelected_ flag in MainGame when this happens
 		// call update methods of grid elements, spawn/kill cells according to sim rules
-		bool update(float dTime);
+		bool update(float dTime, SDL_Point fingerRowCol);
 		
 		//TODO: use hexexist checks in getdistance and inrange ? or not since we check before anyway since it's only used internally?
 		
@@ -124,8 +125,8 @@ namespace T3E
 		// [in] row of hex to be queried
 		// [in] column of hex to be queried
 		// [ret] vec3 where x and y are world coords of hex
-		//		z = 1 if hex is in blood vessel range or 0 otherwise
-		//		w = lerp factor (1 = full neutral, 0 = full red)
+		//		z = 0 if hex is in blood vessel range ,1 if in large range, 2 otherwise
+		//		w = lerp factor for colour
 		//		x and y will be -1 if hex doesnt exist(our grid is all in positive coords so that works for now)
 		glm::vec4 getHexDrawInfo(int row, int col, bool cellSelected, glm::vec2 selectedPos);
 		
@@ -146,12 +147,22 @@ namespace T3E
 		// [in] column to test
 		// [ret] true if a bv was created, false otherwise
 		// try to create a blood vessel at the specified position
-		bool growBloodVesselAt( int row, int col);
+		bool growBloodVesselAt( int row, int col );
+		
 		
 		// [ret] the score
 		inline int getScore() { return score_; }
+
+		// [in] row to test
+		// [in] column to test
+		// [ret] true if success
+		// try to create a blood vessel spawn point at the specified position
+		bool setBvSpawn(int row, int col);
 		
+		// [in] bv spawn point that we want to know the coordinates of
+		glm::vec2 getBvSpawnCoords( int i );
 		
+		int numBvSpawns(){return bvSpawnPoints_.size();};
 		
     private:
 
@@ -167,7 +178,8 @@ namespace T3E
 		};
 		
 		struct deathInfo
-		{
+	
+	{
 			int row, col;
 			
 			deathInfo(int r, int c)
@@ -196,8 +208,18 @@ namespace T3E
         // A vector of hex's of type_ == NodeType::BLOOD_VESSEL
         std::vector<Hex*> bloodVessels_;
         
+		//list of currently active spawn points(coordinates of hex)
+		std::vector<glm::vec2> bvSpawnPoints_;
+		
         // Returns true if the given row/col lies on the grid
         bool hexExists( int row, int col );
+		
+		//[in] row new cell will spawn in
+		//[in] col new cell will spawn in
+		//[in] parent's death chance
+		//[in] will the new cell be a cancerous cell? y:true, n:false
+		//[ret] new cell's death chance
+ 		int calcDeathChance(int row, int col, int parentDchance, bool cancerous);
     };
 }
 

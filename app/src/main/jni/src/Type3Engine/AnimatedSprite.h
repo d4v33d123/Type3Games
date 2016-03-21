@@ -10,6 +10,7 @@
 #include "ResourceManager.h"
 #include "glTexture.h"
 #include <string>
+#include "glm/glm.hpp"
 
 namespace T3E
 {
@@ -26,6 +27,11 @@ namespace T3E
 		void Update(float deltaTime);
 
 		void setSpeed(float s){animSpeed_ = s;};
+
+		//getters
+		glm::vec2 getPos(){return glm::vec2(x_, y_);};
+		float getWidth(){return width_;};
+		float getHeight(){return height_;};
 		
 	private:
 		int animPosition_;

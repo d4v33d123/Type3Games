@@ -24,6 +24,7 @@
 #include "Type3Engine/errors.h"
 #include "Type3Engine/Camera.h"
 #include "Type3Engine/AudioEngine.h"
+#include "Type3Engine/Button.h"
 //game classes
 #include "Cell.h"
 #include "BloodVessel.h"
@@ -74,9 +75,10 @@ private:
 	//GAMEPLAY
 	Uint8 nOfFingers_;                  // n of fingers currently touching screen
 	T3E::Camera camera_;                // 2d camera
-	std::vector<T3E::Sprite*> sprites_; // sprite container
+	std::vector<T3E::Sprite*> sprites_; // sprite container TODO: remove this when bv sprite is in right place. maybe use for ui or smt
 	int score_;							// the player's score
 	
+
 	
 	// [in] row to test
 	// [in] column to test
@@ -84,6 +86,7 @@ private:
 	bool selectCell(int row, int col);
 	
     //INPUT
+	T3E::Button bvButton_;
 	bool finger_dragged_;
 	//detect when finger is down for a certain amount of time
 	bool fingerPressed_;
@@ -92,15 +95,19 @@ private:
 	//detect cell selection
 	glm::vec2 selectedPos_;
 	bool cellSelected_;
+	//interaction mode
+	bool bvCreationMode_;
 	
 	//GRAPHICS
-	T3E::GLSLProgram cellProgram_;//shader programs
+	T3E::GLSLProgram tintedSpriteProgram_;//shader programs
 	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
-	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse; // transform matrices
+	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse, orthoM_; // transform matrices
 	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)
 	bool avaliable_for_highlight;
+	T3E::Sprite backgroundSprite_;
+	
+	//AUDIO
 
-	//AUDIO (not quite as important as graphics but more important than conversion functions kappa keepo)
     T3E::AudioEngine audioEngine_;
 	T3E::SoundEffect bloodV_;
 	T3E::SoundEffect cellMove_;
@@ -112,7 +119,7 @@ private:
 	
 	//Draw hex grid 	
 	T3E::GLSLProgram hexProgram_;
-	GLint hex_finalM_location, lerp_weight_location;
+	GLint hex_finalM_location, range_location, lerp_weight_location;
  	GLuint hexBufferName;
 	T3E::Vertex hexVertexes[12];
 	void drawGrid();
