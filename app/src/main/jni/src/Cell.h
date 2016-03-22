@@ -19,11 +19,13 @@ namespace T3E
 	    Cell();
         virtual ~Cell();
 		
-		//max and min split time
+		// The following static values are theoreticaly constant, but they aren't const
+		// They are set by reading from the config file, So just dont change them with code
+		// max and min split time
 		static int MIN_ST;
 		static int MAX_ST;
 
-		//colour ranges (min and max)
+		// colour ranges (min and max)
 		static glm::vec4 normalColourRange_[2];		
 		static glm::vec4 mutatedColourRange_[2];
 		static glm::vec4 cancerousColourRange_[2];
@@ -58,12 +60,12 @@ namespace T3E
 		void setNormalTint(CellState state); 
 		
 		//getters
-		glm::vec4 getTint() { return tint_; }
-		CellState getState() { return state_; }
-		int getDeathChance() { return deathChance_; }
-		bool isSelected() { return selected_; }
-		bool isInAlternateMode() { return alternateMode_; }
-		AnimatedSprite* getSprite() { return &spriteSheet_; }
+		inline glm::vec4 getTint() { return tint_; }
+		inline CellState getState() { return state_; }
+		inline int getDeathChance() { return deathChance_; }
+		inline bool isSelected() { return selected_; }
+		inline bool isInAlternateMode() { return alternateMode_; }
+		inline AnimatedSprite* getSprite() { return &spriteSheet_; }
 		
 		//setters
 		void setDeathChance(int dc) { deathChance_ = dc; }

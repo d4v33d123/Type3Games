@@ -40,7 +40,8 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
 	MainGame.cpp \
 	main.cpp \
 	Grid.cpp \
-	Node.cpp
+	Node.cpp \
+	GlobalScoreValues.cpp
 	
 LOCAL_SHARED_LIBRARIES := SDL2
 LOCAL_SHARED_LIBRARIES += SDL2_mixer

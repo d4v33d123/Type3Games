@@ -1,5 +1,6 @@
 #include "MainGame.h"
 #include "Type3Engine/ConfigFile.h"
+#include "GlobalScoreValues.h"
 
 MainGame::MainGame() : 
 	screenHeight_(800),
@@ -98,6 +99,7 @@ void MainGame::initSystems()
 	configFile.getString( "kill_button_image",			&kill_button_image );
 	configFile.getString( "background_image",			&background_image );
 	
+	// Get colour ranges from config file
 	{
 		float r_min, r_max, g_min, g_max, b_min, b_max;
 
@@ -141,6 +143,40 @@ void MainGame::initSystems()
 		T3E::Cell::cancerousColourRange_[1] = glm::vec4( r_max, g_max, b_max, 255.0f );		
 	}
 
+	// Get the score values from the config file
+	{
+		int spawned_healthy_cell_, spawned_mutated_cell_, spawned_cancer_cell_, spawned_bloodvessel_, spawned_stem_cell_, arrested_cell_;
+		int killed_healthy_cell_, killed_mutated_cell_, killed_cancer_cell_, killed_bloodvessel_, killed_stem_cell_, killed_arrested_cell_;
+	
+		configFile.getInt("spawned_healthy_cell", &spawned_healthy_cell_ );
+		configFile.getInt("spawned_mutated_cell", &spawned_mutated_cell_ );
+		configFile.getInt("spawned_cancer_cell", &spawned_cancer_cell_ );
+		configFile.getInt("spawned_bloodvessel", &spawned_bloodvessel_ );
+		configFile.getInt("spawned_stem_cell", &spawned_stem_cell_ );
+		configFile.getInt("arrested_cell", &arrested_cell_ );
+
+		configFile.getInt("killed_healthy_cell", &killed_healthy_cell_ );
+		configFile.getInt("killed_mutated_cell", &killed_mutated_cell_ );
+		configFile.getInt("killed_cancer_cell", &killed_cancer_cell_ );
+		configFile.getInt("killed_bloodvessel", &killed_bloodvessel_ );
+		configFile.getInt("killed_stem_cell", &killed_stem_cell_ );
+		configFile.getInt("killed_arrested_cell", &killed_arrested_cell_ );
+
+		T3E::SCORE::SET_SPAWNED_HEALTHY_CELL( spawned_healthy_cell_ );
+		T3E::SCORE::SET_SPAWNED_MUTATED_CELL( spawned_mutated_cell_ );
+		T3E::SCORE::SET_SPAWNED_CANCER_CELL( spawned_cancer_cell_ );
+		T3E::SCORE::SET_SPAWNED_BLOODVESSEL( spawned_bloodvessel_ );
+		T3E::SCORE::SET_SPAWNED_STEM_CELL( spawned_stem_cell_ );
+		T3E::SCORE::SET_ARRESTED_CELL( arrested_cell_ );
+
+		T3E::SCORE::SET_KILLED_HEALTHY_CELL( killed_healthy_cell_ );
+		T3E::SCORE::SET_KILLED_MUTATED_CELL( killed_mutated_cell_ );
+		T3E::SCORE::SET_KILLED_CANCER_CELL( killed_cancer_cell_ );
+		T3E::SCORE::SET_KILLED_BLOODVESSEL( killed_bloodvessel_ );
+		T3E::SCORE::SET_KILLED_STEM_CELL( killed_stem_cell_ );
+		T3E::SCORE::SET_KILLED_ARRESTED_CELL( killed_arrested_cell_ );
+	}
+
     // Set the first cell
     grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
 
@@ -156,22 +192,22 @@ void MainGame::initSystems()
 	//this is a buffer of lines, so think them 2 by 2
 	//1
 	hexVertexes[0].setPosition(0.0f, size);
-	hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
+	//hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
 	//2
-	hexVertexes[2].setPosition(-sizeCos30, sizeSin30);
-	hexVertexes[3].setPosition(-sizeCos30, -sizeSin30);
+	hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
+	//hexVertexes[3].setPosition(-sizeCos30, -sizeSin30);
 	//3
-	hexVertexes[4].setPosition(-sizeCos30, -sizeSin30);
-	hexVertexes[5].setPosition(0.0f, -size);
+	hexVertexes[2].setPosition(-sizeCos30, -sizeSin30);
+	//hexVertexes[5].setPosition(0.0f, -size);
 	//4
-	hexVertexes[6].setPosition(0.0f, -size);
-	hexVertexes[7].setPosition(sizeCos30, -sizeSin30);
+	hexVertexes[3].setPosition(0.0f, -size);
+	//hexVertexes[7].setPosition(sizeCos30, -sizeSin30);
 	//5
-	hexVertexes[8].setPosition(sizeCos30, -sizeSin30);
-	hexVertexes[9].setPosition(sizeCos30, sizeSin30);
+	hexVertexes[4].setPosition(sizeCos30, -sizeSin30);
+	//hexVertexes[9].setPosition(sizeCos30, sizeSin30);
 	//6
-	hexVertexes[10].setPosition(sizeCos30, sizeSin30);
-	hexVertexes[11].setPosition(0.0f, size);
+	hexVertexes[5].setPosition(sizeCos30, sizeSin30);
+	//hexVertexes[11].setPosition(0.0f, size);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
@@ -225,6 +261,8 @@ void MainGame::gameLoop()
 	//set line width for grid
 	glLineWidth(5.0f);
 
+	int old_score; // The score last frame
+
 	//our game loop
 	while( gameState_ != GameState::EXIT )
 	{
@@ -244,8 +282,10 @@ void MainGame::gameLoop()
 			grid_.resetPlayVessel();
 		}
 		
+		old_score = score_;
 		score_ = grid_.getScore();
-		SDL_Log("SCORE : %i", score_);
+		if( score_ != old_score )
+			SDL_Log("SCORE : %i", score_);
 		renderGame();
 		
 		processInput(frameTime_);
@@ -810,7 +850,7 @@ void MainGame::drawGrid()
 					//this is out UV attribute pointer;
 					glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 					// draw our verticies
-					glDrawArrays(GL_LINES, 0, 12);
+					glDrawArrays(GL_LINE_LOOP, 0, 6);
 					// disable the vertex attrib array
 					glDisableVertexAttribArray(0);
 					// unbind the VBO
@@ -847,7 +887,7 @@ void MainGame::drawGrid()
 		//this is out UV attribute pointer;
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 		// draw our verticies
-		glDrawArrays(GL_LINES, 0, 12);
+		glDrawArrays(GL_LINE_LOOP, 0,6);
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);
 		// unbind the VBO
@@ -880,7 +920,7 @@ void MainGame::drawGrid()
 		//this is out UV attribute pointer;
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 		// draw our verticies
-		glDrawArrays(GL_LINES, 0, 12);
+		glDrawArrays(GL_LINE_LOOP, 0, 6);
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);
 		// unbind the VBO
@@ -914,7 +954,7 @@ void MainGame::drawGrid()
 		//this is out UV attribute pointer;
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 		// draw our verticies
-		glDrawArrays(GL_LINES, 0, 12);
+		glDrawArrays(GL_LINE_LOOP, 0, 6);
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);
 		// unbind the VBO

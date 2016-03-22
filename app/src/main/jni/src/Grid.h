@@ -156,8 +156,7 @@ namespace T3E
 		
 		// resets the blood vessel sound effect 
 		inline void resetPlayVessel() { playVessel_ = false; }
-		
-		
+				
 		// [ret] the score
 		inline int getScore() { return score_; }
 
@@ -170,8 +169,8 @@ namespace T3E
 		// [in] bv spawn point that we want to know the coordinates of
 		glm::vec2 getBvSpawnCoords( int i );
 		
-		int numBvSpawns(){return bvSpawnPoints_.size();};
-		
+		int numBvSpawns() { return bvSpawnPoints_.size(); }
+
     private:
 
 		struct birthInfo
@@ -185,9 +184,8 @@ namespace T3E
 			{}
 		};
 		
-		struct deathInfo
-	
-	{
+		struct deathInfo	
+		{
 			int row, col;
 			
 			deathInfo(int r, int c)
@@ -197,16 +195,6 @@ namespace T3E
 		
 		// the score
 		int score_;
-		
-		// set of values that decide the score given/taken
-		const int HEALTHYSCORE;
-		const int MUTATEDSCORE;
-		const int SPAWNEDSCORE;
-		const int ARRESTCOST;
-		const int BLOODVESSELCOST;
-		const int KILLCOST;
-		const int KILLCOSTMUTATED;
-		const int KILLARRESTED;
 		
         std::array<Hex, CHUNK_WIDTH * CHUNK_WIDTH> grid_;
             

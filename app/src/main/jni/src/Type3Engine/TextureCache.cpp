@@ -17,7 +17,7 @@ namespace T3E
 		auto mit = textureMap_.find(texturePath);
 
 		//check if it's not in the map
-		if (mit == textureMap_.end())
+		if( mit == textureMap_.end() )
 		{
 			// load the texture
 			GLTexture newTexture = ImageLoader::loadPNG(texturePath);
