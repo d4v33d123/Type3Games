@@ -13,10 +13,11 @@ namespace T3E
         virtual ~BloodVessel();
 		
 		//getters
-		float getRange() { return range_; };
+		static void setRange( float range ) { range_ = range; }
+		static float getRange() { return range_; };
 		
 	private:
-		float range_;
+		static float range_;
 	};
 }
 

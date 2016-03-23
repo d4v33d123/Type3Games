@@ -22,8 +22,7 @@ MainGame::MainGame() :
 MainGame::~MainGame()
 {
 	//free memory
-	for (std::vector<T3E::Sprite*>::iterator it = sprites_.begin() ; it != sprites_.end(); ++it)
-	{
+	for (std::vector<T3E::Sprite*>::iterator it = sprites_.begin() ; it != sprites_.end(); ++it) {
 		delete (*it);
 	} 
 	sprites_.clear();
@@ -84,15 +83,33 @@ void MainGame::initSystems()
 	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
 	camera_.moveTo(glm::vec3( cam_x, cam_y, cam_z ) );
 	
-	int min_split_time, max_split_time;
+	int min_split_time, max_split_time, chance_of_mutation, chance_of_cancer, cancer_death_chance, adjacent_bv_death_chance, far_bv_death_chance;
 	
-	// Set the cell split properties
+	// Set the cell properties
 	if( !configFile.getInt("cell_min_split_time", &min_split_time) ) min_split_time = 500;
 	if( !configFile.getInt("cell_max_split_time", &max_split_time) ) max_split_time = 5000;
+	if( !configFile.getInt("chance_of_mutation", &chance_of_mutation) ) chance_of_mutation = 50;
+	if( !configFile.getInt("chance_of_cancer", &chance_of_cancer) ) chance_of_cancer = 50;
+	if( !configFile.getInt("cancer_death_chance", &cancer_death_chance) ) cancer_death_chance = 50;
+	if( !configFile.getInt("adjacent_bv_death_chance", &adjacent_bv_death_chance) ) adjacent_bv_death_chance = 50;
+	if( !configFile.getInt("far_bv_death_chance", &far_bv_death_chance) ) far_bv_death_chance = 50;
 	
 	T3E::Cell::MIN_ST = min_split_time;
 	T3E::Cell::MAX_ST = max_split_time;
+	grid_.setChanceOfMutation( chance_of_mutation / 100.0f );
+	grid_.setChanceOfCancer( chance_of_cancer / 100.0f );
+	grid_.setCancerDeathChance( cancer_death_chance / 100.0f );
+	grid_.setAdjBloodvesselDeathChance( adjacent_bv_death_chance / 100.0f );
+	grid_.setFarBloodvesselDeathChance( far_bv_death_chance / 100.0f );
 	
+	float bloodvessel_range;
+
+	// Set the bloodvessel properties
+	if( !configFile.getFloat("bloodvessel_range", &bloodvessel_range) ) bloodvessel_range = 5.0f;
+
+	T3E::BloodVessel::setRange( bloodvessel_range );
+
+	// Set image paths
 	std::string bloodvessel_button_image, kill_button_image, background_image;
 
 	configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
@@ -306,11 +323,6 @@ void MainGame::gameLoop()
 			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
 		}	
 	}
-	
-	glDisable( GL_CULL_FACE );
-		
-	//window_.destroy(); // useful?
-	SDL_Quit();
 }
 
 void MainGame::processInput(float dTime)

@@ -17,8 +17,18 @@ background_image:         textures/background.png
 # CELL PROPERTIES
 
 # Split Times are in milliseconds
-cell_min_split_time: 50
-cell_max_split_time: 500
+cell_min_split_time: 500
+cell_max_split_time: 5000
+
+# Chances are percentages from 0 to 100
+chance_of_mutation: 10
+chance_of_cancer: 10
+cancer_death_chance: 10
+
+# The chance of a cell dying that is adjacent to a blood vessel
+adjacent_bv_death_chance: 5
+# The chance of a cell dying that is at the limit of the blood vessel
+far_bv_death_chance: 50
 
 # a random colour value for each cell will be chosen between min and max
 # Colour values should be between 0 and 255

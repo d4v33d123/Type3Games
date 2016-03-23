@@ -9,5 +9,6 @@ int main(int argc, char** argv)
 
 	main_Game.run();
 
+	SDL_Quit();
 	return 0;
 }

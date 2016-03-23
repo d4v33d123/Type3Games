@@ -102,7 +102,7 @@ bool ConfigFile::getString( std::string key, std::string* value )
 	if( it == data_.end() ) return false;
 
 	*value = it->second;
-	SDL_Log("Retrived %s as '%s'", key.c_str(), value->c_str() );
+	//SDL_Log("Retrived %s as '%s'", key.c_str(), value->c_str() );
 
 	return true;
 }

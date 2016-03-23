@@ -24,16 +24,18 @@ namespace T3E
 		window();
 		~window();
 
-		int create(std::string windowName, int screenWidth, int screenHeight, unsigned int currentFlag);
-		int getScreenWidth(){ return screenWidth_; }
-		int getScreenHeight(){ return screenHeight_; }
+		int create( std::string windowName, int screenWidth, int screenHeight, unsigned int currentFlag );
+		void destroy();
 
 		void swapBuffer();
 		
-		void updateSizeInfo();//updatescreenWidth_ and screenHeight_ with the current window size
+		void updateSizeInfo(); // updatescreenWidth_ and screenHeight_ with the current window size
+		int getScreenWidth() { return screenWidth_; }
+		int getScreenHeight() { return screenHeight_; }
 		
 	private:
 		SDL_Window* sdlWindow_;
+		SDL_GLContext glContext_;
 		int screenWidth_, screenHeight_;
 	};
 }

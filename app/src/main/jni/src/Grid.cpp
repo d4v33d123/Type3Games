@@ -78,7 +78,7 @@ namespace T3E
 
     }
 
-    bool Grid::newCell( int row, int col, CellState state, int deathChance, Cell** createdCell )
+    bool Grid::newCell( int row, int col, CellState state, int parentDeathChance, Cell** createdCell )
     {
         Node* current;
         Cell* newCell;
@@ -91,7 +91,7 @@ namespace T3E
 
             // Intialise the new cell
             newCell = new Cell();
-			newCell->init(state, deathChance);						
+			newCell->init(state, calcDeathChance( row, col, parentDeathChance, state == T3E::CellState::CANCEROUS ) );
             
 			// Save the new cell to the correct hex in the grid
             Hex* hex = &grid_[ row * CHUNK_WIDTH + col ];
@@ -299,13 +299,12 @@ namespace T3E
 	
 	int Grid::calcDeathChance(int row, int col, int parentDchance, bool cancerous)
 	{
-		//check distance to closest blod vessel
+		// check distance to closest blood vessel
 		float inRange = false;
-		int distToBv = 999;//high number to make sure first if is true
-		int dc;//death chance
-		
-		//get range from the first blood vessel of the bv vector(all have same range)
-		int bvRange = ((BloodVessel*)(bloodVessels_[0]->getNode()))->getRange();
+		int distToBv = 999; // high number to make sure first if is true
+		int dc; // death chance
+		int bvRange = T3E::BloodVessel::getRange();
+
 		for(std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs)
 		{
 			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
@@ -314,18 +313,16 @@ namespace T3E
 				distToBv = dist;		
 		}							
 		
-		if(cancerous)
+		if( cancerous )
 		{
-			//cancer starts dying after 1.5 range
-			if(bvRange*1.5 >= distToBv)
-				dc = 0;
-			else
-				dc = parentDchance + distToBv*2;
+			// All cancer cells are given a fixed death chance because they don't give a fuck
+			// TODO: this should probably changed to some kind of formula, ask the designers...
+			dc = cancerDeathChance_ * 100;
 		}
 		else
 		{
 			//if in range of a blood vessel
-			if(bvRange >= distToBv)
+			if( bvRange >= distToBv )
 			{
 				dc = parentDchance + 5 - (bvRange - distToBv);
 				
@@ -338,7 +335,7 @@ namespace T3E
 			else
 			{
 				//the further from bv the higher dc
-				dc = parentDchance + 5 + distToBv;
+				dc = parentDchance + 5;
 			}
 			
 			//cap dc
@@ -415,68 +412,69 @@ namespace T3E
 					if(neighbours[lucky] != nullptr)
 					{
 						if(neighbours[lucky]->getType() == NodeType::EMPTY)
-						{					
-							// rolls
-							int noMutation;
-							int noCancer;
-							// death chance of new cell
-							int dc;
+						{
+							int random_val = rand() & 255;
 							
 							// create a new cell depending on current's type
 							switch(current->getState())
 							{
 							case CellState::STEM:
-								//spawn normal cell with 5% death chance
-								dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), false);
-								newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::NORMAL, dc));
-								break;
-								
+								// spawn normal cell with 5% death chance
+								newCells.push_back( birthInfo(
+									neighbours[lucky]->getRow(),
+									neighbours[lucky]->getCol(),
+									CellState::NORMAL,
+									current->getDeathChance() ));
+
+								break;								
 							case CellState::NORMAL:
-								//roll for mutation
-								noMutation = rand()%100;
-								if(noMutation)
+								if( random_val < chanceOfMutation_ * 255 )
 								{
-									//spawn normal cell
-									dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), false);
-									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::NORMAL, dc));
+									newCells.push_back( birthInfo(
+										neighbours[lucky]->getRow(),
+										neighbours[lucky]->getCol(),
+										CellState::MUTATED,
+										current->getDeathChance() ));
 								}
 								else
 								{
-									//spawn mutated cell
-									dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), false);
-									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, dc));
+									newCells.push_back( birthInfo(
+										neighbours[lucky]->getRow(),
+										neighbours[lucky]->getCol(),
+										CellState::NORMAL,
+										current->getDeathChance() ));
 								}
-								break;
-								
+								break;								
 							case CellState::MUTATED:
-								//roll for cancer
-								noCancer = rand()%100;
-								if(noCancer)
-								{	
-									//spawn mutated cell 
-									dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), false);
-									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::MUTATED, dc));
+								if( random_val < chanceOfCancer_ * 255 )
+								{
+									newCells.push_back( birthInfo(
+										neighbours[lucky]->getRow(),
+										neighbours[lucky]->getCol(),
+										CellState::CANCEROUS,
+										current->getDeathChance() ));
 								}
 								else
 								{
-									//spawn cancerous cell
-									dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), true);
-									newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, dc));
+									newCells.push_back( birthInfo(
+										neighbours[lucky]->getRow(),
+										neighbours[lucky]->getCol(),
+										CellState::MUTATED,
+										current->getDeathChance() ));
 								}
-								break;
-								
-							case CellState::CANCEROUS:
-								//spawn cancerous cell
-								dc = calcDeathChance(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), current->getDeathChance(), true);
-								newCells.push_back(birthInfo(neighbours[lucky]->getRow(), neighbours[lucky]->getCol(), CellState::CANCEROUS, dc));
-								break;
-								
+								break;								
+							case CellState::CANCEROUS: // Cancerous cells always spawn more cancerous cells
+								newCells.push_back( birthInfo(
+									neighbours[lucky]->getRow(),
+									neighbours[lucky]->getCol(),
+									CellState::CANCEROUS,
+									current->getDeathChance() ));
+								break;								
 							default:
 								break;
 							}
 						}
-					}
-	
+					}	
 				}
 				//if the cell died
 				else
@@ -498,7 +496,7 @@ namespace T3E
 		//add new cells
 		for(std::vector<birthInfo>::iterator c = newCells.begin(); c != newCells.end(); ++c)
 		{
-			newCell( c->row, c->col, c->state, c->deathChance, nullptr );
+			newCell( c->row, c->col, c->state, c->parentDeathChance, nullptr );
 		}
 		
 		return selectedCellDied;
@@ -769,7 +767,7 @@ namespace T3E
 				}
 				case InteractionMode::BVCREATION:
 				{
-					if(distance >= bloodVessel->getRange()*1.2 && score_ >= BLOODVESSELCOST)
+					if(distance >= bloodVessel->getRange()*1.2 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() > 0 )
 					{
 						data.z = 3;//is empty and next to selected cell
 						data.w = 1.0f;
@@ -786,7 +784,9 @@ namespace T3E
 						Cell* killable = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
 
 						// if it is a normal, arrested or a mutated cell highlight it
-						if(((killable->getState() == CellState::NORMAL)&&(score_ >= KILLCOST)) || ((killable->getState() == CellState::MUTATED)&&(score_ >= KILLCOSTMUTATED)) || ((killable->getState() == CellState::ARRESTED) && (score_ >= KILLARRESTED)))
+						if( ((killable->getState() == CellState::NORMAL) && (score_ - T3E::SCORE::KILLED_HEALTHY_CELL() > 0)) ||
+							((killable->getState() == CellState::MUTATED) && (score_ - T3E::SCORE::KILLED_MUTATED_CELL() > 0)) ||
+							((killable->getState() == CellState::ARRESTED) && (score_ - T3E::SCORE::KILLED_ARRESTED_CELL() > 0)) )
 						{
 							data.z = 3;//is killable
 							data.w = 1.0f;
@@ -795,7 +795,10 @@ namespace T3E
 						break;
 					}
 					
-				}				
+				}
+				default:
+					// not a valid mode, cry
+				break;				
 			}
 			
 		}

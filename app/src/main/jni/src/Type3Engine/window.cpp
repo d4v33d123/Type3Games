@@ -6,10 +6,21 @@ namespace T3E
 	{
 	}
 
+	void window::destroy()
+	{
+		if( glContext_ ) {
+			SDL_GL_DeleteContext( glContext_ );
+			glContext_ = nullptr;
+		}
+		if( sdlWindow_ ) {
+			SDL_DestroyWindow(sdlWindow_);
+			sdlWindow_ = nullptr;
+		}		
+	}
+
 	window::~window()
 	{
-		SDL_DestroyWindow(sdlWindow_);
-		sdlWindow_ = NULL;
+		destroy();
 	}
 
 	int window::create(std::string windowName, int screenWidth, int screenHeight, unsigned int currentFlag)
@@ -42,9 +53,9 @@ namespace T3E
 		}
 
 		// setting up open gl context
-		SDL_GLContext glContext = SDL_GL_CreateContext(sdlWindow_);
+		glContext_ = SDL_GL_CreateContext(sdlWindow_);
 		
-		if (glContext == nullptr)
+		if (glContext_ == nullptr)
 		{
 			fatalError("SDL_GL CONTEXT COULD NOT BE CREATED");
 		}

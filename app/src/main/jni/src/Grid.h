@@ -171,16 +171,42 @@ namespace T3E
 		
 		int numBvSpawns() { return bvSpawnPoints_.size(); }
 
+		void setChanceOfMutation( float c ) {
+			if( c > 1.0f ) c = 1.0f;
+			if( c < 0.0f ) c = 0.0f;
+			chanceOfMutation_ = c;
+		}
+		void setChanceOfCancer( float c ) {
+			if( c > 1.0f ) c = 1.0f;
+			if( c < 0.0f ) c = 0.0f;
+			chanceOfCancer_ = c;
+		}
+		void setCancerDeathChance( float c ) {
+			if( c > 1.0f ) c = 1.0f;
+			if( c < 0.0f ) c = 0.0f;
+			cancerDeathChance_ = c;
+		}
+		void setAdjBloodvesselDeathChance( float c ) {
+			if( c > 1.0f ) c = 1.0f;
+			if( c < 0.0f ) c = 0.0f;
+			adjacentBloodvesselDeathChance_ = c;
+		}
+		void setFarBloodvesselDeathChance( float c ) {
+			if( c > 1.0f ) c = 1.0f;
+			if( c < 0.0f ) c = 0.0f;
+			farBloodvesselDeathChance_ = c;
+		}
+
     private:
 
 		struct birthInfo
 		{
 			int row, col;
 			CellState state;
-			int deathChance;
+			int parentDeathChance;
 			
 			birthInfo(int r, int c, CellState s, int dc)
-			:row(r) ,col(c), state(s), deathChance(dc)
+			: row(r) ,col(c), state(s), parentDeathChance(dc)
 			{}
 		};
 		
@@ -193,8 +219,17 @@ namespace T3E
 			{}
 		};
 		
-		// the score
+		// the number of points the player has
 		int score_;
+
+		float chanceOfMutation_;	// Liklyhood of healthy cell becoming mutated, 0.0 = %0 1.0 = %100
+		float chanceOfCancer_;		// Liklyhood of mutated cell becoming cancerous [0.0, 1.0]
+
+		// TODO: implement these!!!
+		float cancerDeathChance_;
+		float adjacentBloodvesselDeathChance_;	// The death chance of cells that are adjacent to blood vessels
+		float farBloodvesselDeathChance_;		// The death chance of cells that are at the limit of the blood vessel range
+		int childDeathChanceIncrease_;			// The death chance of childrend = dc of parent + this value
 		
         std::array<Hex, CHUNK_WIDTH * CHUNK_WIDTH> grid_;
             
