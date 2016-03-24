@@ -20,7 +20,7 @@ public:
 
 	bool getFloat( std::string key, float* value );
 
-	bool getInt( std::string key, int* value );
+	void getInt( std::string key, int* value, int default_value );
 
 	bool getString( std::string key, std::string* value );
 
@@ -29,6 +29,8 @@ private:
 	std::string trimWhitespace( const std::string& str );
 
 	std::map< std::string, std::string > data_;
+
+	std::string name;
 };
 
 }

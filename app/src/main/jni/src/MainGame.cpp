@@ -83,16 +83,22 @@ void MainGame::initSystems()
 	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
 	camera_.moveTo(glm::vec3( cam_x, cam_y, cam_z ) );
 	
-	int min_split_time, max_split_time, chance_of_mutation, chance_of_cancer, cancer_death_chance, adjacent_bv_death_chance, far_bv_death_chance;
+	int min_split_time, max_split_time, chance_of_mutation, chance_of_cancer;
+	int cancer_death_chance, adjacent_bv_death_chance, far_bv_death_chance, child_death_chance_increase, parent_death_chance_increase;
+	int min_death_chance, max_death_chance;
 	
 	// Set the cell properties
-	if( !configFile.getInt("cell_min_split_time", &min_split_time) ) min_split_time = 500;
-	if( !configFile.getInt("cell_max_split_time", &max_split_time) ) max_split_time = 5000;
-	if( !configFile.getInt("chance_of_mutation", &chance_of_mutation) ) chance_of_mutation = 50;
-	if( !configFile.getInt("chance_of_cancer", &chance_of_cancer) ) chance_of_cancer = 50;
-	if( !configFile.getInt("cancer_death_chance", &cancer_death_chance) ) cancer_death_chance = 50;
-	if( !configFile.getInt("adjacent_bv_death_chance", &adjacent_bv_death_chance) ) adjacent_bv_death_chance = 50;
-	if( !configFile.getInt("far_bv_death_chance", &far_bv_death_chance) ) far_bv_death_chance = 50;
+	configFile.getInt("cell_min_split_time", 			&min_split_time, 			 500);
+	configFile.getInt("cell_max_split_time", 			&max_split_time, 			5000);
+	configFile.getInt("chance_of_mutation", 			&chance_of_mutation, 		  50);
+	configFile.getInt("chance_of_cancer", 				&chance_of_cancer, 			  50);
+	configFile.getInt("cancer_death_chance", 			&cancer_death_chance, 		  50);
+	configFile.getInt("adjacent_bv_death_chance", 		&adjacent_bv_death_chance, 	  50);
+	configFile.getInt("far_bv_death_chance", 			&far_bv_death_chance, 		  50);
+	configFile.getInt("child_death_chance_increase", 	&child_death_chance_increase,  5);
+	configFile.getInt("parent_death_chance_increase", 	&parent_death_chance_increase, 5);
+	configFile.getInt("min_death_chance", 				&min_death_chance, 			   5);
+	configFile.getInt("max_death_chance", 				&max_death_chance, 			  95);
 	
 	T3E::Cell::MIN_ST = min_split_time;
 	T3E::Cell::MAX_ST = max_split_time;
@@ -101,6 +107,9 @@ void MainGame::initSystems()
 	grid_.setCancerDeathChance( cancer_death_chance / 100.0f );
 	grid_.setAdjBloodvesselDeathChance( adjacent_bv_death_chance / 100.0f );
 	grid_.setFarBloodvesselDeathChance( far_bv_death_chance / 100.0f );
+	grid_.setChildDeathChanceIncrease( child_death_chance_increase / 100.0f );
+	grid_.setMinDeathChance( min_death_chance / 100.0f );
+	grid_.setMaxDeathChance( max_death_chance / 100.0f );	
 	
 	float bloodvessel_range;
 
@@ -165,19 +174,19 @@ void MainGame::initSystems()
 		int spawned_healthy_cell_, spawned_mutated_cell_, spawned_cancer_cell_, spawned_bloodvessel_, spawned_stem_cell_, arrested_cell_;
 		int killed_healthy_cell_, killed_mutated_cell_, killed_cancer_cell_, killed_bloodvessel_, killed_stem_cell_, killed_arrested_cell_;
 	
-		configFile.getInt("spawned_healthy_cell", &spawned_healthy_cell_ );
-		configFile.getInt("spawned_mutated_cell", &spawned_mutated_cell_ );
-		configFile.getInt("spawned_cancer_cell", &spawned_cancer_cell_ );
-		configFile.getInt("spawned_bloodvessel", &spawned_bloodvessel_ );
-		configFile.getInt("spawned_stem_cell", &spawned_stem_cell_ );
-		configFile.getInt("arrested_cell", &arrested_cell_ );
+		configFile.getInt("spawned_healthy_cell", &spawned_healthy_cell_, 1 );
+		configFile.getInt("spawned_mutated_cell", &spawned_mutated_cell_, 1 );
+		configFile.getInt("spawned_cancer_cell", &spawned_cancer_cell_, 1 );
+		configFile.getInt("spawned_bloodvessel", &spawned_bloodvessel_, 1 );
+		configFile.getInt("spawned_stem_cell", &spawned_stem_cell_, 1 );
+		configFile.getInt("arrested_cell", &arrested_cell_, 1 );
 
-		configFile.getInt("killed_healthy_cell", &killed_healthy_cell_ );
-		configFile.getInt("killed_mutated_cell", &killed_mutated_cell_ );
-		configFile.getInt("killed_cancer_cell", &killed_cancer_cell_ );
-		configFile.getInt("killed_bloodvessel", &killed_bloodvessel_ );
-		configFile.getInt("killed_stem_cell", &killed_stem_cell_ );
-		configFile.getInt("killed_arrested_cell", &killed_arrested_cell_ );
+		configFile.getInt("killed_healthy_cell", &killed_healthy_cell_, 1 );
+		configFile.getInt("killed_mutated_cell", &killed_mutated_cell_, 1 );
+		configFile.getInt("killed_cancer_cell", &killed_cancer_cell_, 1 );
+		configFile.getInt("killed_bloodvessel", &killed_bloodvessel_, 1 );
+		configFile.getInt("killed_stem_cell", &killed_stem_cell_, 1 );
+		configFile.getInt("killed_arrested_cell", &killed_arrested_cell_, 1 );
 
 		T3E::SCORE::SET_SPAWNED_HEALTHY_CELL( spawned_healthy_cell_ );
 		T3E::SCORE::SET_SPAWNED_MUTATED_CELL( spawned_mutated_cell_ );

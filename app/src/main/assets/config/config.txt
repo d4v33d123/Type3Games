@@ -21,13 +21,18 @@ cell_min_split_time: 500
 cell_max_split_time: 5000
 
 # Chances are percentages from 0 to 100
-chance_of_mutation: 10
-chance_of_cancer: 10
+chance_of_mutation: 0
+chance_of_cancer: 0
 cancer_death_chance: 10
+child_death_chance_increase: 10
+parent_death_chance_increase: 10
+min_death_chance: 6
+max_death_chance: 95
+bloodvessel_range: 5
 
 # The chance of a cell dying that is adjacent to a blood vessel
-adjacent_bv_death_chance: 5
-# The chance of a cell dying that is at the limit of the blood vessel
+adjacent_bv_death_chance: 0
+# The chance of a cell dying that is at the limit of the blood vessel's range
 far_bv_death_chance: 50
 
 # a random colour value for each cell will be chosen between min and max

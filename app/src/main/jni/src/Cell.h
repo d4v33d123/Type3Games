@@ -82,7 +82,7 @@ namespace T3E
 		CellState state_; // see CellState enum
 		bool selected_; // cell is the current selection?
 		int deathChance_; // chance to die instead of splitting
-		float splitTimer_; // time since last split; milliseconds
+		float splitTimer_; // time since last split; milliseconds //TODO: counting milliseconds with a float is probably a bad idea
 		float splitTime_; // time to reach to start split; milliseconds
 		bool alternateMode_; // true when cell is in secondary mode (e.g. stem cell in spawn mode)
 	};

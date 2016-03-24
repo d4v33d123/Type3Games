@@ -91,7 +91,7 @@ namespace T3E
 
             // Intialise the new cell
             newCell = new Cell();
-			newCell->init(state, calcDeathChance( row, col, parentDeathChance, state == T3E::CellState::CANCEROUS ) );
+			newCell->init( state, calcDeathChance( row, col, parentDeathChance, state == T3E::CellState::CANCEROUS ) );
             
 			// Save the new cell to the correct hex in the grid
             Hex* hex = &grid_[ row * CHUNK_WIDTH + col ];
@@ -302,8 +302,8 @@ namespace T3E
 		// check distance to closest blood vessel
 		float inRange = false;
 		int distToBv = 999; // high number to make sure first if is true
-		int dc; // death chance
-		int bvRange = T3E::BloodVessel::getRange();
+		int death_chance; // death chance
+		int bloodvessel_range = T3E::BloodVessel::getRange();
 
 		for(std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs)
 		{
@@ -311,47 +311,50 @@ namespace T3E
 			int dist = getDistance((*bvs)->getRow(), (*bvs)->getCol(), row, col);
 			if(dist < distToBv)
 				distToBv = dist;		
-		}							
+		}			
 		
 		if( cancerous )
 		{
 			// All cancer cells are given a fixed death chance because they don't give a fuck
 			// TODO: this should probably changed to some kind of formula, ask the designers...
-			dc = cancerDeathChance_ * 100;
+			death_chance = cancerDeathChance_ * 100;
 		}
 		else
 		{
-			//if in range of a blood vessel
-			if( bvRange >= distToBv )
+			if( distToBv <= 2 )
 			{
-				dc = parentDchance + 5 - (bvRange - distToBv);
-				
-				//if adjacent to bv, reset death chance
-				// if(distToBv == 2)	
-					// dc = 5;
-				// else
-					// dc = parentDchance + 5;
+				// The hex is adjacent to the blood vessel
+				death_chance = adjacentBloodvesselDeathChance_ * 100; 
+				SDL_Log("Adjacent cell distance %i dc %i", distToBv, death_chance);
+			}
+			else if( distToBv <= bloodvessel_range )
+			{
+				// take account of adjacent cells are two away from the blood vessel
+				float lerpAmount = (distToBv - 2.0f) / float(bloodvessel_range - 2.0f);
+
+				// As the cell gets farther away from the blood vessel
+				// Lerp from the adjacent_death_chance to the far_death_chance
+				death_chance = ((adjacentBloodvesselDeathChance_ * (1.0f - lerpAmount)) + (farBloodvesselDeathChance_ * lerpAmount)) * 100;
+				SDL_Log("In range cell lerp %f, dc %i", lerpAmount, death_chance);
 			}
 			else
 			{
-				//the further from bv the higher dc
-				dc = parentDchance + 5;
-			}
-			
-			//cap dc
-			if(dc < 5)
-				dc = 5;
+				// If the cell is outside the range of a blood vessel
+				// It's death chance is based on it's parents + some value
+				death_chance = parentDchance + (childDeathChanceIncrease_ * 100.0f);
+				SDL_Log("Distant cell, %i parent %i dc %i", distToBv, parentDchance, death_chance);
+			}			
 		}
 		
-		//cap dc
-		if(dc > 99)
-			dc = 99;
+		//cap death_chance
+		if(death_chance < floor(minDeathChance_ * 100) ) death_chance = floor(minDeathChance_ * 100);
+		if(death_chance > floor(maxDeathChance_ * 100) ) death_chance = floor(maxDeathChance_ * 100);
 		
-		return dc;
+		return death_chance;
 	}
 	
 	bool Grid::update(float dTime, SDL_Point fingerRowCol)
-	{		
+	{
 		bool selectedCellDied = false;
 		
 		//TODO: use queue/list?
@@ -419,11 +422,10 @@ namespace T3E
 							switch(current->getState())
 							{
 							case CellState::STEM:
-								// spawn normal cell with 5% death chance
 								newCells.push_back( birthInfo(
 									neighbours[lucky]->getRow(),
 									neighbours[lucky]->getCol(),
-									CellState::NORMAL,
+									CellState::STEM,
 									current->getDeathChance() ));
 
 								break;								
@@ -496,7 +498,18 @@ namespace T3E
 		//add new cells
 		for(std::vector<birthInfo>::iterator c = newCells.begin(); c != newCells.end(); ++c)
 		{
-			newCell( c->row, c->col, c->state, c->parentDeathChance, nullptr );
+			// If it's parent was a stem cell, it gets the minimum death chance
+			if( c->state == CellState::STEM )
+			{
+				Cell* stemChild;
+				newCell( c->row, c->col, CellState::NORMAL, 0, &stemChild );
+				stemChild->setDeathChance( minDeathChance_ );
+				SDL_Log("stem child dc %i", stemChild->getDeathChance() );
+			}
+			else
+			{
+				newCell( c->row, c->col, c->state, c->parentDeathChance, nullptr );
+			}
 		}
 		
 		return selectedCellDied;
@@ -528,8 +541,9 @@ namespace T3E
 	bool Grid::selectCell(int row, int col)
 	{
 		 // If the hex does not lie on the board or is not a cell, return error
-        if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
+        if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL)) {
             return false;
+        }
 		
 		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
 		//only select normal and stem cells
@@ -575,6 +589,8 @@ namespace T3E
 		// get the neighbours of the currently selected cell
 		T3E::Hex* neighbours[6];
 		getNeighbours( selRow, selCol, neighbours );
+
+		// TODO: unravel this crazy nested logic, i see bugs in here and unexpected looping given certain conditions
 		//check if the touched position is one of neighbours of the selected cell
 		for(int i = 0; i < 6; ++i)
 		{
@@ -582,17 +598,14 @@ namespace T3E
 			{
 				if((neighbours[i]->getRow() == touchRow) && (neighbours[i]->getCol() == touchCol))
 				{
-					//if it's empty
 					if(isEmpty(touchRow, touchCol))
 					{
-						int dc = calcDeathChance(touchRow, touchCol, selectedCell->getDeathChance(), true);
-						
-						//spawn new cell with parent's death chance + 5
-						if(newCell(touchRow, touchCol, selectedCell->getState(), dc, nullptr))
+						// spawn new cell, pass the selected cells death chance as it's parent
+						if(newCell(touchRow, touchCol, selectedCell->getState(), selectedCell->getDeathChance(), nullptr))
 						{
 							//now we increase parent's death chance aswell if it was normal
 							if(selectedCell->getState() == CellState::NORMAL)
-								selectedCell->incDeathChance(5);
+								selectedCell->incDeathChance( parentDeathChanceIncrease_ ); // TODO: why is incDeathChance even a method? shoud be set( get + inc )
 
 							return true;
 						}									

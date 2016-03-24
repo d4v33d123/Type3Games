@@ -19,6 +19,7 @@ ConfigFile::~ConfigFile()
 
 bool ConfigFile::load( std::string filename )
 {
+	name = filename;
 	std::stringstream file;
 
 	std::vector<char> v;
@@ -82,16 +83,17 @@ bool ConfigFile::getFloat( std::string key, float* value )
 	return true;
 }
 
-bool ConfigFile::getInt( std::string key, int* value )
+void ConfigFile::getInt( std::string key, int* value, int default_value )
 {
 	auto it = data_.find(key);
 
 	// If the iterator points to the end, the key was not found
-	if( it == data_.end() ) return false;
+	if( it == data_.end() ) {
+		*value = default_value;
+		SDL_Log("WARNING: could not find '%s' in '%s', defaulting to %i", key.c_str(), name.c_str(), default_value );
+	}
 
 	*value = atoi(it->second.c_str());
-
-	return true;
 }
 
 bool ConfigFile::getString( std::string key, std::string* value )
