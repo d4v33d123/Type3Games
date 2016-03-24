@@ -24,9 +24,9 @@ cell_max_split_time: 5000
 chance_of_mutation: 0
 chance_of_cancer: 0
 cancer_death_chance: 10
-child_death_chance_increase: 10
-parent_death_chance_increase: 10
-min_death_chance: 6
+child_death_chance_increase: 5
+parent_death_chance_increase: 5
+min_death_chance: 0
 max_death_chance: 95
 bloodvessel_range: 5
 

@@ -317,38 +317,39 @@ namespace T3E
 		{
 			// All cancer cells are given a fixed death chance because they don't give a fuck
 			// TODO: this should probably changed to some kind of formula, ask the designers...
-			death_chance = cancerDeathChance_ * 100;
+			death_chance = cancerDeathChance_;
 		}
 		else
 		{
 			if( distToBv <= 2 )
 			{
 				// The hex is adjacent to the blood vessel
-				death_chance = adjacentBloodvesselDeathChance_ * 100; 
-				SDL_Log("Adjacent cell distance %i dc %i", distToBv, death_chance);
+				death_chance = adjacentBloodvesselDeathChance_; 
+				//SDL_Log("Adjacent cell distance %i dc %i", distToBv, death_chance);
 			}
 			else if( distToBv <= bloodvessel_range )
 			{
 				// take account of adjacent cells are two away from the blood vessel
-				float lerpAmount = (distToBv - 2.0f) / float(bloodvessel_range - 2.0f);
+				float lerpAmount = (distToBv - 2) / float(bloodvessel_range - 2);
 
 				// As the cell gets farther away from the blood vessel
 				// Lerp from the adjacent_death_chance to the far_death_chance
-				death_chance = ((adjacentBloodvesselDeathChance_ * (1.0f - lerpAmount)) + (farBloodvesselDeathChance_ * lerpAmount)) * 100;
-				SDL_Log("In range cell lerp %f, dc %i", lerpAmount, death_chance);
+				death_chance = (adjacentBloodvesselDeathChance_ * (1.0f - lerpAmount)) + (farBloodvesselDeathChance_ * lerpAmount);
+				//SDL_Log("adjbvdc %i farbvdc %i", adjacentBloodvesselDeathChance_, farBloodvesselDeathChance_ );
+				//SDL_Log("In range cell lerp %f, dc %i", lerpAmount, death_chance);
 			}
 			else
 			{
 				// If the cell is outside the range of a blood vessel
 				// It's death chance is based on it's parents + some value
-				death_chance = parentDchance + (childDeathChanceIncrease_ * 100.0f);
-				SDL_Log("Distant cell, %i parent %i dc %i", distToBv, parentDchance, death_chance);
+				death_chance = parentDchance + childDeathChanceIncrease_;
+				//SDL_Log("Distant cell, %i parentDC %i dc %i", distToBv, parentDchance, death_chance);
 			}			
 		}
 		
 		//cap death_chance
-		if(death_chance < floor(minDeathChance_ * 100) ) death_chance = floor(minDeathChance_ * 100);
-		if(death_chance > floor(maxDeathChance_ * 100) ) death_chance = floor(maxDeathChance_ * 100);
+		if(death_chance < minDeathChance_ ) death_chance = minDeathChance_;
+		if(death_chance > maxDeathChance_ ) death_chance = maxDeathChance_;
 		
 		return death_chance;
 	}
@@ -430,7 +431,7 @@ namespace T3E
 
 								break;								
 							case CellState::NORMAL:
-								if( random_val < chanceOfMutation_ * 255 )
+								if( random_val < (chanceOfMutation_ / 100.0f) * 255 )
 								{
 									newCells.push_back( birthInfo(
 										neighbours[lucky]->getRow(),
@@ -448,7 +449,7 @@ namespace T3E
 								}
 								break;								
 							case CellState::MUTATED:
-								if( random_val < chanceOfCancer_ * 255 )
+								if( random_val < (chanceOfCancer_ / 100.0f) * 255 )
 								{
 									newCells.push_back( birthInfo(
 										neighbours[lucky]->getRow(),
@@ -600,7 +601,7 @@ namespace T3E
 				{
 					if(isEmpty(touchRow, touchCol))
 					{
-						// spawn new cell, pass the selected cells death chance as it's parent
+						// spawn new cell, pass the selected cells de as it's parent
 						if(newCell(touchRow, touchCol, selectedCell->getState(), selectedCell->getDeathChance(), nullptr))
 						{
 							//now we increase parent's death chance aswell if it was normal

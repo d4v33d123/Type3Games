@@ -102,14 +102,15 @@ void MainGame::initSystems()
 	
 	T3E::Cell::MIN_ST = min_split_time;
 	T3E::Cell::MAX_ST = max_split_time;
-	grid_.setChanceOfMutation( chance_of_mutation / 100.0f );
-	grid_.setChanceOfCancer( chance_of_cancer / 100.0f );
-	grid_.setCancerDeathChance( cancer_death_chance / 100.0f );
-	grid_.setAdjBloodvesselDeathChance( adjacent_bv_death_chance / 100.0f );
-	grid_.setFarBloodvesselDeathChance( far_bv_death_chance / 100.0f );
-	grid_.setChildDeathChanceIncrease( child_death_chance_increase / 100.0f );
-	grid_.setMinDeathChance( min_death_chance / 100.0f );
-	grid_.setMaxDeathChance( max_death_chance / 100.0f );	
+	grid_.setChanceOfMutation( chance_of_mutation );
+	grid_.setChanceOfCancer( chance_of_cancer );
+	grid_.setCancerDeathChance( cancer_death_chance );
+	grid_.setAdjBloodvesselDeathChance( adjacent_bv_death_chance );
+	grid_.setFarBloodvesselDeathChance( far_bv_death_chance );
+	grid_.setChildDeathChanceIncrease( child_death_chance_increase );
+	grid_.setParentDeathChanceIncrease( parent_death_chance_increase );
+	grid_.setMinDeathChance( min_death_chance );
+	grid_.setMaxDeathChance( max_death_chance );
 	
 	float bloodvessel_range;
 

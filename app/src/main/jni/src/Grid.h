@@ -172,42 +172,19 @@ namespace T3E
 		int numBvSpawns() { return bvSpawnPoints_.size(); }
 
 		// TODO: convert all this logic to use ints, i shouldn't have been using floats in the first place...
-		void setChanceOfMutation( float c ) {
-			chanceOfMutation_ = clamp( c );
-		}
-		void setChanceOfCancer( float c ) {
-			chanceOfCancer_ = clamp( c );
-		}
-		void setCancerDeathChance( float c ) {
-			cancerDeathChance_ = clamp( c );
-		}
-		void setAdjBloodvesselDeathChance( float c ) {
-			adjacentBloodvesselDeathChance_ = clamp( c );
-		}
-		void setFarBloodvesselDeathChance( float c ) {
-			farBloodvesselDeathChance_ = clamp( c );
-		}
-		void setParentDeathChanceIncrease( int c ) {
-			parentDeathChanceIncrease_ = clampPercnt( c );
-		}
-		void setChildDeathChanceIncrease( float c ) {
-			childDeathChanceIncrease_ = clamp( c );
-		}
-		void setMinDeathChance( float c ) {
-			minDeathChance_ = clamp( c );
-		}
-		void setMaxDeathChance( float c ) {
-			maxDeathChance_ = clamp( c );
-		}
+		void setChanceOfMutation( int c ) 			{ chanceOfMutation_ = clampPercnt( c ); }
+		void setChanceOfCancer( int c ) 			{ chanceOfCancer_ = clampPercnt( c ); }
+		void setCancerDeathChance( int c ) 			{ cancerDeathChance_ = clampPercnt( c ); }
+		void setAdjBloodvesselDeathChance( int c ) 	{ adjacentBloodvesselDeathChance_ = clampPercnt( c ); }
+		void setFarBloodvesselDeathChance( int c ) 	{ farBloodvesselDeathChance_ = clampPercnt( c ); }
+		void setParentDeathChanceIncrease( int c ) 	{ parentDeathChanceIncrease_ = clampPercnt( c ); }
+		void setChildDeathChanceIncrease( int c ) 	{ childDeathChanceIncrease_ = clampPercnt( c ); }
+		void setMinDeathChance( int c ) 			{ minDeathChance_ = clampPercnt( c ); }
+		void setMaxDeathChance( int c ) 			{ maxDeathChance_ = clampPercnt( c ); }
 
-		float clamp( float a ) {
-			if( a > 1.0f ) return 1.0f;
-			if( a < 0.0f ) return 0.0f;
-			return a;
-		}
-		int clampPercnt( int a ) {
+		int clampPercnt( int a ) const {
 			if( a > 100 ) return 100;
-			if( a < 0 ) return 0;
+			if( a <   0 ) return   0;
 			return a;
 		}
 
@@ -236,17 +213,16 @@ namespace T3E
 		// the number of points the player has
 		int score_;
 
-		float chanceOfMutation_;	// Liklyhood of healthy cell becoming mutated, 0.0 = 0% 1.0 = 100%
-		float chanceOfCancer_;		// Liklyhood of mutated cell becoming cancerous [0.0, 1.0]
+		int chanceOfMutation_;	// Liklyhood of healthy cell becoming mutated, 0.0 = 0% 1.0 = 100%
+		int chanceOfCancer_;	// Liklyhood of mutated cell becoming cancerous [0.0, 1.0]
 
-		// TODO: implement these!!!
-		float cancerDeathChance_;
-		float adjacentBloodvesselDeathChance_;	// The death chance of cells that are adjacent to blood vessels
-		float farBloodvesselDeathChance_;		// The death chance of cells that are at the limit of the blood vessel range
-		int parentDeathChanceIncrease_;
-		float childDeathChanceIncrease_;		// The death chance of childrend = dc of parent + this value
-		float minDeathChance_;
-		float maxDeathChance_;
+		int cancerDeathChance_;
+		int adjacentBloodvesselDeathChance_;	// The death chance of cells that are adjacent to blood vessels
+		int farBloodvesselDeathChance_;		// The death chance of cells that are at the limit of the blood vessel range
+		int parentDeathChanceIncrease_;		// How much a parent's death chance increase each time it splits
+		int childDeathChanceIncrease_;		// The death chance of childrend = dc of parent + this value
+		int minDeathChance_;	// All death chances are clamped between these min and max values
+		int maxDeathChance_;
 		
         std::array<Hex, CHUNK_WIDTH * CHUNK_WIDTH> grid_;
             
