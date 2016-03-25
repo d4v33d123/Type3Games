@@ -18,6 +18,7 @@ namespace T3E
 	public:
 		GLSLProgram();
 		~GLSLProgram();
+		void destroy();
 
 		void compileShaders(const std::string& vertexShader, const std::string& pixelShader);
 

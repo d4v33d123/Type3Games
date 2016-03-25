@@ -4,11 +4,27 @@ namespace T3E
 {
 	GLSLProgram::GLSLProgram() : numAttributes_(0), programID_(0), vertexShaderID_(0), pixelShaderID_(0)
 	{
-
 	}
 
 	GLSLProgram::~GLSLProgram()
 	{
+		destroy();
+	}
+
+	void GLSLProgram::destroy()
+	{
+		if( programID_ != 0 ) {
+	    	glDeleteProgram( programID_ );
+	    	programID_ = 0;
+		}
+		if( pixelShaderID_ != 0 ) {
+	    	glDeleteShader( pixelShaderID_ );
+	    	pixelShaderID_ = 0;
+		}
+		if( vertexShaderID_ != 0 ) {
+	    	glDeleteShader( vertexShaderID_ );
+	    	vertexShaderID_ = 0;
+		}
 	}
 
 	// compile the shaders

@@ -1,5 +1,6 @@
 #include "MainGame.h"
 #include "Type3Engine/ConfigFile.h"
+#include "GlobalScoreValues.h"
 
 MainGame::MainGame() : 
 	screenHeight_(800),
@@ -21,8 +22,7 @@ MainGame::MainGame() :
 MainGame::~MainGame()
 {
 	//free memory
-	for (std::vector<T3E::Sprite*>::iterator it = sprites_.begin() ; it != sprites_.end(); ++it)
-	{
+	for (std::vector<T3E::Sprite*>::iterator it = sprites_.begin() ; it != sprites_.end(); ++it) {
 		delete (*it);
 	} 
 	sprites_.clear();
@@ -57,7 +57,17 @@ void MainGame::initSystems()
 	// enable aplha blending	
 	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
 	glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+
+	// init projection matrix
+	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
+	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	// calculate aspect ratio
+	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
+	// init ortho matrix
+	// inverting top with bottom to avoid sprites being drawn upside down
+	// note that this will put origin at bottom left, while screen coords have origin at top left
+	orthoM_ = glm::ortho(0.0f, float( window_.getScreenWidth() ), 0.0f, float( window_.getScreenHeight() ));
 	
+	// Grab parameters from the config file
 	T3E::ConfigFile configFile("config/config.txt");
 
 	float cam_x, cam_y, cam_z;
@@ -72,17 +82,128 @@ void MainGame::initSystems()
 	camera_.setZoomRange( glm::vec2(1.0f, 8.0f) );
 	camera_.setSensitivity( PAN_SENSITIVITY, ZOOM_SENSITIVITY );
 	camera_.moveTo(glm::vec3( cam_x, cam_y, cam_z ) );
-
-	// init projection matrix
-	// calculate aspect ratio
-	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
-	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	
-	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
-	//init ortho matrix
-	//inverting top with bottom to avoid sprites being drawn upside down
-	//note that this will put origin at bottom left, while screen coords have origin at top left
-	orthoM_ = glm::ortho(0.0f, float( window_.getScreenWidth() ), 0.0f, float( window_.getScreenHeight() ));
 	
+	int min_split_time, max_split_time, chance_of_mutation, chance_of_cancer;
+	int cancer_death_chance, adjacent_bv_death_chance, far_bv_death_chance, child_death_chance_increase, parent_death_chance_increase;
+	int min_death_chance, max_death_chance;
+	
+	// Set the cell properties
+	configFile.getInt("cell_min_split_time", 			&min_split_time, 			 500);
+	configFile.getInt("cell_max_split_time", 			&max_split_time, 			5000);
+	configFile.getInt("chance_of_mutation", 			&chance_of_mutation, 		  50);
+	configFile.getInt("chance_of_cancer", 				&chance_of_cancer, 			  50);
+	configFile.getInt("cancer_death_chance", 			&cancer_death_chance, 		  50);
+	configFile.getInt("adjacent_bv_death_chance", 		&adjacent_bv_death_chance, 	  50);
+	configFile.getInt("far_bv_death_chance", 			&far_bv_death_chance, 		  50);
+	configFile.getInt("child_death_chance_increase", 	&child_death_chance_increase,  5);
+	configFile.getInt("parent_death_chance_increase", 	&parent_death_chance_increase, 5);
+	configFile.getInt("min_death_chance", 				&min_death_chance, 			   5);
+	configFile.getInt("max_death_chance", 				&max_death_chance, 			  95);
+	
+	T3E::Cell::MIN_ST = min_split_time;
+	T3E::Cell::MAX_ST = max_split_time;
+	grid_.setChanceOfMutation( chance_of_mutation );
+	grid_.setChanceOfCancer( chance_of_cancer );
+	grid_.setCancerDeathChance( cancer_death_chance );
+	grid_.setAdjBloodvesselDeathChance( adjacent_bv_death_chance );
+	grid_.setFarBloodvesselDeathChance( far_bv_death_chance );
+	grid_.setChildDeathChanceIncrease( child_death_chance_increase );
+	grid_.setParentDeathChanceIncrease( parent_death_chance_increase );
+	grid_.setMinDeathChance( min_death_chance );
+	grid_.setMaxDeathChance( max_death_chance );
+	
+	float bloodvessel_range;
+
+	// Set the bloodvessel properties
+	if( !configFile.getFloat("bloodvessel_range", &bloodvessel_range) ) bloodvessel_range = 5.0f;
+
+	T3E::BloodVessel::setRange( bloodvessel_range );
+
+	// Set image paths
+	std::string bloodvessel_button_image, kill_button_image, background_image;
+
+	configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
+	configFile.getString( "kill_button_image",			&kill_button_image );
+	configFile.getString( "background_image",			&background_image );
+	
+	// Get colour ranges from config file
+	{
+		float r_min, r_max, g_min, g_max, b_min, b_max;
+
+		// Set the colour range of the normal cell
+		configFile.getFloat("normal_col_min_red", &r_min);
+		configFile.getFloat("normal_col_max_red", &r_max);
+		configFile.getFloat("normal_col_min_grn", &g_min);
+		configFile.getFloat("normal_col_max_grn", &g_max);
+		configFile.getFloat("normal_col_min_blu", &b_min);
+		configFile.getFloat("normal_col_max_blu", &b_max);
+
+		T3E::Cell::normalColourRange_[0] = glm::vec4( r_min, g_min, b_min, 255.0f );
+		T3E::Cell::normalColourRange_[1] = glm::vec4( r_max, g_max, b_max, 255.0f );		
+	}
+	{
+		float r_min, r_max, g_min, g_max, b_min, b_max;
+
+		// Set the colour range of the mutated cell
+		configFile.getFloat("mutated_col_min_red", &r_min);
+		configFile.getFloat("mutated_col_max_red", &r_max);
+		configFile.getFloat("mutated_col_min_grn", &g_min);
+		configFile.getFloat("mutated_col_max_grn", &g_max);
+		configFile.getFloat("mutated_col_min_blu", &b_min);
+		configFile.getFloat("mutated_col_max_blu", &b_max);
+
+		T3E::Cell::mutatedColourRange_[0] = glm::vec4( r_min, g_min, b_min, 255.0f );
+		T3E::Cell::mutatedColourRange_[1] = glm::vec4( r_max, g_max, b_max, 255.0f );		
+	}
+	{
+		float r_min, r_max, g_min, g_max, b_min, b_max;
+
+		// Set the colour range of the cancer cell
+		configFile.getFloat("cancer_col_min_red", &r_min);
+		configFile.getFloat("cancer_col_max_red", &r_max);
+		configFile.getFloat("cancer_col_min_grn", &g_min);
+		configFile.getFloat("cancer_col_max_grn", &g_max);
+		configFile.getFloat("cancer_col_min_blu", &b_min);
+		configFile.getFloat("cancer_col_max_blu", &b_max);
+
+		T3E::Cell::cancerousColourRange_[0] = glm::vec4( r_min, g_min, b_min, 255.0f );
+		T3E::Cell::cancerousColourRange_[1] = glm::vec4( r_max, g_max, b_max, 255.0f );		
+	}
+
+	// Get the score values from the config file
+	{
+		int spawned_healthy_cell_, spawned_mutated_cell_, spawned_cancer_cell_, spawned_bloodvessel_, spawned_stem_cell_, arrested_cell_;
+		int killed_healthy_cell_, killed_mutated_cell_, killed_cancer_cell_, killed_bloodvessel_, killed_stem_cell_, killed_arrested_cell_;
+	
+		configFile.getInt("spawned_healthy_cell", &spawned_healthy_cell_, 1 );
+		configFile.getInt("spawned_mutated_cell", &spawned_mutated_cell_, 1 );
+		configFile.getInt("spawned_cancer_cell", &spawned_cancer_cell_, 1 );
+		configFile.getInt("spawned_bloodvessel", &spawned_bloodvessel_, 1 );
+		configFile.getInt("spawned_stem_cell", &spawned_stem_cell_, 1 );
+		configFile.getInt("arrested_cell", &arrested_cell_, 1 );
+
+		configFile.getInt("killed_healthy_cell", &killed_healthy_cell_, 1 );
+		configFile.getInt("killed_mutated_cell", &killed_mutated_cell_, 1 );
+		configFile.getInt("killed_cancer_cell", &killed_cancer_cell_, 1 );
+		configFile.getInt("killed_bloodvessel", &killed_bloodvessel_, 1 );
+		configFile.getInt("killed_stem_cell", &killed_stem_cell_, 1 );
+		configFile.getInt("killed_arrested_cell", &killed_arrested_cell_, 1 );
+
+		T3E::SCORE::SET_SPAWNED_HEALTHY_CELL( spawned_healthy_cell_ );
+		T3E::SCORE::SET_SPAWNED_MUTATED_CELL( spawned_mutated_cell_ );
+		T3E::SCORE::SET_SPAWNED_CANCER_CELL( spawned_cancer_cell_ );
+		T3E::SCORE::SET_SPAWNED_BLOODVESSEL( spawned_bloodvessel_ );
+		T3E::SCORE::SET_SPAWNED_STEM_CELL( spawned_stem_cell_ );
+		T3E::SCORE::SET_ARRESTED_CELL( arrested_cell_ );
+
+		T3E::SCORE::SET_KILLED_HEALTHY_CELL( killed_healthy_cell_ );
+		T3E::SCORE::SET_KILLED_MUTATED_CELL( killed_mutated_cell_ );
+		T3E::SCORE::SET_KILLED_CANCER_CELL( killed_cancer_cell_ );
+		T3E::SCORE::SET_KILLED_BLOODVESSEL( killed_bloodvessel_ );
+		T3E::SCORE::SET_KILLED_STEM_CELL( killed_stem_cell_ );
+		T3E::SCORE::SET_KILLED_ARRESTED_CELL( killed_arrested_cell_ );
+	}
+
     // Set the first cell
     grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
 
@@ -98,33 +219,32 @@ void MainGame::initSystems()
 	//this is a buffer of lines, so think them 2 by 2
 	//1
 	hexVertexes[0].setPosition(0.0f, size);
-	hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
+	//hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
 	//2
-	hexVertexes[2].setPosition(-sizeCos30, sizeSin30);
-	hexVertexes[3].setPosition(-sizeCos30, -sizeSin30);
+	hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
+	//hexVertexes[3].setPosition(-sizeCos30, -sizeSin30);
 	//3
-	hexVertexes[4].setPosition(-sizeCos30, -sizeSin30);
-	hexVertexes[5].setPosition(0.0f, -size);
+	hexVertexes[2].setPosition(-sizeCos30, -sizeSin30);
+	//hexVertexes[5].setPosition(0.0f, -size);
 	//4
-	hexVertexes[6].setPosition(0.0f, -size);
-	hexVertexes[7].setPosition(sizeCos30, -sizeSin30);
+	hexVertexes[3].setPosition(0.0f, -size);
+	//hexVertexes[7].setPosition(sizeCos30, -sizeSin30);
 	//5
-	hexVertexes[8].setPosition(sizeCos30, -sizeSin30);
-	hexVertexes[9].setPosition(sizeCos30, sizeSin30);
+	hexVertexes[4].setPosition(sizeCos30, -sizeSin30);
+	//hexVertexes[9].setPosition(sizeCos30, sizeSin30);
 	//6
-	hexVertexes[10].setPosition(sizeCos30, sizeSin30);
-	hexVertexes[11].setPosition(0.0f, size);
+	hexVertexes[5].setPosition(sizeCos30, sizeSin30);
+	//hexVertexes[11].setPosition(0.0f, size);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
-	//Create ui buttons
-	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);	
-	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);
-	//background sprite
-	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png");
-	
+	// Initialise the UI
+	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, bloodvessel_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );	
+	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, kill_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );
+	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()), background_image );
+
 	// init shaders
 	initShaders();
 }
@@ -163,10 +283,12 @@ void MainGame::initShaders()
 void MainGame::gameLoop()
 {
 	//enable back face culling
-	glEnable(GL_CULL_FACE);//GL_BACK is default value
+	glEnable(GL_CULL_FACE); // GL_BACK is default value
 	
 	//set line width for grid
 	glLineWidth(5.0f);
+
+	int old_score; // The score last frame
 
 	//our game loop
 	while( gameState_ != GameState::EXIT )
@@ -187,8 +309,10 @@ void MainGame::gameLoop()
 			grid_.resetPlayVessel();
 		}
 		
+		old_score = score_;
 		score_ = grid_.getScore();
-		SDL_Log("SCORE : %i", score_);
+		if( score_ != old_score )
+			SDL_Log("SCORE : %i", score_);
 		renderGame();
 		
 		processInput(frameTime_);
@@ -209,11 +333,6 @@ void MainGame::gameLoop()
 			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
 		}	
 	}
-	
-	glDisable( GL_CULL_FACE );
-		
-	//window_.destroy(); // useful?
-	SDL_Quit();
 }
 
 void MainGame::processInput(float dTime)
@@ -390,7 +509,6 @@ void MainGame::processInput(float dTime)
 			//if(rowCol.x != rowCol2.x && rowCol.y != rowCol2.y)
 			*/
 			if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
-			
 			{
 				finger_dragged_ = true;
 				fingerPressed_ = false;	
@@ -760,7 +878,7 @@ void MainGame::drawGrid()
 					//this is out UV attribute pointer;
 					glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 					// draw our verticies
-					glDrawArrays(GL_LINES, 0, 12);
+					glDrawArrays(GL_LINE_LOOP, 0, 6);
 					// disable the vertex attrib array
 					glDisableVertexAttribArray(0);
 					// unbind the VBO
@@ -797,7 +915,7 @@ void MainGame::drawGrid()
 		//this is out UV attribute pointer;
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 		// draw our verticies
-		glDrawArrays(GL_LINES, 0, 12);
+		glDrawArrays(GL_LINE_LOOP, 0,6);
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);
 		// unbind the VBO
@@ -830,7 +948,7 @@ void MainGame::drawGrid()
 		//this is out UV attribute pointer;
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 		// draw our verticies
-		glDrawArrays(GL_LINES, 0, 12);
+		glDrawArrays(GL_LINE_LOOP, 0, 6);
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);
 		// unbind the VBO
@@ -864,7 +982,7 @@ void MainGame::drawGrid()
 		//this is out UV attribute pointer;
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
 		// draw our verticies
-		glDrawArrays(GL_LINES, 0, 12);
+		glDrawArrays(GL_LINE_LOOP, 0, 6);
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);
 		// unbind the VBO

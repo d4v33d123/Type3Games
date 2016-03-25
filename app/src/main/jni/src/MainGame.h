@@ -80,7 +80,6 @@ private:
 	std::vector<T3E::Sprite*> sprites_; // sprite container TODO: remove this when bv sprite is in right place. maybe use for ui or smt
 	int score_;							// the player's score
 	
-
 	
 	// [in] row to test
 	// [in] column to test
@@ -114,8 +113,9 @@ private:
     T3E::AudioEngine audioEngine_;
 	T3E::SoundEffect bloodV_;
 	T3E::SoundEffect cellMove_;
+
 	// Conversion Functions
-     // Returns a vec4 where x and y are the touch world positions, z is 0.0f, w is a number
+    // Returns a vec4 where x and y are the touch world positions, z is 0.0f, w is a number
     glm::vec4 touch_to_world( glm::vec2 touch_coord );
     // Returns an SDL_Point where x represents the row and y represents the column
     SDL_Point world_to_grid( glm::vec4 world_coord );

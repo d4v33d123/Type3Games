@@ -156,8 +156,7 @@ namespace T3E
 		
 		// resets the blood vessel sound effect 
 		inline void resetPlayVessel() { playVessel_ = false; }
-		
-		
+				
 		// [ret] the score
 		inline int getScore() { return score_; }
 
@@ -170,24 +169,40 @@ namespace T3E
 		// [in] bv spawn point that we want to know the coordinates of
 		glm::vec2 getBvSpawnCoords( int i );
 		
-		int numBvSpawns(){return bvSpawnPoints_.size();};
-		
+		int numBvSpawns() { return bvSpawnPoints_.size(); }
+
+		// TODO: convert all this logic to use ints, i shouldn't have been using floats in the first place...
+		void setChanceOfMutation( int c ) 			{ chanceOfMutation_ = clampPercnt( c ); }
+		void setChanceOfCancer( int c ) 			{ chanceOfCancer_ = clampPercnt( c ); }
+		void setCancerDeathChance( int c ) 			{ cancerDeathChance_ = clampPercnt( c ); }
+		void setAdjBloodvesselDeathChance( int c ) 	{ adjacentBloodvesselDeathChance_ = clampPercnt( c ); }
+		void setFarBloodvesselDeathChance( int c ) 	{ farBloodvesselDeathChance_ = clampPercnt( c ); }
+		void setParentDeathChanceIncrease( int c ) 	{ parentDeathChanceIncrease_ = clampPercnt( c ); }
+		void setChildDeathChanceIncrease( int c ) 	{ childDeathChanceIncrease_ = clampPercnt( c ); }
+		void setMinDeathChance( int c ) 			{ minDeathChance_ = clampPercnt( c ); }
+		void setMaxDeathChance( int c ) 			{ maxDeathChance_ = clampPercnt( c ); }
+
+		int clampPercnt( int a ) const {
+			if( a > 100 ) return 100;
+			if( a <   0 ) return   0;
+			return a;
+		}
+
     private:
 
 		struct birthInfo
 		{
 			int row, col;
 			CellState state;
-			int deathChance;
+			int parentDeathChance;
 			
 			birthInfo(int r, int c, CellState s, int dc)
-			:row(r) ,col(c), state(s), deathChance(dc)
+			: row(r) ,col(c), state(s), parentDeathChance(dc)
 			{}
 		};
 		
-		struct deathInfo
-	
-	{
+		struct deathInfo	
+		{
 			int row, col;
 			
 			deathInfo(int r, int c)
@@ -195,18 +210,19 @@ namespace T3E
 			{}
 		};
 		
-		// the score
+		// the number of points the player has
 		int score_;
-		
-		// set of values that decide the score given/taken
-		const int HEALTHYSCORE;
-		const int MUTATEDSCORE;
-		const int SPAWNEDSCORE;
-		const int ARRESTCOST;
-		const int BLOODVESSELCOST;
-		const int KILLCOST;
-		const int KILLCOSTMUTATED;
-		const int KILLARRESTED;
+
+		int chanceOfMutation_;	// Liklyhood of healthy cell becoming mutated, 0.0 = 0% 1.0 = 100%
+		int chanceOfCancer_;	// Liklyhood of mutated cell becoming cancerous [0.0, 1.0]
+
+		int cancerDeathChance_;
+		int adjacentBloodvesselDeathChance_;	// The death chance of cells that are adjacent to blood vessels
+		int farBloodvesselDeathChance_;		// The death chance of cells that are at the limit of the blood vessel range
+		int parentDeathChanceIncrease_;		// How much a parent's death chance increase each time it splits
+		int childDeathChanceIncrease_;		// The death chance of childrend = dc of parent + this value
+		int minDeathChance_;	// All death chances are clamped between these min and max values
+		int maxDeathChance_;
 		
         std::array<Hex, CHUNK_WIDTH * CHUNK_WIDTH> grid_;
             

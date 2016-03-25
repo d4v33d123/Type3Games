@@ -24,7 +24,7 @@ namespace T3E
 		
 		if (IOManager::readBinaryToBuffer(filePath, in) == false)
 		{
-			fatalError("Failed to load PNG file to buffer!");
+			fatalError("Failed to load PNG file to buffer! " + filePath);
 		}
 		
 		
