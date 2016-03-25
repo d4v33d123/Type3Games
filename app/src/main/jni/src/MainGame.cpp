@@ -352,6 +352,12 @@ void MainGame::processInput(float dTime)
 						if(!grid_.killCell(rowCol.x, rowCol.y))
 						{
 							// play error noise
+							cellMove_.play();
+						}
+						else
+						{
+							// play kill noise
+							cellMove_.play();
 						}
 						break;
 					}
