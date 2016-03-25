@@ -1,0 +1,12 @@
+// Input parameters
+attribute vec2 vPosition;
+//attribute vec2 vTexCoord;
+
+// Output parameters
+//varying vec2 fTexCoord;
+
+void main()
+{
+    //fTexCoord = vTexCoord;
+    gl_Position = vec4( vPosition, 0.0, 1.0 );
+}

@@ -248,6 +248,9 @@ void MainGame::initSystems()
 	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, bloodvessel_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );	
 	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, kill_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );
 	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()), background_image );
+	
+	textRenderer_.init();
+	textRenderer_.setScreenSize( window_.getScreenWidth(), window_.getScreenHeight() );
 
 	// init shaders
 	initShaders();
@@ -298,9 +301,7 @@ void MainGame::gameLoop()
 	while( gameState_ != GameState::EXIT )
 	{
 		// used for frame time measuring
-		float startTicks = SDL_GetTicks();
-		
-		
+		float startTicks = SDL_GetTicks();		
 		time_ += 0.1f;
 		calculateFPS();
 
@@ -317,6 +318,7 @@ void MainGame::gameLoop()
 		score_ = grid_.getScore();
 		if( score_ != old_score )
 			SDL_Log("SCORE : %i", score_);
+		
 		renderGame();
 		
 		processInput(frameTime_);
@@ -335,7 +337,18 @@ void MainGame::gameLoop()
 		if (1000.0f / maxFPS_ > frameTicks)
 		{
 			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
-		}	
+		}
+
+		
+		//glClearDepthf(1.0);
+		//glClearColor( (rand() / (float)RAND_MAX) * 0.1f, 0.0f, 0.2f, 1.0f );
+		//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+		textRenderer_.putChar('a', 0, 0, 32 );
+		
+		textRenderer_.render();
+
+		window_.swapBuffer();
 	}
 }
 
@@ -695,7 +708,7 @@ void MainGame::renderGame()
 	tintedSpriteProgram_.stopUse();	
 
 	// swap our buffers 
-	window_.swapBuffer();
+	//window_.swapBuffer();
 }
 
 glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
