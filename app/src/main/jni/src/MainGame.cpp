@@ -321,6 +321,9 @@ void MainGame::gameLoop()
 		
 
 		textRenderer_.putChar('a', 0, 0, 32 );
+		textRenderer_.putChar('b', 0.1, 0, 32 );
+		textRenderer_.putChar('c', 0.2, 0, 32 );
+		textRenderer_.putString( "Hey guys!\nGuess who made a working\ntext renderer :)", -1, -0.4, 80 );
 
 
 		renderGame();

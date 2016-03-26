@@ -124,53 +124,83 @@ namespace T3E
 		glDeleteShader( vertex_shader_ );
 		glDeleteShader( pixel_shader_ );
 
-
-		// bind the shader
 		glUseProgram( shader_program_ );
-		//glEnableVertexAttribArray( 0 );
-		//glEnableVertexAttribArray( 1 );
-
-		// Test geometry
-
 	    glGenBuffers( 1, &vbo_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
-
-		glActiveTexture( GL_TEXTURE0 + bitmap_font_.id );	
-    	glBindTexture( GL_TEXTURE_2D, bitmap_font_.id );
 		glUniform1i( texture_sampler_, bitmap_font_.id );
-		SDL_Log("Texture ID %i", bitmap_font_.id );
+	}
 
-		GLfloat verts[] = 
+	void TextRenderer::putString( std::string str, float x, float y, unsigned int size_pixels )
+	{
+		float char_width = (size_pixels / (float)width_) * 2.0f;
+		int chars_this_line = 0;
+
+		for( size_t i = 0; i < str.size(); ++i )
 		{
-			 0.0f,  0.5f, 0.5f, 1.0f, 
-			-0.5f, -0.5f, 0.0f, 0.0f,
-			 0.5f, -0.5f, 1.0f, 0.0f
-		};
+			// If it's a new line, move down and back
+			if( str[i] == '\n' ) {
+				y += (size_pixels / (float)height_) * -2.0f;
+				x -= char_width * (chars_this_line + 1);
+				chars_this_line = 0;
+				continue;
+			}
 
-	    // Push the verts to the GPU
-		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
-		glBufferData( GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW );
+			putChar( str[i], x + char_width * i, y, size_pixels );
+			chars_this_line++;
+		}
 	}
 
 	void TextRenderer::putChar( unsigned char c, float x, float y, unsigned int size_pixels )
-	{
+	{			
+		static float tex_width = 1.0f / 16.0f;
+		static float tex_height = 1.0f / 16.0f;
+		float tex_x = (c % 16) * tex_width;
+		float tex_y = (c / 16) * tex_height;
 
+		float width = (size_pixels / (float)width_) * 2.0f;
+		float height = (size_pixels / (float)height_) * -2.0f;
+
+		pushVert( x, 			y, 			tex_x, 				tex_y );
+		pushVert( x, 			y + height, tex_x, 				tex_y + tex_height );
+		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height );
+		pushVert( x, 			y, 			tex_x, 				tex_y );
+		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height );
+		pushVert( x + width, 	y, 			tex_x + tex_width, 	tex_y );
 	}
 
 	void TextRenderer::render()
 	{
+		// Bind the shader and verts
 		glUseProgram( shader_program_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * verts_.size(), verts_.data(), GL_STREAM_DRAW );
 
+    	// Sent the texture and set properties
 		glActiveTexture( GL_TEXTURE0 + bitmap_font_.id );	
     	glBindTexture( GL_TEXTURE_2D, bitmap_font_.id );
 
+	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
+	    // Specify the vertex layout
 		glEnableVertexAttribArray( 0 );
 		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, 0 );
 		glEnableVertexAttribArray( 1 );
 		glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (void*)(2*sizeof(GLfloat)) );
 
-		glDrawArrays( GL_TRIANGLES, 0, 3 );
+		glDrawArrays( GL_TRIANGLES, 0, verts_.size() / 4 );
+
+		// Clear the array ready for next time
+		verts_.clear();
+	}
+
+	void TextRenderer::pushVert( float x, float y, float u, float v )
+	{
+		verts_.push_back( x );
+		verts_.push_back( y );
+		verts_.push_back( u );
+		verts_.push_back( v );
 	}
 }
