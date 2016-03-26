@@ -9,11 +9,6 @@ cam_x: 30.0
 cam_y: 18.5
 cam_z: 2.0
 
-# Image paths
-bloodvessel_button_image: textures/bvbutton.png
-kill_button_image:        textures/bvbutton.png
-background_image:         textures/background.png
-
 # CELL PROPERTIES
 
 # Split Times are in milliseconds

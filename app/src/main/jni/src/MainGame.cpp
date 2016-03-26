@@ -122,10 +122,14 @@ void MainGame::initSystems()
 	// Set image paths
 	std::string bloodvessel_button_image, kill_button_image, background_image;
 
-	configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
-	configFile.getString( "kill_button_image",			&kill_button_image );
-	configFile.getString( "background_image",			&background_image );
-	
+	//windows line endings cause mayhem!!! hardcode time
+ 	// configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
+	// configFile.getString( "kill_button_image",			&kill_button_image );
+	// configFile.getString( "background_image",			&background_image );
+ 	bloodvessel_button_image = "textures/bvbutton.png";
+	kill_button_image = "textures/bvbutton.png";
+	background_image = "textures/background.png";
+
 	// Get colour ranges from config file
 	{
 		float r_min, r_max, g_min, g_max, b_min, b_max;
