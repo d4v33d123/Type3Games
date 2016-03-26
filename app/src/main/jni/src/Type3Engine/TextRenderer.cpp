@@ -5,6 +5,7 @@
 	#include <GLES2/gl2ext.h>
 #endif //__ANDROID__
 #include "errors.h"
+#include <cmath>
 
 namespace T3E
 {
@@ -128,6 +129,26 @@ namespace T3E
 	    glGenBuffers( 1, &vbo_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
 		glUniform1i( texture_sampler_, bitmap_font_.id );
+	}
+
+	void TextRenderer::putNumber( int num, unsigned padding, float x, float y, unsigned size_pixels )
+	{
+		int num_digits = 1;
+		std::string num_str;
+
+		while( std::pow(10, num_digits) < num ) num_digits++;
+		while( padding-- > num_digits ) num_str += ' ';
+
+		int prev_digit = 0;
+		while( num_digits-- > 0 )
+		{
+			int digit = num / (int)std::pow(10, num_digits);
+			char c = 48 + digit - prev_digit;
+			num_str += c;
+			prev_digit = digit * 10;
+		}
+
+		putString( num_str, x, y, size_pixels );
 	}
 
 	void TextRenderer::putString( std::string str, float x, float y, unsigned int size_pixels )
