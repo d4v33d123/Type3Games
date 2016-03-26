@@ -27,7 +27,7 @@ namespace T3E
 			// insert it into the map
 			textureMap_.insert(make_pair(texturePath, newTexture));
 
-			//SDL_Log("Loaded Texture %s", texturePath.c_str() );
+			SDL_Log("Loaded Texture %s", texturePath.c_str() );
 
 			return newTexture;
 		}

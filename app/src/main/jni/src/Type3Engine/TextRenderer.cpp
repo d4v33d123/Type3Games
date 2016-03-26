@@ -12,7 +12,6 @@ namespace T3E
 	width_(0),
 	height_(0)
 	{
-		bitmap_font_ = ResourceManager::getTexture( "textures/font.png" );
 	}
 
 	TextRenderer::~TextRenderer()
@@ -22,6 +21,9 @@ namespace T3E
 
 	void TextRenderer::init()
 	{
+		bitmap_font_ = ResourceManager::getTexture( "textures/font.png" );
+		SDL_Log("Bitmap font %i %i %i", bitmap_font_.id, bitmap_font_.width, bitmap_font_.height );
+
 		// Create the shader, should probably be using the GLSLshader class here but I don't understand it yet...
 		shader_program_ = glCreateProgram();
 		vertex_shader_ = glCreateShader( GL_VERTEX_SHADER );
@@ -136,6 +138,7 @@ namespace T3E
 		glActiveTexture( GL_TEXTURE0 + bitmap_font_.id );	
     	glBindTexture( GL_TEXTURE_2D, bitmap_font_.id );
 		glUniform1i( texture_sampler_, bitmap_font_.id );
+		SDL_Log("Texture ID %i", bitmap_font_.id );
 
 		GLfloat verts[] = 
 		{
@@ -159,7 +162,7 @@ namespace T3E
 		glUseProgram( shader_program_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
 
-		//glActiveTexture( GL_TEXTURE0 + bitmap_font_.id );	
+		glActiveTexture( GL_TEXTURE0 + bitmap_font_.id );	
     	glBindTexture( GL_TEXTURE_2D, bitmap_font_.id );
 
 
