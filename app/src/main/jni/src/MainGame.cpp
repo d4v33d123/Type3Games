@@ -319,6 +319,10 @@ void MainGame::gameLoop()
 		if( score_ != old_score )
 			SDL_Log("SCORE : %i", score_);
 		
+
+		textRenderer_.putChar('a', 0, 0, 32 );
+
+
 		renderGame();
 		
 		processInput(frameTime_);
@@ -338,17 +342,6 @@ void MainGame::gameLoop()
 		{
 			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
 		}
-
-		
-		//glClearDepthf(1.0);
-		//glClearColor( (rand() / (float)RAND_MAX) * 0.1f, 0.0f, 0.2f, 1.0f );
-		//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-		textRenderer_.putChar('a', 0, 0, 32 );
-		
-		textRenderer_.render();
-
-		window_.swapBuffer();
 	}
 }
 
@@ -707,8 +700,10 @@ void MainGame::renderGame()
 		
 	tintedSpriteProgram_.stopUse();	
 
+	textRenderer_.render();
+
 	// swap our buffers 
-	//window_.swapBuffer();
+	window_.swapBuffer();
 }
 
 glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )

@@ -2,13 +2,16 @@
 precision mediump float;
 
 // Input parameters
-//varying vec2 fTexCoord;
+varying vec2 fTexCoord;
 
-//uniform sampler2D font_bitmap;
+uniform sampler2D font_bitmap;
 
 void main()
 {
-	gl_FragColor = vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+	//gl_FragColor = vec4( fTexCoord.r, fTexCoord.g, 1.0f, 1.0f );
+	
+	gl_FragColor = texture2D( font_bitmap, fTexCoord );
+
 	/*
    	vec4 sample = texture2D(font_bitmap, fTexCoord );
 
@@ -20,5 +23,5 @@ void main()
   	{
   		gl_FragColor = sample;
   	}
-  	*/
+  	//*/
 }

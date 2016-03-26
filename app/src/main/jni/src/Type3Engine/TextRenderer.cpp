@@ -87,7 +87,7 @@ namespace T3E
 
 		// Add the attributes
 		glBindAttribLocation( shader_program_, 0, "vPosition" );
-		//glBindAttribLocation( shader_program_, 1, "vTexCoord" );
+		glBindAttribLocation( shader_program_, 1, "vTexCoord" );
 
 		// link the shaders
 		glAttachShader( shader_program_, vertex_shader_ );
@@ -111,6 +111,11 @@ namespace T3E
 			fatalError("Program failed to link shaders!");
 		}
 
+		texture_sampler_ = glGetUniformLocation( shader_program_, "font_bitmap" );
+		if( texture_sampler_ == 0xFFFFFFFF ) { // GL_INVALID_INDEX is not defined in GLES
+			fatalError("Uniform 'font_bitmap' not found in shader! (or it is unused)");
+		}
+
 		// Cleanup shaders after successful compile and link		
 		glDetachShader( shader_program_, vertex_shader_ );
 		glDetachShader( shader_program_, pixel_shader_ );
@@ -120,29 +125,28 @@ namespace T3E
 
 		// bind the shader
 		glUseProgram( shader_program_ );
-		glEnableVertexAttribArray( 0 );
+		//glEnableVertexAttribArray( 0 );
 		//glEnableVertexAttribArray( 1 );
-    	glBindTexture( GL_TEXTURE_2D, bitmap_font_.id );
 
 		// Test geometry
 
 	    glGenBuffers( 1, &vbo_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
 
-		float verts[] = 
+		glActiveTexture( GL_TEXTURE0 + bitmap_font_.id );	
+    	glBindTexture( GL_TEXTURE_2D, bitmap_font_.id );
+		glUniform1i( texture_sampler_, bitmap_font_.id );
+
+		GLfloat verts[] = 
 		{
-			0.0f, 0.5f,
-			-0.5f, -0.5f,
-			0.5f, -0.5f
+			 0.0f,  0.5f, 0.5f, 1.0f, 
+			-0.5f, -0.5f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 1.0f, 0.0f
 		};
 
 	    // Push the verts to the GPU
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
 		glBufferData( GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW );
-
-		//glEnableVertexAttribArray( 0 );
-		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 0, 0 );
-
 	}
 
 	void TextRenderer::putChar( unsigned char c, float x, float y, unsigned int size_pixels )
@@ -153,12 +157,17 @@ namespace T3E
 	void TextRenderer::render()
 	{
 		glUseProgram( shader_program_ );
+		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
+
+		//glActiveTexture( GL_TEXTURE0 + bitmap_font_.id );	
     	glBindTexture( GL_TEXTURE_2D, bitmap_font_.id );
 
-		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
-		glEnableVertexAttribArray( 0 );
-		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 0, 0 );
 
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
+		glEnableVertexAttribArray( 0 );
+		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, 0 );
+		glEnableVertexAttribArray( 1 );
+		glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (void*)(2*sizeof(GLfloat)) );
+
+		glDrawArrays( GL_TRIANGLES, 0, 3 );
 	}
 }

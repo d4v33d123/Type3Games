@@ -22,6 +22,7 @@ namespace T3E
 		int height_;
 
 		GLTexture bitmap_font_;
+		GLint texture_sampler_;
 		GLuint shader_program_;
 		GLuint vertex_shader_;
 		GLuint pixel_shader_;

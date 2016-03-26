@@ -12,8 +12,8 @@ cam_z: 2.0
 # CELL PROPERTIES
 
 # Split Times are in milliseconds
-cell_min_split_time: 50
-cell_max_split_time: 500
+cell_min_split_time: 500
+cell_max_split_time: 5000
 
 # Chances are percentages from 0 to 100
 chance_of_mutation: 1
