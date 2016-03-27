@@ -1,0 +1,27 @@
+// set default float precision to mediump, highp is not supported on all devices in frag stage
+precision mediump float;
+
+// Input parameters
+varying vec2 fTexCoord;
+
+uniform sampler2D font_bitmap;
+
+void main()
+{
+	//gl_FragColor = vec4( fTexCoord.r, fTexCoord.g, 1.0f, 1.0f );
+	
+	gl_FragColor = texture2D( font_bitmap, fTexCoord );
+
+	/*
+   	vec4 sample = texture2D(font_bitmap, fTexCoord );
+
+   	if( sample.g < 1.0f )
+   	{
+   		gl_FragColor = vec4( 0.0f, 0.0f, 0.0f, 0.0f );
+  	}
+  	else
+  	{
+  		gl_FragColor = sample;
+  	}
+  	//*/
+}

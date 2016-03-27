@@ -122,10 +122,14 @@ void MainGame::initSystems()
 	// Set image paths
 	std::string bloodvessel_button_image, kill_button_image, background_image;
 
-	configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
-	configFile.getString( "kill_button_image",			&kill_button_image );
-	configFile.getString( "background_image",			&background_image );
-	
+	//windows line endings cause mayhem!!! hardcode time
+ 	// configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
+	// configFile.getString( "kill_button_image",			&kill_button_image );
+	// configFile.getString( "background_image",			&background_image );
+ 	bloodvessel_button_image = "textures/bvbutton.png";
+	kill_button_image = "textures/bvbutton.png";
+	background_image = "textures/background.png";
+
 	// Get colour ranges from config file
 	{
 		float r_min, r_max, g_min, g_max, b_min, b_max;
@@ -246,6 +250,9 @@ void MainGame::initSystems()
 	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, bloodvessel_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );	
 	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, kill_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );
 	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()), background_image );
+	
+	textRenderer_.init();
+	textRenderer_.setScreenSize( window_.getScreenWidth(), window_.getScreenHeight() );
 
 	SDL_Log("MADE IT");
 	
@@ -298,9 +305,7 @@ void MainGame::gameLoop()
 	while( gameState_ != GameState::EXIT )
 	{
 		// used for frame time measuring
-		float startTicks = SDL_GetTicks();
-		
-		
+		float startTicks = SDL_GetTicks();		
 		time_ += 0.1f;
 		calculateFPS();
 
@@ -313,10 +318,10 @@ void MainGame::gameLoop()
 			grid_.resetPlayVessel();
 		}
 		
-		old_score = score_;
 		score_ = grid_.getScore();
-		if( score_ != old_score )
-			SDL_Log("SCORE : %i", score_);
+		textRenderer_.putNumber( score_, 8, -0.05, 0.95, 44 );
+		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
+
 		renderGame();
 		
 		processInput(frameTime_);
@@ -335,7 +340,7 @@ void MainGame::gameLoop()
 		if (1000.0f / maxFPS_ > frameTicks)
 		{
 			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
-		}	
+		}
 	}
 }
 
@@ -699,6 +704,8 @@ void MainGame::renderGame()
 	killButton_.getSprite()->draw();
 		
 	tintedSpriteProgram_.stopUse();	
+
+	textRenderer_.render();
 
 	// swap our buffers 
 	window_.swapBuffer();

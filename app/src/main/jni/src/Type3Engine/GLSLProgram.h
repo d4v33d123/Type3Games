@@ -4,7 +4,7 @@
 #ifdef __ANDROID__
 	#include <GLES2/gl2.h>
 	#include <GLES2/gl2ext.h>
-	#endif//__ANDROID__
+#endif //__ANDROID__
 #include "errors.h"
 #include "IOManager.h"
 #include <vector>

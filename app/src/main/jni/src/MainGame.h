@@ -25,6 +25,7 @@
 #include "Type3Engine/Camera.h"
 #include "Type3Engine/AudioEngine.h"
 #include "Type3Engine/Button.h"
+#include "Type3Engine/TextRenderer.h"
 //game classes
 #include "Cell.h"
 #include "BloodVessel.h"
@@ -107,6 +108,7 @@ private:
 	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)
 	bool avaliable_for_highlight;
 	T3E::Sprite backgroundSprite_;
+	T3E::TextRenderer textRenderer_;
 	
 	//AUDIO
 

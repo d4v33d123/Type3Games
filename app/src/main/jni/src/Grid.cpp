@@ -505,7 +505,6 @@ namespace T3E
 				Cell* stemChild;
 				newCell( c->row, c->col, CellState::NORMAL, 0, &stemChild );
 				stemChild->setDeathChance( minDeathChance_ );
-				SDL_Log("stem child dc %i", stemChild->getDeathChance() );
 			}
 			else
 			{
