@@ -52,7 +52,7 @@ namespace T3E
 		// check the version of open gl that is being used
 		SDL_Log("*** OpenGL version %s ***\n", glGetString(GL_VERSION));
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
 
 		// set to 1 to turn on vsync
 		SDL_GL_SetSwapInterval(1);

@@ -184,8 +184,7 @@ namespace T3E
 		};
 		
 		struct deathInfo
-	
-	{
+		{
 			int row, col;
 			
 			deathInfo(int r, int c)

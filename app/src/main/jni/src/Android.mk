@@ -37,6 +37,8 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
 	Hex.cpp \
 	BloodVessel.cpp \
 	Cell.cpp \
+	StartMenu.cpp \
+	Tutorial.cpp \
 	MainGame.cpp \
 	main.cpp \
 	Grid.cpp \

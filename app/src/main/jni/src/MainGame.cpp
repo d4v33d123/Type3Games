@@ -1,9 +1,7 @@
 #include "MainGame.h"
 #include "Type3Engine/ConfigFile.h"
 
-MainGame::MainGame() : 
-	screenHeight_(800),
-	screenWidth_(600),
+MainGame::MainGame() :
 	time_(0.0f), 
 	score_(0),
 	gameState_(GameState::PLAY),
@@ -28,35 +26,32 @@ MainGame::~MainGame()
 	sprites_.clear();
 }
 
-void MainGame::run()
+command MainGame::run(T3E::window* window)
 {
+	window_ = window;
+	
 	initSystems();
 	
 	//bloodVessel TODO: put in bv class like cell
 	sprites_.push_back( new T3E::Sprite() );
 	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");// x, y, width, height
 
-	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
-	music.play(-1);
+	backgroundMusic_ = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
+	backgroundMusic_.play(-1);
 	
 	bloodV_ = audioEngine_.loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
 	cellMove_ = audioEngine_.loadSoundEffect("sound/Player_CellDivide_Move.ogg");
 	
 	gameLoop();
+	
+//	backgroundMusic_.stop();
+	
+	return command::MENU;
 }
 
 void MainGame::initSystems()
-{
-	T3E::init();
-	
+{	
 	audioEngine_.init();
-	
-	//TODO: change name of window to game name!
-	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
-
-	// enable aplha blending	
-	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
-	glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 	
 	T3E::ConfigFile configFile("config/config.txt");
 
@@ -75,20 +70,20 @@ void MainGame::initSystems()
 
 	// init projection matrix
 	// calculate aspect ratio
-	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
-	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	
+	window_->updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
+	float ratio = float( window_->getScreenWidth() )/float( window_->getScreenHeight() );	
 	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
 	//init ortho matrix
 	//inverting top with bottom to avoid sprites being drawn upside down
 	//note that this will put origin at bottom left, while screen coords have origin at top left
-	orthoM_ = glm::ortho(0.0f, float( window_.getScreenWidth() ), 0.0f, float( window_.getScreenHeight() ));
+	orthoM_ = glm::ortho(0.0f, float( window_->getScreenWidth() ), 0.0f, float( window_->getScreenHeight() ));
 	
     // Set the first cell
     grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
 
     // Set a test blood vessel
     grid_.newBloodVessel( 24, 24, nullptr );
-	
+
 	//init the hex vertex buffer
 	glGenBuffers(1, &hexBufferName);
 	
@@ -120,18 +115,18 @@ void MainGame::initSystems()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 	//Create ui buttons
-	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);	
-	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);
+	bvButton_.init(50.0f, float(window_->getScreenHeight()) - 250.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);	
+	killButton_.init(50.0f, float(window_->getScreenHeight()) - 475.0f, 200.0f, 200.0f, "textures/bvbutton.png", 0, 0, 1.0f/2, 1.0f/2, 2);
 	//background sprite
-	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png");
+	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png");
 	
 	// init shaders
-	initShaders();
+	initShaders(); 
 }
 
 void MainGame::initShaders()
 {
-	 //CELL PRORGAM
+	//CELL PRORGAM
 	// compile
 	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
 	// add attributes
@@ -141,7 +136,7 @@ void MainGame::initShaders()
 	// link
 	tintedSpriteProgram_.linkShaders();
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	cell_finalM_location = tintedSpriteProgram_.getUniformLocation("finalM");
+	tintedSprite_finalM_location = tintedSpriteProgram_.getUniformLocation("finalM");
 	sampler0_location = tintedSpriteProgram_.getUniformLocation("sampler0");
 	inputColour_location = tintedSpriteProgram_.getUniformLocation("inputColour");
 	
@@ -161,19 +156,12 @@ void MainGame::initShaders()
 }
 
 void MainGame::gameLoop()
-{
-	//enable back face culling
-	glEnable(GL_CULL_FACE);//GL_BACK is default value
-	
-	//set line width for grid
-	glLineWidth(5.0f);
-
+{	
 	//our game loop
 	while( gameState_ != GameState::EXIT )
 	{
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();
-		
 		
 		time_ += 0.1f;
 		calculateFPS();
@@ -188,7 +176,7 @@ void MainGame::gameLoop()
 		}
 		
 		score_ = grid_.getScore();
-		SDL_Log("SCORE : %i", score_);
+		//SDL_Log("SCORE : %i", score_);
 		renderGame();
 		
 		processInput(frameTime_);
@@ -209,19 +197,13 @@ void MainGame::gameLoop()
 			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
 		}	
 	}
-	
-	glDisable( GL_CULL_FACE );
-		
-	//window_.destroy(); // useful?
-	SDL_Quit();
 }
 
 void MainGame::processInput(float dTime)
 {
 	glm::vec4 worldPos, worldPos2;
     SDL_Point rowCol, rowCol2;
-    int row, col;
-    T3E::Hex* neighbours;
+	glm::vec2 screenCoords;
 	
 	// processing our input
 	SDL_Event evnt;
@@ -281,7 +263,7 @@ void MainGame::processInput(float dTime)
 
 				//get touch pos in screen coordinates for UI interaction
 				//invert y to match our ortho projection (origin at bottom left for ease of life)
-				glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+				screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
 				if(bvButton_.touchCollides(screenCoords))
 				{
 					//toggle blood vessel creation mode
@@ -414,12 +396,14 @@ void MainGame::renderGame()
 	//TODO: ideally we want to use and stop use just once per shader, but we need to draw backgruong -> grid -> game elements in this order...
 	tintedSpriteProgram_.use();
 	// send ortho matrix to shaders
-	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
+	glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
 	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glUniform4fv(inputColour_location, 1, bgtint);
+
 	// set texture	
-	glActiveTexture(GL_TEXTURE0+3);	
-	glUniform1i(sampler0_location, 3);
+	GLint texid = T3E::ResourceManager::getTexture("textures/background.png").id;
+	glActiveTexture(GL_TEXTURE0 + texid);	
+	glUniform1i(sampler0_location, texid);
 	//draw sprite
 	backgroundSprite_.draw();
 	tintedSpriteProgram_.stopUse();
@@ -437,15 +421,16 @@ void MainGame::renderGame()
 		finalM_ = projectionM_ * viewM_ * worldM_;
 		
 		//send matrix to shaders
-		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+		glUniformMatrix4fv(tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//set tint
 		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
 		float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		glUniform4fv(inputColour_location, 1, tint);
 		
-        //use texture 1
-		glActiveTexture(GL_TEXTURE0+0);
-		glUniform1i(sampler0_location, 0);
+		//set texture
+		texid = T3E::ResourceManager::getTexture("textures/bloodVessel.png").id;
+		glActiveTexture(GL_TEXTURE0 + texid);
+		glUniform1i(sampler0_location, texid);
 		sprites_[0]->draw();
 		
 		//reset matrices
@@ -463,15 +448,16 @@ void MainGame::renderGame()
 		finalM_ = projectionM_ * viewM_ * worldM_;
 		
 		//send matrix to shaders
-		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+		glUniformMatrix4fv(tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//set tint
 		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
 		float tint[] = { 0.0f, 0.0f, 1.0f, 0.3f };
 		glUniform4fv(inputColour_location, 1, tint);
 		
-        //use texture 1
-		glActiveTexture(GL_TEXTURE0+0);
-		glUniform1i(sampler0_location, 0);
+        //set texture
+		texid = T3E::ResourceManager::getTexture("textures/bloodVessel.png").id;
+		glActiveTexture(GL_TEXTURE0 + texid);
+		glUniform1i(sampler0_location, texid);
 		sprites_[0]->draw();
 		
 		//reset matrices
@@ -489,17 +475,16 @@ void MainGame::renderGame()
 		finalM_ = projectionM_ * viewM_ * worldM_;
 		
 		// send matrix to shaders
-		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
+		glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
 
 		// set tint
 		float tint[] = {current->getTint().x ,current->getTint().y , current->getTint().z, current->getTint().w};
 		glUniform4fv(inputColour_location, 1, tint);
 
 		// set texture	
-        glActiveTexture(GL_TEXTURE0+1);
-		
-		glUniform1i(sampler0_location, 1);
-				
+		texid = T3E::ResourceManager::getTexture("textures/cellSheet.png").id;
+        glActiveTexture(GL_TEXTURE0 + texid);	
+		glUniform1i(sampler0_location, texid);			
 		current->getSprite()->draw();
 		
 		// reset matrices
@@ -510,7 +495,7 @@ void MainGame::renderGame()
 	
 	//RENDER UI	
 	// send ortho matrix to shaders
-	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
+	glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
 	//TODO: temporary highlight... will we need tint or will we have multiple sprites to show selection mode?
 	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	if(bvCreationMode_)
@@ -521,9 +506,10 @@ void MainGame::renderGame()
 		tint[3] = 1.0f;
 	}		
 	glUniform4fv(inputColour_location, 1, tint);
-	// set texture	
-	glActiveTexture(GL_TEXTURE0+2);	
-	glUniform1i(sampler0_location, 2);
+	// set texture
+	texid = T3E::ResourceManager::getTexture("textures/bvbutton.png").id;
+	glActiveTexture(GL_TEXTURE0 + texid);	
+	glUniform1i(sampler0_location, texid);
 	//draw sprite
 	bvButton_.getSprite()->draw();
 	killButton_.getSprite()->draw();
@@ -531,7 +517,7 @@ void MainGame::renderGame()
 	tintedSpriteProgram_.stopUse();	
 
 	// swap our buffers 
-	window_.swapBuffer();
+	window_->swapBuffer();
 }
 
 glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )

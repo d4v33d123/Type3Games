@@ -2,7 +2,8 @@
 #define BUTTON_H
 
 #include "SDL.h"
-#include "Type3Engine/AnimatedSprite.h"
+//#include "Type3Engine/AnimatedSprite.h"
+#include "Type3Engine/Sprite.h"
 #include <string>
 
 namespace T3E
@@ -21,11 +22,12 @@ namespace T3E
 		
 		//getters	
 		//yeh i be rturnin a pointah, whutchagunnadoo 'bout it, huh? yeeeeh
-		AnimatedSprite* getSprite(){return &sprite_;};
+		/* Animated */Sprite* getSprite(){return &sprite_;};
 		
 	private:
 		//TODO: animated sprite or normal sprite or...? wait to see if we're using multiple images or just highlight
-		AnimatedSprite sprite_;
+		//AnimatedSprite sprite_;
+		Sprite sprite_;
 		bool isPressed;
 	};
 }

@@ -10,7 +10,7 @@
 #include "ResourceManager.h"
 #include "glTexture.h"
 #include <string>
-
+#include "glm/glm.hpp"
 namespace T3E
 {
 	class Sprite
@@ -22,7 +22,12 @@ namespace T3E
 		void init(float x, float y, float width, float height, std::string texturePath);
 
 		void draw();
-
+		
+		//getters
+		glm::vec2 getPos(){return glm::vec2(x_, y_);};
+		float getWidth(){return width_;};
+		float getHeight(){return height_;};
+		
 	private:
 		float x_, y_, width_, height_;
 		GLuint vboID_;

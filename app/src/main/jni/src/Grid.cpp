@@ -1,6 +1,5 @@
 #include "Grid.h"
 
-
 namespace T3E
 {
     Grid::Grid() :
@@ -20,18 +19,44 @@ namespace T3E
     }
 
     Grid::~Grid()
-    {
+    {	/* SDL_Log("KKKKKKKK");
+	//T3E::ResourceManager::clearTextures();
 		//free memory
 		for (std::vector<Hex*>::iterator it = cells_.begin() ; it != cells_.end(); ++it)
-		{
-			delete (*it);
+		{SDL_Log("SSSSSSSS");
+			Cell* p = (Cell*)(*it);SDL_Log("OOOOOOOOOO");			
+			delete p;
+			//(*it) = NULL;
 		} 
-		cells_.clear();
+		cells_.clear();SDL_Log("NNNNNNN");
 		for (std::vector<Hex*>::iterator it = bloodVessels_.begin() ; it != bloodVessels_.end(); ++it)
 		{
-			delete (*it);
+			BloodVessel* p = (BloodVessel*)(*it);			
+			delete p;SDL_Log("ZZZZZZZZZZZZZ");
 		} 
 		bloodVessels_.clear();
+			SDL_Log("LLLLLLLLLL"); */
+		
+/* 		SDL_Log("Cells size: %d",numCells());
+		int i = 0;
+		while(!cells_.empty())
+		{
+		  delete cells_.back();
+		  cells_.pop_back();
+		  SDL_Log("Cells deleted: %d",++i);
+		}
+		SDL_Log("22222");
+		while(!bloodVessels_.empty())
+		{
+		  delete bloodVessels_.back();
+		  bloodVessels_.pop_back();
+		}*/
+		
+		for(int row = 0; row < CHUNK_WIDTH; ++row)
+			for(int col = 0; col < CHUNK_WIDTH; ++col)
+				setEmpty(row*CHUNK_WIDTH, col);
+		
+SDL_Log("end of grid destructor"); 
     }
 
     bool Grid::getNode( int row, int col, Node** node )

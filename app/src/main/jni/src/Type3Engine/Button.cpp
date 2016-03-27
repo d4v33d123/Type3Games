@@ -5,7 +5,8 @@ namespace T3E
 	void Button::init(int xPos, int yPos, int width, int height, std::string texturePath,
 		float tileX, float tileY, float tileWidth, float tileHeight, int numFrames)
 	{
-		sprite_.init(xPos, yPos, width, height, texturePath, tileX, tileY, tileWidth, tileHeight, numFrames);
+		sprite_.init(xPos, yPos, width, height, texturePath);//, tileX, tileY, tileWidth, tileHeight, numFrames);
+		
 	}
 	
 	bool Button::touchCollides(glm::vec2 touchPos)

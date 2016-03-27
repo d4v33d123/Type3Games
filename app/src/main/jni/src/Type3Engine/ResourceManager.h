@@ -10,9 +10,9 @@ namespace T3E
 	{
 	public:
 		static GLTexture getTexture(std::string texturePath);
-
+		static void clearTextures();
 	private:
-		static TextureCache _textureCache;
+		static TextureCache textureCache_;
 	};
 }
 

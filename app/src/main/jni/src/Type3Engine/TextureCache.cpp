@@ -35,4 +35,9 @@ namespace T3E
 		// return our texture if it is already in the map
 		return mit->second;
 	}
+	
+	void TextureCache::clear()
+	{
+		textureMap_.clear();
+	}
 }

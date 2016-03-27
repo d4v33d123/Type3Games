@@ -150,7 +150,7 @@ namespace T3E
  	void Cell::setNormalTint(CellState state)
 	{
 		int colourVariety = 1001;
-		float rangePos =  rand()%colourVariety;
+		float rangePos =  rand()%colourVariety;//TODO: do we care about this?
 		glm::vec4 diff;//max-min
 		glm::vec4 result;
 		switch(state)

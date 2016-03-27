@@ -15,6 +15,7 @@ namespace T3E
 		~TextureCache();
 
 		GLTexture getTexture(std::string texturePath);
+		void clear();
 
 	private:
 		std::map<std::string, GLTexture> textureMap_;

@@ -46,7 +46,7 @@ namespace T3E
 	}
 	// destructor
 	AudioEngine::~AudioEngine()
-	{
+	{SDL_Log("destruction ***");
 		destroy();
 	}
 	// initialise
@@ -72,6 +72,24 @@ namespace T3E
 		if(m_isInitialized)
 		{
 			m_isInitialized = false;
+			
+ 			std::map<std::string, Mix_Chunk*>::iterator e_it;
+			std::map<std::string, Mix_Music*>::iterator m_it;		
+			
+			for ( e_it = m_effectMap.begin(); e_it != m_effectMap.end(); e_it++ )
+			{
+				Mix_FreeChunk(e_it->second);
+				e_it->second = NULL;
+			}
+			for ( m_it = m_musicMap.begin(); m_it != m_musicMap.end(); m_it++ )
+			{
+				Mix_FreeMusic(m_it->second);
+				m_it->second = NULL;
+			}
+			
+			m_effectMap.clear();
+			m_musicMap.clear();
+			
 			Mix_Quit();
 		}
 	}

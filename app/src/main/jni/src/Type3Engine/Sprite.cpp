@@ -57,7 +57,9 @@ namespace T3E
 		}
 		
 		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
+		SDL_Log("buffering data in sprite");
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+		SDL_Log("done");
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -80,7 +82,7 @@ namespace T3E
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
 		// draw our 6 verticies
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 6);//crash here from start menu after tutorial etc
 
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);

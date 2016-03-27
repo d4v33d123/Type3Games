@@ -20,8 +20,8 @@ namespace T3E
         virtual ~Cell();
 		
 		//max and min split time
-		static const int MIN_ST = 500;
-		static const int MAX_ST = 5000;
+		static const int MIN_ST = 50;
+		static const int MAX_ST = 500;
 		
 		// [in] see CellState enum
 		void init(CellState state, int deathChance);
