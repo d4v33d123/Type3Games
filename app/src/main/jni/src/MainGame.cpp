@@ -240,11 +240,15 @@ void MainGame::initSystems()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
+	SDL_Log("ALMOSTMADEIT");
+	
 	// Initialise the UI
 	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, bloodvessel_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );	
 	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, kill_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );
 	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()), background_image );
 
+	SDL_Log("MADE IT");
+	
 	// init shaders
 	initShaders();
 }

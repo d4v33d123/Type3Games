@@ -781,11 +781,14 @@ namespace T3E
 				}
 				case InteractionMode::BVCREATION:
 				{
-					if(distance >= bloodVessel->getRange()*1.2 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() > 0 )
+					if(distance < closest)
 					{
-						data.z = 3;//is empty and next to selected cell
-						data.w = 1.0f;
-						data.w /= 1.5;
+						if(distance >= bloodVessel->getRange()*1.2 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() > 0 )
+						{
+							data.z = 3;//is empty and next to selected cell
+							data.w = 1.0f;
+							data.w /= 1.5;
+						}
 					}
 					break;
 				}
