@@ -2,7 +2,8 @@
 #define BUTTON_H
 
 #include "SDL.h"
-#include "Type3Engine/AnimatedSprite.h"
+//#include "Type3Engine/AnimatedSprite.h"
+#include "Type3Engine/Sprite.h"
 #include <string>
 
 namespace T3E
@@ -10,23 +11,33 @@ namespace T3E
 	class Button
 	{
 	public:
-		//init sprite and record pos info
-		//position and size in screen coordinates
-		void init(int xPos, int yPos, int width, int height, std::string texturePath,
-			float tileX, float tileY, float tileWidth, float tileHeight, int numFrames);
-		
+		void init(float posX, float posY, float width, float height,
+			std::string texturePath, float tileWidth, float tileHeight,
+			float unpressedX, float unpressedY,
+			float pressedX, float pressedY);
+			
 		//[in] touch position in screen coords
 		//[ret] true if touch coords lie inside button sprite
+		// test is made on unpressedSprite_
 		bool touchCollides(glm::vec2 touchPos);
 		
-		//getters	
+		//draw correct sprite depending if it's pressed or unpressed
+		void draw();
+		
+		//Setters
+		void press(){isPressed_ = true;};
+		void unpress(){isPressed_ = false;};
+		void toggle(){isPressed_ = !isPressed_;};
+		
+		//getters
+		bool isPressed(){return isPressed_;};
 		//yeh i be rturnin a pointah, whutchagunnadoo 'bout it, huh? yeeeeh
-		AnimatedSprite* getSprite(){return &sprite_;};
+		Sprite* getUnpressedSprite(){return &unpressedSprite_;};
+		Sprite* getPressedSprite(){return &pressedSprite_;};
 		
 	private:
-		//TODO: animated sprite or normal sprite or...? wait to see if we're using multiple images or just highlight
-		AnimatedSprite sprite_;
-		bool isPressed;
+		Sprite unpressedSprite_, pressedSprite_;
+		bool isPressed_;
 	};
 }
 

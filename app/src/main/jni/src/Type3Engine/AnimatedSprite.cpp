@@ -39,7 +39,6 @@ namespace T3E
 		if (vboID_ == 0)
 		{
 			glGenBuffers(1, &vboID_);
-
 		}
 
 		Vertex vertexData[6];
@@ -69,15 +68,11 @@ namespace T3E
 		{
 			vertexData[i].setColour(255, 255, 255, 255);
 		}
-
-		//vertexData[1].setColour(0, 0, 255, 255);
-
-
-		//vertexData[4].setColour(0, 255, 0, 255);
-
-
+		
 		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_DYNAMIC_DRAW);
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	}

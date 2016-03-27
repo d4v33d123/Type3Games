@@ -34,7 +34,7 @@ void MainGame::run()
 	
 	//bloodVessel TODO: put in bv class like cell
 	sprites_.push_back( new T3E::Sprite() );
-	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");// x, y, width, height
+	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 0.0f, 0.0f, 1.0f, 1.0f);
 
 	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
@@ -119,16 +119,10 @@ void MainGame::initSystems()
 
 	T3E::BloodVessel::setRange( bloodvessel_range );
 
-	// Set image paths
-	std::string bloodvessel_button_image, kill_button_image, background_image;
-
-	//windows line endings cause mayhem!!! hardcode time
+	//windows line endings cause mayhem!!!
  	// configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
 	// configFile.getString( "kill_button_image",			&kill_button_image );
 	// configFile.getString( "background_image",			&background_image );
- 	bloodvessel_button_image = "textures/bvbutton.png";
-	kill_button_image = "textures/bvbutton.png";
-	background_image = "textures/background.png";
 
 	// Get colour ranges from config file
 	{
@@ -244,10 +238,21 @@ void MainGame::initSystems()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
-	// Initialise the UI
-	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, bloodvessel_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );	
-	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, kill_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );
-	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()), background_image );
+	//Create ui buttons
+ 	bvButton_.init(float(window_.getScreenWidth())/30.0f, float(window_.getScreenHeight())*(8.0f/10.0f),
+		float(window_.getScreenWidth())/10.0f, float(window_.getScreenWidth())/10.0f, "textures/ui.png",
+		0.5, 0.5,
+		0, 0,
+		0, 0.5);
+		
+ 	killButton_.init(float(window_.getScreenWidth())/30.0f, float(window_.getScreenHeight())*(6.0f/10.0f),
+		float(window_.getScreenWidth())/10.0f, float(window_.getScreenWidth())/10.0f, "textures/ui.png",
+		0.5, 0.5,
+		0.5, 0,
+		0.5, 0.5);
+	
+	//background sprite
+	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
 	
 	textRenderer_.init();
 	textRenderer_.setScreenSize( window_.getScreenWidth(), window_.getScreenHeight() );
@@ -412,10 +417,13 @@ void MainGame::processInput(float dTime)
 					if(interactionMode_ == InteractionMode::BVCREATION)
 					{
 						interactionMode_ = InteractionMode::NORMAL;
+						bvButton_.unpress();
 					}
 					else
 					{
 						interactionMode_ = InteractionMode::BVCREATION;
+						bvButton_.press();
+						killButton_.unpress();
 					}
 					
 					//unselect cell
@@ -429,10 +437,13 @@ void MainGame::processInput(float dTime)
 					if(interactionMode_ == InteractionMode::KILLMODE)
 					{
 						interactionMode_ = InteractionMode::NORMAL;
+						killButton_.unpress();
 					}
 					else
 					{
 						interactionMode_ = InteractionMode::KILLMODE;
+						killButton_.press();
+						bvButton_.unpress();
 					}
 					
 					//unselect cell
@@ -676,22 +687,14 @@ void MainGame::renderGame()
 	//RENDER UI	
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-	//TODO: temporary highlight... will we need tint or will we have multiple sprites to show selection mode?
-	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	if(interactionMode_ != InteractionMode::NORMAL)
-	{
-		tint[0] = 2.5f;
-		tint[1] = 2.5f;
-		tint[2] = 2.5f;
-		tint[3] = 1.0f;
-	}		
+	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};	
 	glUniform4fv(inputColour_location, 1, tint);
 	// set texture	
 	glActiveTexture(GL_TEXTURE0+2);	
 	glUniform1i(sampler0_location, 2);
 	//draw sprite
-	bvButton_.getSprite()->draw();
-	killButton_.getSprite()->draw();
+	bvButton_.draw();
+	killButton_.draw();
 		
 	tintedSpriteProgram_.stopUse();	
 
