@@ -56,7 +56,8 @@ void MainGame::initSystems()
 
 	// enable aplha blending	
 	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
-	glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+	//glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	// init projection matrix
 	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
@@ -210,34 +211,27 @@ void MainGame::initSystems()
 	
 	//init the hex vertex buffer
 	glGenBuffers(1, &hexBufferName);
-	
+	std::vector<GLfloat> hexVerts;
 	float size = 0.54;//should get from hex?
 	float sizeCos30 = size*glm::cos(glm::radians(30.0f));
 	float sizeSin30 = size*glm::sin(glm::radians(30.0f));
-	//this is a buffer of lines, so think them 2 by 2
-	//1
-	hexVertexes[0].setPosition(0.0f, size);
-	//hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
-	//2
-	hexVertexes[1].setPosition(-sizeCos30, sizeSin30);
-	//hexVertexes[3].setPosition(-sizeCos30, -sizeSin30);
-	//3
-	hexVertexes[2].setPosition(-sizeCos30, -sizeSin30);
-	//hexVertexes[5].setPosition(0.0f, -size);
-	//4
-	hexVertexes[3].setPosition(0.0f, -size);
-	//hexVertexes[7].setPosition(sizeCos30, -sizeSin30);
-	//5
-	hexVertexes[4].setPosition(sizeCos30, -sizeSin30);
-	//hexVertexes[9].setPosition(sizeCos30, sizeSin30);
-	//6
-	hexVertexes[5].setPosition(sizeCos30, sizeSin30);
-	//hexVertexes[11].setPosition(0.0f, size);
 	
+	hexVerts.push_back( 0.0f ); // x1
+	hexVerts.push_back( size ); // y1
+	hexVerts.push_back( -sizeCos30 ); // x2
+	hexVerts.push_back( sizeSin30 ); // y2
+	hexVerts.push_back( -sizeCos30 ); // x3
+	hexVerts.push_back( -sizeSin30 ); // ...
+	hexVerts.push_back( 0.0f );
+	hexVerts.push_back( -size );
+	hexVerts.push_back( sizeCos30 );
+	hexVerts.push_back( -sizeSin30 );	
+	hexVerts.push_back( sizeCos30 );
+	hexVerts.push_back( sizeSin30 );
+
 	glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * hexVerts.size(), hexVerts.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);	
 
 	//Create ui buttons
  	bvButton_.init(float(window_.getScreenWidth())/30.0f, float(window_.getScreenHeight())*(8.0f/10.0f),
@@ -257,7 +251,6 @@ void MainGame::initSystems()
 
 	textRenderer_.init();
 	textRenderer_.setScreenSize( window_.getScreenWidth(), window_.getScreenHeight() );
-
 
 	// Set the inital score
 	int initial_score_;
@@ -850,8 +843,27 @@ void MainGame::drawGrid()
 	std::vector<glm::vec4> hexesInRange;
 	std::vector<glm::vec4> hexesInLargeRange;
 	std::vector<glm::vec4> yellowHexes;
-	
+
 	hexProgram_.use();
+
+	// TODO: replace this shitty excure for an enum
+	// The getHexDrawInfo function should really be redsigned
+	static const float CLOSE_RANGE_OF_BV = 0.0f;
+	static const float FAR_RANGE_OF_BV = 1.0f;
+	static const float YELLOW = 3.0f;
+
+	// Send the verts to the gpu and specify the layout
+	glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+					
+	//send range info
+	glUniform1f(range_location, 2.0f );
+	//set whether or not to highlight the grid
+	glUniform1i(avaliable_for_highlight, 0);
+
+	//glEnable( GL_BLEND );
+
 	for(int r = 0; r < grid_.getSize(); ++r)
 	{
 		for(int c = 0; c < grid_.getSize(); ++c)
@@ -861,153 +873,92 @@ void MainGame::drawGrid()
 			if(drawData.x != -1)
 			{
 				//if in range of blood vessel draw it later
-				if(drawData.z == 0.0f)
+				if(drawData.z == CLOSE_RANGE_OF_BV )
 				{				
 					hexesInRange.push_back(drawData);
 				}
-				else if(drawData.z == 1.0f)
+				else if(drawData.z == FAR_RANGE_OF_BV )
 				{
 					hexesInLargeRange.push_back(drawData);
 				}
-				else if(drawData.z == 3.0f)
+				else if(drawData.z == YELLOW )
 				{
 					yellowHexes.push_back(drawData);					
 				}
-				else//hex is not in any range of any bv
+				else // hex is not in any range of any bv, draw it normaly
 				{
 					//send matrix to shaders
-					glm::mat4 transM = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
-					finalM_ = finalM_*transM;			
-					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-					//send range info
-					glUniform1f(range_location, drawData.z);
-					//set distance as 1 (lerp 1 towards neutral grid colour) since hex is out of bv range
-					glUniform1f(lerp_weight_location, drawData.w);
-					//set whether or not to highlight the grid
-					glUniform1i(avaliable_for_highlight, 0);
-					// bind the buffer object
-					glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
-					// tell opengl that we want to use the first attribute array
-					glEnableVertexAttribArray(0);
-					// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
-					glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
-					// this is our pixel attribute pointer;
-					glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
-					//this is out UV attribute pointer;
-					glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
-					// draw our verticies
-					glDrawArrays(GL_LINE_LOOP, 0, 6);
-					// disable the vertex attrib array
-					glDisableVertexAttribArray(0);
-					// unbind the VBO
-					glBindBuffer(GL_ARRAY_BUFFER, 0);  
+					glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
+					glm::mat4 final_matrix = finalM_ * tranlation_matrix;			
+					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(final_matrix));
 					
-					//reset matrix
-					finalM_ = projectionM_*viewM_*worldM_;					
+					// draw our verticies
+					glDrawArrays(GL_LINE_LOOP, 0, 6);				
 				}
 			}
 		}
-	}
+	}	
 	
-	//now draw hexes in large range
-	for(std::vector<glm::vec4>::iterator data = hexesInLargeRange.begin(); data != hexesInLargeRange.end(); ++data)
-	{
-		//send matrix to shaders
-		glm::mat4 transM = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
-		finalM_ = finalM_*transM;		
-		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//send range info
-		glUniform1f(range_location, data->z);
-		//send distance info
-		glUniform1f(lerp_weight_location, data->w);
-		//set whether or not to highlight the grid
-		glUniform1i(avaliable_for_highlight, 0);
-		// bind the buffer object
-		glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
-		// tell opengl that we want to use the first attribute array
-		glEnableVertexAttribArray(0);
-		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
-		// this is our pixel attribute pointer;
-		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
-		//this is out UV attribute pointer;
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
-		// draw our verticies
-		glDrawArrays(GL_LINE_LOOP, 0,6);
-		// disable the vertex attrib array
-		glDisableVertexAttribArray(0);
-		// unbind the VBO
-		glBindBuffer(GL_ARRAY_BUFFER, 0);  
-		//reset matrix
-		finalM_ = projectionM_*viewM_*worldM_;
-	}
-	
+	//send range info
+	glUniform1f(range_location, CLOSE_RANGE_OF_BV);
+
 	//now draw hexes in range
 	for(std::vector<glm::vec4>::iterator data = hexesInRange.begin(); data != hexesInRange.end(); ++data)
 	{
 		//send matrix to shaders
-		glm::mat4 transM = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
-		finalM_ = finalM_*transM;		
-		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//send range info
-		glUniform1f(range_location, data->z);
+		glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
+		glm::mat4 final_matrix = finalM_ * tranlation_matrix;			
+		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(final_matrix));
+
 		//send distance info
 		glUniform1f(lerp_weight_location, data->w);
-		//set whether or not to highlight the grid
-		glUniform1i(avaliable_for_highlight, 0);
-		// bind the buffer object
-		glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
-		// tell opengl that we want to use the first attribute array
-		glEnableVertexAttribArray(0);
-		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
-		// this is our pixel attribute pointer;
-		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
-		//this is out UV attribute pointer;
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
+
 		// draw our verticies
 		glDrawArrays(GL_LINE_LOOP, 0, 6);
-		// disable the vertex attrib array
-		glDisableVertexAttribArray(0);
-		// unbind the VBO
-		glBindBuffer(GL_ARRAY_BUFFER, 0);  
-		//reset matrix
-		finalM_ = projectionM_*viewM_*worldM_;
+	}
+
+	//send range info
+	glUniform1f(range_location, FAR_RANGE_OF_BV);
+
+	//now draw hexes in large range
+	for(std::vector<glm::vec4>::iterator data = hexesInLargeRange.begin(); data != hexesInLargeRange.end(); ++data)
+	{
+		//send matrix to shaders
+		glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
+		glm::mat4 final_matrix = finalM_ * tranlation_matrix;			
+		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(final_matrix));
+
+		//send distance info
+		glUniform1f(lerp_weight_location, data->w);
+
+		// draw our verticies
+		glDrawArrays(GL_LINE_LOOP, 0,6);
 	}
 	
+	//send range info
+	glUniform1f(range_location, YELLOW);
+	//set whether or not to highlight the grid
+	glUniform1i(avaliable_for_highlight, 1);
+
 	//now draw yellow hexes
 	for(std::vector<glm::vec4>::iterator data = yellowHexes.begin(); data != yellowHexes.end(); ++data)
 	{
 		//send matrix to shaders
 		//translate world matrix to separate triangles and create parallax
-		glm::mat4 transM = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
-		finalM_ = finalM_*transM;//shold be just worldM but whatever, it's a test			
-		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//send range info
-		glUniform1f(range_location, data->z);
+		glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(data->x, data->y, 0.0f));
+		glm::mat4 final_matrix = finalM_ * tranlation_matrix;			
+		glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(final_matrix));
+
 		//send distance info
 		glUniform1f(lerp_weight_location, data->w);
-		//set whether or not to highlight the grid
-		glUniform1i(avaliable_for_highlight, 1);
-		// bind the buffer object
-		glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
-		// tell opengl that we want to use the first attribute array
-		glEnableVertexAttribArray(0);
-		// This is our position attribute pointer, last value is the byte offset before the value is used in the struct
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, position));
-		// this is our pixel attribute pointer;
-		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, colour));
-		//this is out UV attribute pointer;
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T3E::Vertex), (void*)offsetof(T3E::Vertex, uv));
+
 		// draw our verticies
 		glDrawArrays(GL_LINE_LOOP, 0, 6);
-		// disable the vertex attrib array
-		glDisableVertexAttribArray(0);
-		// unbind the VBO
-		glBindBuffer(GL_ARRAY_BUFFER, 0);  
-		//reset matrix
-		finalM_ = projectionM_*viewM_*worldM_;
 	}
 	
+	// disable the vertex attrib array
+	glDisableVertexAttribArray(0);
+	// unbind the VBO
+	glBindBuffer(GL_ARRAY_BUFFER, 0);  
 	hexProgram_.stopUse();
 }

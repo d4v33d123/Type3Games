@@ -126,7 +126,7 @@ private:
 	T3E::GLSLProgram hexProgram_;
 	GLint hex_finalM_location, range_location, lerp_weight_location;
  	GLuint hexBufferName;
-	T3E::Vertex hexVertexes[12];
+	//T3E::Vertex hexVertexes[12];
 	void drawGrid();
 };
 

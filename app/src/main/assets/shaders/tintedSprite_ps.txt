@@ -16,9 +16,8 @@ void main()
     //sample texture
     vec4 texColour = texture2D(sampler0, vTexCoord);
 
-    //eliminate transparency on the cell
-    //if(texColour.w != 0.0)
-        //texColour.w = 1.0;
+    // Reduce cell transparency
+    texColour.w *= 1.8;
 
     //blend vertex colour with texture colour
     vec4 finalColour = vColour * texColour;

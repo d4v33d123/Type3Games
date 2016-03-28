@@ -1,11 +1,10 @@
-//pixel shader
-//set colour to vertex colour
+// pixel shader
+// set colour to vertex colour
 
-//input variables
+// input variables
 varying lowp vec4 vColour;
 
 void main()
 {
-    //set colour
     gl_FragColor = vColour;
 }
