@@ -386,30 +386,16 @@ namespace T3E
         {
 			//get the hex's node and cast it to cell
 			Cell* current = (Cell*)((*hex)->getNode());
-			//update cell, check if it's time to split
-			
-			/*
-			if((current->getRow() == selectedPos.x) && (current->getCol() == selectedPos.y) && (cellSelected == true))
-			{
-				//get the neighbouring hexes
-				Hex* neighbours[6];
-				getNeighbours((*hex)->getRow(), (*hex)->getCol(), neighbours);
 
-				for(int i = 0; i < 6; i++)
-				{
-					if(neighbours[i] != nullptr)
-					{
-						if(neighbours[i]->getType() == NodeType::EMPTY)
-						{
-							
-						}
-					}
-				}
-				
+			if(current->isDying())
+			{
+				if(current->isDead())
+					deadCells.push_back(deathInfo((*hex)->getRow(), (*hex)->getCol()));
+				else
+					current->die(dTime);//do this after isDead() check so we don't skip rendering the last frame
 			}
-			*/
-			
-			if(current->update(dTime))
+			//update cell, check if it's time to split
+			else if(current->update(dTime))
 			{
 				//roll for chance to die
 				int die = rand()%100;
@@ -493,7 +479,9 @@ namespace T3E
 					if(fingerRowCol.x != (*hex)->getRow() || fingerRowCol.y != (*hex)->getCol())
 					{
 						selectedCellDied = current->isSelected();
-						deadCells.push_back(deathInfo((*hex)->getRow(), (*hex)->getCol()));
+						if(selectedCellDied)
+							current->unselect();
+						current->kill();
 					}
 				}
 			}
@@ -553,6 +541,10 @@ namespace T3E
         }
 		
 		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		
+		if(cell->isDying() || cell->isDead())
+			return false;
+		
 		//only select normal and stem cells
 		if((cell->getState() == CellState::NORMAL) || (cell->getState() == CellState::STEM))
 		{
@@ -612,7 +604,8 @@ namespace T3E
 						{
 							//now we increase parent's death chance aswell if it was normal
 							if(selectedCell->getState() == CellState::NORMAL)
-								selectedCell->incDeathChance( parentDeathChanceIncrease_ ); // TODO: why is incDeathChance even a method? shoud be set( get + inc )
+								// TODO: why is incDeathChance even a method? shoud be set( get + inc ) --- because incdeathchance also checks the increase doesn't add up to over 99
+								selectedCell->incDeathChance( parentDeathChanceIncrease_ );
 
 							return true;
 						}									
@@ -637,17 +630,17 @@ namespace T3E
 		//different costs for normal and mutated cells
 		if( cell->getState() == CellState::NORMAL && score_ - T3E::SCORE::KILLED_HEALTHY_CELL() > 0 )
 		{
-			setEmpty(row, col);
+			cell->kill();
 			return true;
 		}
 		else if( cell->getState() == CellState::MUTATED && score_ - T3E::SCORE::KILLED_MUTATED_CELL() > 0 )
 		{
-			setEmpty(row, col);
+			cell->kill();
 			return true;
 		}
 		else if( cell->getState() == CellState::ARRESTED && score_ - T3E::SCORE::KILLED_ARRESTED_CELL() > 0 )
 		{
-			setEmpty(row, col);
+			cell->kill();
 			return true;
 		}
 		else
@@ -802,8 +795,7 @@ namespace T3E
 									if(distance <= bloodVessel->getRange()*1.5)
 									{				
 										data.z = 3;//is empty and next to selected cell
-										data.w = nextdoor * 1;
-										data.w /= 1.5;
+										data.w = 0;
 									}
 								}
 								else if((!sel->isInAlternateMode()) && ((empty->getType() == NodeType::EMPTY) || (empty->getType() == NodeType::CELL)) )
@@ -817,8 +809,7 @@ namespace T3E
 											if(distance <= bloodVessel->getRange()*1.5)
 											{				
 												data.z = 3;//is empty and next to selected cell
-												data.w = nextdoor * 1;
-												data.w /= 1.5;
+												data.w = 0;
 											}
 										}
 									}
@@ -827,8 +818,7 @@ namespace T3E
 										if(distance <= bloodVessel->getRange()*1.5)
 										{				
 											data.z = 3;//is empty and next to selected cell
-											data.w = nextdoor * 1;
-											data.w /= 1.5;
+											data.w = 0;
 										}
 									}
 								}

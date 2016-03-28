@@ -24,7 +24,9 @@ namespace T3E
 	normalTint_(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
 	brightTint_(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
 	selected_(false),
-	alternateMode_(false)	
+	alternateMode_(false),
+	dying_(false),
+	dead_(false)
     {
 	}
 
@@ -193,9 +195,15 @@ namespace T3E
 		}
 	}
 
-	void setNormalColourRange( float r_min, float r_max, float g_min, float g_max, float b_min, float b_max )
+	void Cell::kill()
 	{
-		T3E::Cell::normalColourRange_[0] = glm::vec4(r_min, g_min, b_max, 255.0f);
-		T3E::Cell::normalColourRange_[1] = glm::vec4(r_max, g_max, b_min, 255.0f);		
+		dying_ = true;
+		spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/death.png", 0, 0, 1.0f/4, 1.0f/4, 16, 4);
+	}
+	
+	void Cell::die(float dTime)
+	{
+		if(spriteSheet_.Update(dTime))
+			dead_ = true;
 	}
 }

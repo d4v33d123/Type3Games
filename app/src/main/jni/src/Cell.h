@@ -59,6 +59,12 @@ namespace T3E
 		//set random colour based on state
 		void setNormalTint(CellState state); 
 		
+		//set spritesheet to death animation
+		void kill();
+		
+		//play death animation
+		void die(float dTime);
+		
 		//getters
 		inline glm::vec4 getTint() { return tint_; }
 		inline CellState getState() { return state_; }
@@ -66,6 +72,8 @@ namespace T3E
 		inline bool isSelected() { return selected_; }
 		inline bool isInAlternateMode() { return alternateMode_; }
 		inline AnimatedSprite* getSprite() { return &spriteSheet_; }
+		inline bool isDying(){return dying_;};
+		inline bool isDead(){return dead_;};
 		
 		//setters
 		void setDeathChance(int dc) { deathChance_ = dc; }
@@ -86,6 +94,8 @@ namespace T3E
 		float splitTimer_; // time since last split; milliseconds //TODO: counting milliseconds with a float is probably a bad idea
 		float splitTime_; // time to reach to start split; milliseconds
 		bool alternateMode_; // true when cell is in secondary mode (e.g. stem cell in spawn mode)
+		bool dying_;//death animation is playing
+		bool dead_;//cell needs to be deleted
 	};
 }
 
