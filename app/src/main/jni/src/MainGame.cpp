@@ -172,7 +172,7 @@ void MainGame::initSystems()
 	{
 		int spawned_healthy_cell_, spawned_mutated_cell_, spawned_cancer_cell_, spawned_bloodvessel_, spawned_stem_cell_, arrested_cell_;
 		int killed_healthy_cell_, killed_mutated_cell_, killed_cancer_cell_, killed_bloodvessel_, killed_stem_cell_, killed_arrested_cell_;
-	
+
 		configFile.getInt("spawned_healthy_cell", &spawned_healthy_cell_, 1 );
 		configFile.getInt("spawned_mutated_cell", &spawned_mutated_cell_, 1 );
 		configFile.getInt("spawned_cancer_cell", &spawned_cancer_cell_, 1 );
@@ -257,6 +257,11 @@ void MainGame::initSystems()
 	textRenderer_.init();
 	textRenderer_.setScreenSize( window_.getScreenWidth(), window_.getScreenHeight() );
 
+	// Set the inital score
+	int initial_score_;
+	configFile.getInt("initial_score", &initial_score_, 0 );
+	grid_.setScore( initial_score_ );
+
 	// init shaders
 	initShaders();
 }
@@ -299,8 +304,6 @@ void MainGame::gameLoop()
 	
 	//set line width for grid
 	glLineWidth(5.0f);
-
-	int old_score; // The score last frame
 
 	//our game loop
 	while( gameState_ != GameState::EXIT )
