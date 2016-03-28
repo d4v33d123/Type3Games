@@ -115,7 +115,7 @@ std::string ConfigFile::trimWhitespace( const std::string& str )
     if (strBegin == std::string::npos)
         return ""; // no content
 
-    const size_t strEnd = str.find_last_not_of(" \t");
+    const size_t strEnd = str.find_last_not_of(" \t\r\n");
     const size_t strRange = strEnd - strBegin + 1;
 
     return str.substr(strBegin, strRange);
