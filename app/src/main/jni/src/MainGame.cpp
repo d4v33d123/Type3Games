@@ -321,6 +321,7 @@ void MainGame::gameLoop()
 		score_ = grid_.getScore();
 		textRenderer_.putNumber( score_, 8, -0.05, 0.95, 44 );
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
+		SDL_Log("score: %i", score_);
 
 		renderGame();
 		

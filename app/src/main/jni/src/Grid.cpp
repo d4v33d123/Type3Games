@@ -671,6 +671,8 @@ namespace T3E
 			{
 				if((neighbours[i]->getRow() == touchRow) && (neighbours[i]->getCol() == touchCol))
 				{
+					Cell* cell = (Cell*)(grid_[touchRow * CHUNK_WIDTH + touchCol].getNode());
+					
 					//if it's empty, spawn a cell
 					if(isEmpty(touchRow, touchCol))
 					{
@@ -686,6 +688,35 @@ namespace T3E
 									setEmpty(selRow, selCol);
 									return true;
 								}							
+								//couldn't create cell
+								return false;
+							}
+						}
+					}
+					else if(cell->getState() == CellState::NORMAL)
+					{
+						int dc = cell->getDeathChance();
+						glm::vec4 tint = cell->getTint();
+						//check if is in the range of at least one blood vessel
+						for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
+						{
+							BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
+							if(inRange((*bvs)->getRow(), (*bvs)->getCol(), touchRow, touchCol, bloodVessel->getRange()*1.5f))
+							{
+								setEmpty(touchRow, touchCol);
+								if(newCell(touchRow, touchCol, CellState::STEM, 0, nullptr))
+								{
+									//move the normal cell to the stem cell's new pos
+									newCell( selRow, selCol, CellState::NORMAL, dc, nullptr);
+									Cell* nCell = (Cell*)(grid_[selRow * CHUNK_WIDTH + selCol].getNode());
+									nCell->setTint(tint);
+									
+									return true;
+								}				
+								// couldn't move the stem cell so put the normal cell back 
+								newCell( touchRow, touchCol, CellState::NORMAL, dc, nullptr);
+								Cell* nCell = (Cell*)(grid_[touchRow * CHUNK_WIDTH + touchCol].getNode());
+								nCell->setTint(tint);
 								//couldn't create cell
 								return false;
 							}
@@ -753,20 +784,52 @@ namespace T3E
 						Cell* sel = (Cell*)(grid_[selectedPos.x * CHUNK_WIDTH + selectedPos.y].getNode());
 						Hex* empty;
 						getHex(row, col, &empty);
+						
 						int nextdoor = getDistance(selectedPos.x, selectedPos.y, row, col);
-						if((nextdoor <= 1) && (empty->getType() == NodeType::EMPTY))
+						if(nextdoor <= 1)
 						{				
 							if(sel->getState() == CellState::STEM)
 							{
-								if(distance <= bloodVessel->getRange()*1.5)
-								{				
-									data.z = 3;//is empty and next to selected cell
-									data.w = nextdoor * 1;
-									data.w /= 1.5;
+								if(sel->isInAlternateMode() && (empty->getType() == NodeType::EMPTY))
+								{
+									if(distance <= bloodVessel->getRange()*1.5)
+									{				
+										data.z = 3;//is empty and next to selected cell
+										data.w = nextdoor * 1;
+										data.w /= 1.5;
+									}
 								}
+								else if((!sel->isInAlternateMode()) && ((empty->getType() == NodeType::EMPTY) || (empty->getType() == NodeType::CELL)) )
+								{
+									if(empty->getType() == NodeType::CELL)
+									{
+										Cell* notEmpty;
+										notEmpty = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+										if(notEmpty->getState() == CellState::NORMAL)
+										{
+											if(distance <= bloodVessel->getRange()*1.5)
+											{				
+												data.z = 3;//is empty and next to selected cell
+												data.w = nextdoor * 1;
+												data.w /= 1.5;
+											}
+										}
+									}
+									else if(empty->getType() == NodeType::EMPTY)
+									{
+										if(distance <= bloodVessel->getRange()*1.5)
+										{				
+											data.z = 3;//is empty and next to selected cell
+											data.w = nextdoor * 1;
+											data.w /= 1.5;
+										}
+									}
+									
+								}
+								
 						
 							}
-							else
+							else if(empty->getType() == NodeType::EMPTY)
 							{
 								data.z = 3;//is empty and next to selected cell
 								data.w = nextdoor * 1;
@@ -780,15 +843,17 @@ namespace T3E
 				}
 				case InteractionMode::BVCREATION:
 				{
-					if(distance < closest)
+					 if(distance >= bloodVessel->getRange()*1.2 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() > 0 )
 					{
-						if(distance >= bloodVessel->getRange()*1.2 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() > 0 )
+						if(!(data.z < 1))
 						{
 							data.z = 3;//is empty and next to selected cell
 							data.w = 1.0f;
-							data.w /= 1.5;
+							data.w /= 1.5;							
 						}
+						
 					}
+					
 					break;
 				}
 				case InteractionMode::KILLMODE:

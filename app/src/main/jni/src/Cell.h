@@ -69,6 +69,7 @@ namespace T3E
 		
 		//setters
 		void setDeathChance(int dc) { deathChance_ = dc; }
+		void setTint(glm::vec4 tint) { tint_ = tint; }
 		
 	private:
 		AnimatedSprite spriteSheet_;
