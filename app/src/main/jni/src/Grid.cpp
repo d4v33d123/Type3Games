@@ -210,7 +210,7 @@ namespace T3E
 	        switch( ((Cell*)nodeToDelete)->getState() )
 	        {
 	        	case CellState::STEM:
-	        		score_ += T3E::SCORE::KILLED_STEM_CELL();
+	        		//score_ += T3E::SCORE::KILLED_STEM_CELL();
 	        	break;
 	        	case CellState::NORMAL:
 	        		score_ += T3E::SCORE::KILLED_HEALTHY_CELL();
@@ -373,6 +373,13 @@ namespace T3E
 			else
 				++sp;
 		}	
+		
+		//update bvs
+		for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
+		{
+			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
+			bloodVessel->update(dTime);
+		}
 		
 		//update cells
 		for(std::vector<Hex*>::iterator hex = cells_.begin(); hex != cells_.end(); ++hex)
@@ -824,7 +831,6 @@ namespace T3E
 											data.w /= 1.5;
 										}
 									}
-									
 								}
 								
 						
@@ -832,8 +838,7 @@ namespace T3E
 							else if(empty->getType() == NodeType::EMPTY)
 							{
 								data.z = 3;//is empty and next to selected cell
-								data.w = nextdoor * 1;
-								data.w /= 1.5;
+								data.w = 0;
 							}
 							
 						}
@@ -870,8 +875,7 @@ namespace T3E
 							((killable->getState() == CellState::ARRESTED) && (score_ - T3E::SCORE::KILLED_ARRESTED_CELL() > 0)) )
 						{
 							data.z = 3;//is killable
-							data.w = 1.0f;
-							data.w /= 1.5;
+							data.w = 0;
 						}
 						break;
 					}
@@ -883,8 +887,37 @@ namespace T3E
 			}
 			
 		}
-		
-		
+		if(interactionMode_ == InteractionMode::BVCREATION)
+		{
+			if(score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0)//enough points to set spawn
+			{
+				BloodVessel* bloodVessel = (BloodVessel*)(bloodVessels_[0]->getNode());
+				if(closest > bloodVessel->getRange())//we're out of all bvs
+				{
+					//check for range of spawn points
+					int lowest = 999;
+					bool noSpawnPoints = true;
+					for( std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end(); ++sp )
+					{
+						noSpawnPoints = false;
+						int dist = getDistance(sp->x, sp->y, row, col);
+						if(dist < lowest)
+							lowest = dist;
+					}
+					
+					if(noSpawnPoints)
+					{
+						data.z = 3;
+						data.w = 0;
+					}
+					else if(lowest > bloodVessel->getRange())
+					{
+						data.z = 3;
+						data.w = 0;
+					}
+				}
+			}
+		}
 		
 		if(data.z == 2)
 			data.w = 1.0f;

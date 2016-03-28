@@ -58,6 +58,8 @@ cancer_col_min_blu: 175
 cancer_col_max_blu: 232
 
 # SCORE VALUES
+initial_score: 0
+
 spawned_healthy_cell:   10
 spawned_mutated_cell:   5
 spawned_cancer_cell:    -1
@@ -65,7 +67,7 @@ spawned_bloodvessel:    100
 spawned_stem_cell:      1
 arrested_cell:          50
 
-killed_healthy_cell:    -10
+killed_healthy_cell:    -5
 killed_mutated_cell:    -5
 killed_cancer_cell:     10
 killed_bloodvessel:     -100

@@ -33,9 +33,9 @@ void MainGame::run()
 	initSystems();
 	
 	//bloodVessel TODO: put in bv class like cell
-	sprites_.push_back( new T3E::Sprite() );
-	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png");// x, y, width, height
-
+ 	sprites_.push_back( new T3E::Sprite() );
+	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bvSpawnPoint.png", 0.0f, 0.0f, 1.0f, 1.0f);
+ 
 	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
 	
@@ -119,16 +119,10 @@ void MainGame::initSystems()
 
 	T3E::BloodVessel::setRange( bloodvessel_range );
 
-	// Set image paths
-	std::string bloodvessel_button_image, kill_button_image, background_image;
-
-	//windows line endings cause mayhem!!! hardcode time
+	//windows line endings cause mayhem!!!
  	// configFile.getString( "bloodvessel_button_image",	&bloodvessel_button_image );
 	// configFile.getString( "kill_button_image",			&kill_button_image );
 	// configFile.getString( "background_image",			&background_image );
- 	bloodvessel_button_image = "textures/bvbutton.png";
-	kill_button_image = "textures/bvbutton.png";
-	background_image = "textures/background.png";
 
 	// Get colour ranges from config file
 	{
@@ -178,7 +172,7 @@ void MainGame::initSystems()
 	{
 		int spawned_healthy_cell_, spawned_mutated_cell_, spawned_cancer_cell_, spawned_bloodvessel_, spawned_stem_cell_, arrested_cell_;
 		int killed_healthy_cell_, killed_mutated_cell_, killed_cancer_cell_, killed_bloodvessel_, killed_stem_cell_, killed_arrested_cell_;
-	
+
 		configFile.getInt("spawned_healthy_cell", &spawned_healthy_cell_, 1 );
 		configFile.getInt("spawned_mutated_cell", &spawned_mutated_cell_, 1 );
 		configFile.getInt("spawned_cancer_cell", &spawned_cancer_cell_, 1 );
@@ -244,18 +238,32 @@ void MainGame::initSystems()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(hexVertexes), hexVertexes, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
-	SDL_Log("ALMOSTMADEIT");
+
+	//Create ui buttons
+ 	bvButton_.init(float(window_.getScreenWidth())/30.0f, float(window_.getScreenHeight())*(8.0f/10.0f),
+		float(window_.getScreenWidth())/10.0f, float(window_.getScreenWidth())/10.0f, "textures/ui.png",
+		0.5, 0.5,
+		0, 0,
+		0, 0.5);
+		
+ 	killButton_.init(float(window_.getScreenWidth())/30.0f, float(window_.getScreenHeight())*(6.0f/10.0f),
+		float(window_.getScreenWidth())/10.0f, float(window_.getScreenWidth())/10.0f, "textures/ui.png",
+		0.5, 0.5,
+		0.5, 0,
+		0.5, 0.5);
 	
-	// Initialise the UI
-	bvButton_.init(50.0f, float(window_.getScreenHeight()) - 250.0f, 200.0f, 200.0f, bloodvessel_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );	
-	killButton_.init(50.0f, float(window_.getScreenHeight()) - 450.0f, 200.0f, 200.0f, kill_button_image, 0, 0, 1.0f/2, 1.0f/2, 2 );
-	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()), background_image );
-	
+	//background sprite
+	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
+
 	textRenderer_.init();
 	textRenderer_.setScreenSize( window_.getScreenWidth(), window_.getScreenHeight() );
 
-	SDL_Log("MADE IT");
-	
+
+	// Set the inital score
+	int initial_score_;
+	configFile.getInt("initial_score", &initial_score_, 0 );
+	grid_.setScore( initial_score_ );
+
 	// init shaders
 	initShaders();
 }
@@ -298,8 +306,6 @@ void MainGame::gameLoop()
 	
 	//set line width for grid
 	glLineWidth(5.0f);
-
-	int old_score; // The score last frame
 
 	//our game loop
 	while( gameState_ != GameState::EXIT )
@@ -417,10 +423,13 @@ void MainGame::processInput(float dTime)
 					if(interactionMode_ == InteractionMode::BVCREATION)
 					{
 						interactionMode_ = InteractionMode::NORMAL;
+						bvButton_.unpress();
 					}
 					else
 					{
 						interactionMode_ = InteractionMode::BVCREATION;
+						bvButton_.press();
+						killButton_.unpress();
 					}
 					
 					//unselect cell
@@ -434,10 +443,13 @@ void MainGame::processInput(float dTime)
 					if(interactionMode_ == InteractionMode::KILLMODE)
 					{
 						interactionMode_ = InteractionMode::NORMAL;
+						killButton_.unpress();
 					}
 					else
 					{
 						interactionMode_ = InteractionMode::KILLMODE;
+						killButton_.press();
+						bvButton_.unpress();
 					}
 					
 					//unselect cell
@@ -608,6 +620,8 @@ void MainGame::renderGame()
 	//blood vessels
 	for(int i = 0; i < grid_.numBloodVessels(); ++i)
 	{
+		T3E::BloodVessel* current = (T3E::BloodVessel*)grid_.getBloodVessel(i)->getNode();
+		
 		//move to hex position
 		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getBloodVessel(i)->getX(), grid_.getBloodVessel(i)->getY(), 0.0f ) );
 		finalM_ = projectionM_ * viewM_ * worldM_;
@@ -622,7 +636,7 @@ void MainGame::renderGame()
         //use texture 1
 		glActiveTexture(GL_TEXTURE0+0);
 		glUniform1i(sampler0_location, 0);
-		sprites_[0]->draw();
+		current->getSprite()->draw();
 		
 		//reset matrices
 		worldM_ = glm::mat4();
@@ -687,22 +701,14 @@ void MainGame::renderGame()
 	//RENDER UI	
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-	//TODO: temporary highlight... will we need tint or will we have multiple sprites to show selection mode?
-	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	if(interactionMode_ != InteractionMode::NORMAL)
-	{
-		tint[0] = 2.5f;
-		tint[1] = 2.5f;
-		tint[2] = 2.5f;
-		tint[3] = 1.0f;
-	}		
+	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};	
 	glUniform4fv(inputColour_location, 1, tint);
 	// set texture	
 	glActiveTexture(GL_TEXTURE0+2);	
 	glUniform1i(sampler0_location, 2);
 	//draw sprite
-	bvButton_.getSprite()->draw();
-	killButton_.getSprite()->draw();
+	bvButton_.draw();
+	killButton_.draw();
 		
 	tintedSpriteProgram_.stopUse();	
 

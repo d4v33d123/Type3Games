@@ -15,41 +15,47 @@ namespace T3E
 		}
 	}
 
-	void Sprite::init(float x, float y, float width, float height, std::string texturePath)
+	void Sprite::init(float x, float y, float width, float height, std::string texturePath,float tileX, float tileY, float tileWidth, float tileHeight)
 	{
 		x_ = x;
 		y_ = y;
 		width_ = width;
 		height_ = height;
-
+		tileX_ = tileX;
+		tileY_ = tileY;
+		tileHeight_ = tileHeight;
+		tileWidth_ = tileWidth;
+		
 		texture_ = ResourceManager::getTexture(texturePath);
 
 		if (vboID_ == 0)
 		{
 			glGenBuffers(1, &vboID_);
 		}
-
+		
 		Vertex vertexData[6];
-		//top right
-		vertexData[0].setPosition(x + width, y + height);
-		vertexData[0].setUV(0.0f, 1.0f);		
+		
+		//UV COORDS ARE SWAPPED!!!
 		//top left
-		vertexData[1].setPosition(x, y + height);
-		vertexData[1].setUV(0.0f, 0.0f);		
+		vertexData[0].setPosition(x_, y_ + height_);
+		vertexData[0].setUV(tileX_ + 0 , tileY_ + tileWidth_);		
 		//bottom left
-		vertexData[2].setPosition(x, y);
-		vertexData[2].setUV(1.0f, 0.0f);
-		
-		//bottom left
-		vertexData[3].setPosition(x, y);
-		vertexData[3].setUV(1.0f, 0.0f);		
+		vertexData[1].setPosition(x_, y_);
+		vertexData[1].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_);
 		//bottom right
-		vertexData[4].setPosition(x + width, y);
-		vertexData[4].setUV(1.0f, 1.0f);		
-		//top right
-		vertexData[5].setPosition(x + width, y + height);
-		vertexData[5].setUV(0.0f, 1.0f);
+		vertexData[2].setPosition(x_ + width_, y_);
+		vertexData[2].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_+ tileWidth_);
 		
+		//bottom right
+		vertexData[3].setPosition(x_ + width_, y_);
+		vertexData[3].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_+ tileWidth_);	
+		//top right
+		vertexData[4].setPosition(x_ + width_, y_ + height_);
+		vertexData[4].setUV(tileX_ + 0, tileY_ + tileWidth_+ tileWidth_);		
+		//top left
+		vertexData[5].setPosition(x_, y_ + height_);
+		vertexData[5].setUV(tileX_ + 0, tileY_ + tileWidth_);
+				
 		//set vertex colours
 		for (int i = 0; i < 6; i++)
 		{
@@ -80,7 +86,7 @@ namespace T3E
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
 		// draw our 6 verticies
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 6);//crash here from start menu after tutorial etc
 
 		// disable the vertex attrib array
 		glDisableVertexAttribArray(0);

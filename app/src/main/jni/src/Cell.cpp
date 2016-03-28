@@ -37,7 +37,7 @@ namespace T3E
 		switch(state)
 		{
 		case CellState::STEM:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18);
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
 			alternateTint_ = glm::vec4(0.2, 0.8f, 0.2f, 1.0f);// green
@@ -45,21 +45,21 @@ namespace T3E
 			spriteSheet_.setSpeed(0.08);
 			break;
 		case CellState::NORMAL:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18);
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18, 18);
 			state_ = state;
 			setNormalTint(CellState::NORMAL);
 			deathChance_ = deathChance;
 			spriteSheet_.setSpeed(0.15);
 			break;	
 		case CellState::MUTATED:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18);
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18, 18);
 			state_ = state;
 			setNormalTint(CellState::MUTATED);
 			deathChance_ = deathChance;
 			spriteSheet_.setSpeed(0.25);
 			break;
 		case CellState::CANCEROUS:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 2.0f/18, 0, 1.0f/18, 1.0f/18, 18);
+			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 2.0f/18, 0, 1.0f/18, 1.0f/18, 18, 18);
 			state_ = state;
 			setNormalTint(CellState::CANCEROUS);
 			deathChance_ = deathChance;

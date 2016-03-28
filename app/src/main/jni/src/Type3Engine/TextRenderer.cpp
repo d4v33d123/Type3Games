@@ -136,15 +136,21 @@ namespace T3E
 		int num_digits = 1;
 		std::string num_str;
 
+		if( num < 0 ) {
+			num_str += '-';
+			num *= -1;
+		}
+
 		while( std::pow(10, num_digits) < num ) num_digits++;
-		while( padding-- > num_digits ) num_str += ' ';
+		while( --padding > num_digits ) num_str += ' ';
 
 		int prev_digit = 0;
 		while( num_digits-- > 0 )
 		{
-			int digit = num / (int)std::pow(10, num_digits);
+			int digit = num / (int)std::pow(10, num_digits ) ;
 			char c = 48 + digit - prev_digit;
-			num_str += c;
+			if( c == 58 ) { num_str += '1'; num_str += '0'; }
+			else { num_str += c; }
 			prev_digit = digit * 10;
 		}
 

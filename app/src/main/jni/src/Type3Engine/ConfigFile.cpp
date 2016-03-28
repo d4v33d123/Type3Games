@@ -60,7 +60,7 @@ bool ConfigFile::load( std::string filename )
 			key = line.substr(0, split_point);
 			value = trimWhitespace( line.substr(split_point + 1) );
 
-			//SDL_Log("Paired '%s': '%s'", key.c_str(), value.c_str() );
+			SDL_Log("Paired '%s': '%s'", key.c_str(), value.c_str() );
 
 			data_[key] = value;
 		}
@@ -115,7 +115,7 @@ std::string ConfigFile::trimWhitespace( const std::string& str )
     if (strBegin == std::string::npos)
         return ""; // no content
 
-    const size_t strEnd = str.find_last_not_of(" \t");
+    const size_t strEnd = str.find_last_not_of(" \t\r\n");
     const size_t strRange = strEnd - strBegin + 1;
 
     return str.substr(strBegin, strRange);

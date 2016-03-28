@@ -159,6 +159,7 @@ namespace T3E
 				
 		// [ret] the score
 		inline int getScore() { return score_; }
+		inline void setScore( int score ) { score_ = score; }
 
 		// [in] row to test
 		// [in] column to test
