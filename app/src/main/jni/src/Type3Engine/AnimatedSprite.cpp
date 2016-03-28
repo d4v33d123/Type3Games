@@ -29,6 +29,7 @@ namespace T3E
 		numSprites_ = numSprites;
 		animPosition_ = 0;
 		animSpeed_ = 0.7;
+		animCount_ = 0;
 		tileX_ = tileX;
 		tileY_ = tileY;
 		tileHeight_ = tileHeight;
