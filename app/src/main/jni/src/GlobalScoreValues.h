@@ -22,6 +22,8 @@ namespace T3E
 		static void SET_KILLED_STEM_CELL( int score ) { killed_stem_cell_ = score; }
 		static void SET_KILLED_ARRESTED_CELL( int score ) { killed_arrested_cell_  = score; }
 
+		static void SET_CANCER_PER_SECOND( int score ) { cancer_per_second_ = score; }
+
 		// getters
 		static int SPAWNED_HEALTHY_CELL() { return spawned_healthy_cell_; }
 		static int SPAWNED_MUTATED_CELL() { return spawned_mutated_cell_; }
@@ -36,6 +38,8 @@ namespace T3E
 		static int KILLED_BLOODVESSEL() { return killed_bloodvessel_; }
 		static int KILLED_STEM_CELL() { return killed_stem_cell_; }
 		static int KILLED_ARRESTED_CELL() { return killed_arrested_cell_; }
+
+		static int CANCER_PER_SECOND() { return cancer_per_second_; }
 
 	private:
 		static int spawned_healthy_cell_;
@@ -52,6 +56,7 @@ namespace T3E
 		static int killed_stem_cell_;
 		static int killed_arrested_cell_;
 
+		static int cancer_per_second_;
 	};
 
 }

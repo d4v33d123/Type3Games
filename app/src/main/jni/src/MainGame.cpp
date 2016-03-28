@@ -174,6 +174,7 @@ void MainGame::initSystems()
 	{
 		int spawned_healthy_cell_, spawned_mutated_cell_, spawned_cancer_cell_, spawned_bloodvessel_, spawned_stem_cell_, arrested_cell_;
 		int killed_healthy_cell_, killed_mutated_cell_, killed_cancer_cell_, killed_bloodvessel_, killed_stem_cell_, killed_arrested_cell_;
+		int cancer_per_second_;
 
 		configFile.getInt("spawned_healthy_cell", &spawned_healthy_cell_, 1 );
 		configFile.getInt("spawned_mutated_cell", &spawned_mutated_cell_, 1 );
@@ -189,6 +190,8 @@ void MainGame::initSystems()
 		configFile.getInt("killed_stem_cell", &killed_stem_cell_, 1 );
 		configFile.getInt("killed_arrested_cell", &killed_arrested_cell_, 1 );
 
+		configFile.getInt("cancer_per_second", &cancer_per_second_, -1 );
+
 		T3E::SCORE::SET_SPAWNED_HEALTHY_CELL( spawned_healthy_cell_ );
 		T3E::SCORE::SET_SPAWNED_MUTATED_CELL( spawned_mutated_cell_ );
 		T3E::SCORE::SET_SPAWNED_CANCER_CELL( spawned_cancer_cell_ );
@@ -202,6 +205,8 @@ void MainGame::initSystems()
 		T3E::SCORE::SET_KILLED_BLOODVESSEL( killed_bloodvessel_ );
 		T3E::SCORE::SET_KILLED_STEM_CELL( killed_stem_cell_ );
 		T3E::SCORE::SET_KILLED_ARRESTED_CELL( killed_arrested_cell_ );
+
+		T3E::SCORE::SET_CANCER_PER_SECOND( cancer_per_second_ );
 	}
 
     // Set the first cell
@@ -226,9 +231,11 @@ void MainGame::initSystems()
 	hexVerts.push_back( 0.0f );
 	hexVerts.push_back( -size );
 	hexVerts.push_back( sizeCos30 );
-	hexVerts.push_back( -sizeSin30 );	
+	hexVerts.push_back( -sizeSin30 );
 	hexVerts.push_back( sizeCos30 );
 	hexVerts.push_back( sizeSin30 );
+	hexVerts.push_back( 0.0f ); // back to the start
+	hexVerts.push_back( size ); // 
 
 	glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * hexVerts.size(), hexVerts.data(), GL_STATIC_DRAW);
@@ -319,6 +326,9 @@ void MainGame::gameLoop()
 	//set line width for grid
 	glLineWidth(5.0f);
 
+	Uint32 old_ticks = 0;
+	Uint32 ticks = 0;
+
 	//our game loop
 	while( gameState_ != GameState::EXIT )
 	{
@@ -339,6 +349,18 @@ void MainGame::gameLoop()
 			}
 		}
 		
+		// Count the number of cancer cells
+		int num_cancer_cells = 0;
+		for( int i = 0; i < grid_.numCells(); ++i ) {
+			if( ((T3E::Cell*)grid_.getCell(i)->getNode())->getState() == T3E::CellState::CANCEROUS ) num_cancer_cells++;
+		}
+
+		// if a second has passed, reduce the score by the score per cancer per second
+		if( old_ticks / 1000 < ticks / 1000 ) {
+			score_ += num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND();
+			grid_.setScore( score_ );
+		}
+
 		score_ = grid_.getScore();
 		textRenderer_.putNumber( score_, 8, -0.05, 0.95, 44 );
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
@@ -363,6 +385,9 @@ void MainGame::gameLoop()
 		{
 			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
 		}
+
+		old_ticks = ticks;
+		ticks = SDL_GetTicks();
 	}
 }
 
@@ -775,7 +800,6 @@ void MainGame::renderGame()
 		//send matrix to shaders
 		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//set tint
-		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
 		float tint[] = { 0.0f, 0.0f, 1.0f, 0.3f };
 		glUniform4fv(inputColour_location, 1, tint);
 		
@@ -788,7 +812,7 @@ void MainGame::renderGame()
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_ * viewM_ * worldM_;
 	}
-	
+
 	//cells
 	for(int i = 0; i < grid_.numCells(); ++i)
 	{
@@ -1029,13 +1053,22 @@ void MainGame::drawGrid()
 				}
 				else // hex is not in any range of any bv, draw it normaly
 				{
+					//if( r%2 == 0 || c%2 == 0 ) continue;
+
 					//send matrix to shaders
 					glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
 					glm::mat4 final_matrix = finalM_ * tranlation_matrix;			
 					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(final_matrix));
 					
-					// draw our verticies
-					glDrawArrays(GL_LINE_LOOP, 0, 6);				
+					glDrawArrays(GL_LINE_STRIP, 0, 4);
+					
+					// Fill in the gaps at the edges
+					if( r == 0 && c < grid_.getSize() - 1 )
+						glDrawArrays( GL_LINES, 3, 2 );
+					if( r == grid_.getSize() - 1 )
+						glDrawArrays( GL_LINES, 5, 2);
+					if( c == grid_.getSize() - 1 )
+						glDrawArrays( GL_LINE_STRIP, 3, 3 );
 				}
 			}
 		}

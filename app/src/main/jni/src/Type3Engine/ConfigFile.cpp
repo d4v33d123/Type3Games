@@ -60,7 +60,7 @@ bool ConfigFile::load( std::string filename )
 			key = line.substr(0, split_point);
 			value = trimWhitespace( line.substr(split_point + 1) );
 
-			SDL_Log("Paired '%s': '%s'", key.c_str(), value.c_str() );
+			//SDL_Log("Paired '%s': '%s'", key.c_str(), value.c_str() );
 
 			data_[key] = value;
 		}
