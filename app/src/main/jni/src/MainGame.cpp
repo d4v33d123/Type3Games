@@ -16,7 +16,8 @@ MainGame::MainGame() :
 	pressTimer_(0),
 	fingerPressed_(false),
 	cellSelected_(false),
-	interactionMode_(InteractionMode::NORMAL)
+	interactionMode_(InteractionMode::NORMAL),
+	paused_(false)
 {}
 
 MainGame::~MainGame()
@@ -233,18 +234,36 @@ void MainGame::initSystems()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * hexVerts.size(), hexVerts.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	
 
-	//Create ui buttons
- 	bvButton_.init(float(window_.getScreenWidth())/30.0f, float(window_.getScreenHeight())*(8.0f/10.0f),
-		float(window_.getScreenWidth())/10.0f, float(window_.getScreenWidth())/10.0f, "textures/ui.png",
-		0.5, 0.5,
+	//Create buttons
+	menuButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(8.9f/10.0f),
+		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+		1/4.0f,1/4.0f,
+		1/4.0f, 3/4.0f,
+		2/4.0f, 3/4.0f);
+	
+ 	bvButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(7.8f/10.0f),
+		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+		1/4.0f,1/4.0f,
 		0, 0,
-		0, 0.5);
+		0, 1.0f/4);
 		
- 	killButton_.init(float(window_.getScreenWidth())/30.0f, float(window_.getScreenHeight())*(6.0f/10.0f),
-		float(window_.getScreenWidth())/10.0f, float(window_.getScreenWidth())/10.0f, "textures/ui.png",
-		0.5, 0.5,
-		0.5, 0,
-		0.5, 0.5);
+ 	killButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(6.7f/10.0f),
+		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+		1/4.0f,1/4.0f,
+		0, 2.0f/4,
+		0, 3.0f/4);
+	
+	resumeButton_.init(float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())*(4.0f/7.0f),
+		float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())/7.0f, "textures/ui.png",
+		1/4.0f,3/4.0f,
+		2/4.0f, 0,
+		1/4.0f, 0);
+		
+ 	quitButton_.init(float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())*(2.0f/7.0f),
+		float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())/7.0f, "textures/ui.png",
+		1/4.0f,3/4.0f,
+		3/4.0f, 0,
+		1/4.0f, 0);
 	
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
@@ -308,32 +327,35 @@ void MainGame::gameLoop()
 		time_ += 0.1f;
 		calculateFPS();
 
-		if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
+		if(!paused_)
+		{
+			if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
 			cellSelected_ = false;
 		
-		if(grid_.playVessel())
-		{
-			bloodV_.play();
-			grid_.resetPlayVessel();
+			if(grid_.playVessel())
+			{
+				bloodV_.play();
+				grid_.resetPlayVessel();
+			}
 		}
 		
 		score_ = grid_.getScore();
 		textRenderer_.putNumber( score_, 8, -0.05, 0.95, 44 );
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
-		SDL_Log("score: %i", score_);
+		//SDL_Log("score: %i", score_);
 
 		renderGame();
 		
 		processInput(frameTime_);
 		
-		// print once every 10 frames
+		/* print once every 10 frames
 		static int frameCounter = 0;
 		frameCounter++;
 		if( frameCounter == 10 )
 		{
-			//SDL_Log("%f\n", _fps);
+			SDL_Log("%f\n", fps_);
 			frameCounter = 0;
-		}
+		}*/
 
 		float frameTicks = SDL_GetTicks() - startTicks;
 		//Limit the FPS to the max FPS
@@ -346,204 +368,306 @@ void MainGame::gameLoop()
 
 void MainGame::processInput(float dTime)
 {
-	glm::vec4 worldPos, worldPos2;
-    SDL_Point rowCol, rowCol2;
-    int row, col;
-    T3E::Hex* neighbours;
+	glm::vec4 worldPos;
+    SDL_Point rowCol;
+	glm::vec2 screenCoords;
+	
+	/*
+	glm::vec4 worldPos2;
+	SDL_Point rowCol2;
+	*/
 	
 	// processing our input
 	SDL_Event evnt;
 	while (SDL_PollEvent(&evnt))
 	{
-		switch( evnt.type )
+		if(paused_)
 		{
-		case SDL_QUIT:
-			gameState_ = GameState::EXIT;
-			break;
-			
-		case SDL_KEYDOWN:
-			if(evnt.key.keysym.sym == SDLK_AC_BACK) // android back key
+			switch( evnt.type )
+			{
+			case SDL_QUIT:
 				gameState_ = GameState::EXIT;
-			
-			// EMULATOR ZOOM
-			if(evnt.key.keysym.sym == SDLK_z)//zoom in
-			{
-				camera_.zoom(-0.05f);
-			}
-			if(evnt.key.keysym.sym == SDLK_x)//zoom out
-			{
-				camera_.zoom(0.05f);
-			}
-			
-			break;
-			
-		case SDL_FINGERDOWN:
-			++nOfFingers_;
-			
-			fingerPressed_ = true;
-			//record position in case we need it later
-			pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
-			
-            // Convert the touch position to a world position
-            worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-                        
-            // Draw cursor for debug purposes
-            cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-			break;
-			
-		case SDL_FINGERUP:
-			--nOfFingers_;
-			
-			fingerPressed_ = false;			
-			pressTimer_ = 0;
-			pressPos_ = glm::vec2(-1, -1);
-            
-			// Only act when the last finger is lifted,
-            // AND the cursor was not moved
-            if( nOfFingers_ == 0 && finger_dragged_ == false )
-            {
-                // convert the touch to a world position
-                worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-                // convert the world pos to a grid row column
-                rowCol = world_to_grid( worldPos );
-
+				break;
+				
+			case SDL_KEYDOWN:
+				if(evnt.key.keysym.sym == SDLK_AC_BACK) // android back key
+				{
+					paused_ = !paused_;
+					if(paused_)
+							menuButton_.press();
+						else
+							menuButton_.unpress();
+				}				
+				break;
+				
+			case SDL_FINGERDOWN:
+				++nOfFingers_;
+				
+				fingerPressed_ = true;
+				//record position in case we need it later
+				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
+				
+				// Convert the touch position to a world position
+				worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+							
+				// Draw cursor for debug purposes
+				cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+				
+				//Check for button presses
 				//get touch pos in screen coordinates for UI interaction
 				//invert y to match our ortho projection (origin at bottom left for ease of life)
-				glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
-				if(bvButton_.touchCollides(screenCoords))
+				screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+				if(resumeButton_.touchCollides(screenCoords))
 				{
-					//toggle blood vessel creation mode
-					if(interactionMode_ == InteractionMode::BVCREATION)
-					{
-						interactionMode_ = InteractionMode::NORMAL;
-						bvButton_.unpress();
-					}
-					else
-					{
-						interactionMode_ = InteractionMode::BVCREATION;
-						bvButton_.press();
-						killButton_.unpress();
-					}
-					
-					//unselect cell
-					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
-					cellSelected_ = false;	
-				}
-				
-				if(killButton_.touchCollides(screenCoords))
-				{
-					//toggle blood vessel creation mode
-					if(interactionMode_ == InteractionMode::KILLMODE)
-					{
-						interactionMode_ = InteractionMode::NORMAL;
-						killButton_.unpress();
-					}
-					else
-					{
-						interactionMode_ = InteractionMode::KILLMODE;
-						killButton_.press();
-						bvButton_.unpress();
-					}
-					
-					//unselect cell
-					grid_.unselectCell(selectedPos_.x, selectedPos_.y);
-					cellSelected_ = false;	
+					resumeButton_.press();
 				}
 
-				switch(interactionMode_)
+				if(quitButton_.touchCollides(screenCoords))
 				{
-					case InteractionMode::NORMAL:
+					quitButton_.press();
+				}
+					
+				break;
+				
+			case SDL_FINGERUP:
+				--nOfFingers_;
+				
+				fingerPressed_ = false;			
+				
+				// Only act when the last finger is lifted,
+				// AND the cursor was not moved
+				if( nOfFingers_ == 0)
+				{
+					//Check for button presses
+					//get touch pos in screen coordinates for UI interaction
+					//invert y to match our ortho projection (origin at bottom left for ease of life)
+					screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+					if(resumeButton_.touchCollides(screenCoords) || menuButton_.touchCollides(screenCoords))
 					{
-						//if a cell was selected
-						if(cellSelected_)
-						{
-							
-							//try to spawn
-							if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
-							{
-								//try to move stem cell
-								grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-								cellMove_.play();
-							}	
-							else
-							{
-								cellMove_.play();
-							}
-							
-							grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-							//cellSelected_ = false;
-							
-												
-						}
-						
-						//try to select a cell
-						//also, if a new cell was created, select it
-						selectCell(rowCol.x, rowCol.y);
-						break;
+						menuButton_.unpress();
+						paused_ = false;
 					}
-					case InteractionMode::KILLMODE:
+					else if(quitButton_.touchCollides(screenCoords))
+						gameState_ = GameState::EXIT;
+					
+					resumeButton_.unpress();
+					quitButton_.unpress();
+				}
+								
+				// Reset the type of touch if the last finger was released
+				if( nOfFingers_ == 0 ) finger_dragged_ = false;
+				break;
+				
+			default: break;
+			}
+		}
+		else
+		{
+			switch( evnt.type )
+			{
+			case SDL_QUIT:
+				gameState_ = GameState::EXIT;
+				break;
+				
+			case SDL_KEYDOWN:
+				if(evnt.key.keysym.sym == SDLK_AC_BACK) // android back key
+				{
+					paused_ = !paused_;
+					if(paused_)
+							menuButton_.press();
+						else
+							menuButton_.unpress();
+				}
+				
+				// EMULATOR ZOOM
+				if(evnt.key.keysym.sym == SDLK_z)//zoom in
+				{
+					camera_.zoom(-0.05f);
+				}
+				if(evnt.key.keysym.sym == SDLK_x)//zoom out
+				{
+					camera_.zoom(0.05f);
+				}
+				
+				break;
+				
+			case SDL_FINGERDOWN:
+				++nOfFingers_;
+				
+				fingerPressed_ = true;
+				//record position in case we need it later
+				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
+				
+				// Convert the touch position to a world position
+				worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+							
+				// Draw cursor for debug purposes
+				cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+								
+				break;
+				
+			case SDL_FINGERUP:
+				--nOfFingers_;
+				
+				fingerPressed_ = false;			
+				pressTimer_ = 0;
+				pressPos_ = glm::vec2(-1, -1);
+				
+				// Only act when the last finger is lifted,
+				// AND the cursor was not moved
+				if( nOfFingers_ == 0 && finger_dragged_ == false )
+				{
+					// convert the touch to a world position
+					worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+					// convert the world pos to a grid row column
+					rowCol = world_to_grid( worldPos );
+
+					//Check for button presses
+					//get touch pos in screen coordinates for UI interaction
+					//invert y to match our ortho projection (origin at bottom left for ease of life)
+					glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+					if(bvButton_.touchCollides(screenCoords))
 					{
-						if(!grid_.killCell(rowCol.x, rowCol.y))
+						//toggle blood vessel creation mode
+						if(interactionMode_ == InteractionMode::BVCREATION)
 						{
-							// play error noise
-							cellMove_.play();
+							interactionMode_ = InteractionMode::NORMAL;
+							bvButton_.unpress();
 						}
 						else
 						{
-							// play kill noise
-							cellMove_.play();
+							interactionMode_ = InteractionMode::BVCREATION;
+							bvButton_.press();
+							killButton_.unpress();
 						}
-						break;
+						
+						//unselect cell
+						grid_.unselectCell(selectedPos_.x, selectedPos_.y);
+						cellSelected_ = false;	
 					}
-					case InteractionMode::BVCREATION:
+					else if(killButton_.touchCollides(screenCoords))
 					{
-						break;
+						//toggle blood vessel creation mode
+						if(interactionMode_ == InteractionMode::KILLMODE)
+						{
+							interactionMode_ = InteractionMode::NORMAL;
+							killButton_.unpress();
+						}
+						else
+						{
+							interactionMode_ = InteractionMode::KILLMODE;
+							killButton_.press();
+							bvButton_.unpress();
+						}
+						
+						//unselect cell
+						grid_.unselectCell(selectedPos_.x, selectedPos_.y);
+						cellSelected_ = false;	
+					}
+					else if(menuButton_.touchCollides(screenCoords))
+					{
+						paused_ = !paused_;
+						if(paused_)
+							menuButton_.press();
+						else
+							menuButton_.unpress();
+					}
+
+					switch(interactionMode_)
+					{
+						case InteractionMode::NORMAL:
+						{
+							//if a cell was selected
+							if(cellSelected_)
+							{
+								
+								//try to spawn
+								if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+								{
+									//try to move stem cell
+									grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+									cellMove_.play();
+								}	
+								else
+								{
+									cellMove_.play();
+								}
+								
+								grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+								//cellSelected_ = false;
+								
+													
+							}
+							
+							//try to select a cell
+							//also, if a new cell was created, select it
+							selectCell(rowCol.x, rowCol.y);
+							break;
+						}
+						case InteractionMode::KILLMODE:
+						{
+							if(!grid_.killCell(rowCol.x, rowCol.y))
+							{
+								// play error noise
+								cellMove_.play();
+							}
+							else
+							{
+								// play kill noise
+								cellMove_.play();
+							}
+							break;
+						}
+						case InteractionMode::BVCREATION:
+						{
+							break;
+						}
 					}
 				}
-            }
-							
-            // Reset the type of touch if the last finger was released
-            if( nOfFingers_ == 0 ) finger_dragged_ = false;
-			break;
-			
-		case SDL_FINGERMOTION:
-			//avoid microdrag detection
-			
-			/* Testing another method of microdrag detection
-			// convert the touch to a world position
-                worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-                // convert the world pos to a grid row column
-                rowCol = world_to_grid( worldPos );
+								
+				// Reset the type of touch if the last finger was released
+				if( nOfFingers_ == 0 ) finger_dragged_ = false;
+				break;
 				
+			case SDL_FINGERMOTION:
+				//avoid microdrag detection
+				
+				/* Testing another method of microdrag detection
 				// convert the touch to a world position
-                worldPos2 = touch_to_world( glm::vec2( evnt.tfinger.x + evnt.tfinger.dx, evnt.tfinger.y + evnt.tfinger.dy) );
-                // convert the world pos to a grid row column
-                rowCol2 = world_to_grid( worldPos );
+					worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+					// convert the world pos to a grid row column
+					rowCol = world_to_grid( worldPos );
+					
+					// convert the touch to a world position
+					worldPos2 = touch_to_world( glm::vec2( evnt.tfinger.x + evnt.tfinger.dx, evnt.tfinger.y + evnt.tfinger.dy) );
+					// convert the world pos to a grid row column
+					rowCol2 = world_to_grid( worldPos );
+				
+				//SDL_Log("row1x %i, row1y %i, row2x %i, row2y %i", rowCol.x, rowCol.y ,rowCol2.x ,rowCol2.y );
+				//if(rowCol.x != rowCol2.x && rowCol.y != rowCol2.y)
+				*/
+				if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
+				{
+					finger_dragged_ = true;
+					fingerPressed_ = false;	
+				}
+				
+				// pan if only one finger is on screen; you don't want to pan during pinch motion
+				if( nOfFingers_ < 2)
+				{
+					camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
+				}
+				//SDL_Log("%f               %f", evnt.tfinger.dx,evnt.tfinger.dy);
+				
+				break;
 			
-			//SDL_Log("row1x %i, row1y %i, row2x %i, row2y %i", rowCol.x, rowCol.y ,rowCol2.x ,rowCol2.y );
-			//if(rowCol.x != rowCol2.x && rowCol.y != rowCol2.y)
-			*/
-			if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
-			{
-				finger_dragged_ = true;
-				fingerPressed_ = false;	
+			case SDL_MULTIGESTURE: 		
+				// pinch zoom
+				camera_.zoom( -evnt.mgesture.dDist );
+				break;
+				
+			default: break;
 			}
-			
-			// pan if only one finger is on screen; you don't want to pan during pinch motion
-			if( nOfFingers_ < 2)
-			{
-				camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
-			}
-			//SDL_Log("%f               %f", evnt.tfinger.dx,evnt.tfinger.dy);
-			
-			break;
-		
-		case SDL_MULTIGESTURE: 		
-			// pinch zoom
-			camera_.zoom( -evnt.mgesture.dDist );
-			break;
-			
-		default: break;
 		}
 	}
 	
@@ -573,7 +697,10 @@ void MainGame::processInput(float dTime)
 				{
 					//try to set bv spawn point
 					if(grid_.setBvSpawn(rowCol.x, rowCol.y))
+					{
+						bvButton_.unpress();
 						interactionMode_ = InteractionMode::NORMAL;
+					}
 				}
 				
 			}
@@ -700,9 +827,24 @@ void MainGame::renderGame()
 	glActiveTexture(GL_TEXTURE0+2);	
 	glUniform1i(sampler0_location, 2);
 	//draw sprite
+	menuButton_.draw();
 	bvButton_.draw();
 	killButton_.draw();
-		
+	
+	//RENDER MENU IF PAUSED
+	if(paused_)
+	{
+		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
+		float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};	
+		glUniform4fv(inputColour_location, 1, tint);
+		// set texture	
+		glActiveTexture(GL_TEXTURE0+2);	
+		glUniform1i(sampler0_location, 2);
+		//draw sprite
+		resumeButton_.draw();
+		quitButton_.draw();
+	}
+	
 	tintedSpriteProgram_.stopUse();	
 
 	textRenderer_.render();
