@@ -13,3 +13,5 @@ int T3E::SCORE::killed_cancer_cell_;
 int T3E::SCORE::killed_bloodvessel_;
 int T3E::SCORE::killed_stem_cell_;
 int T3E::SCORE::killed_arrested_cell_;
+
+int T3E::SCORE::cancer_per_second_;

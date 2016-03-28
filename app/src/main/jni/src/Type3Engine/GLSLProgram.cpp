@@ -81,7 +81,6 @@ namespace T3E
 
 			SDL_Log("%s\n", &(errorLog[0]));
 			fatalError("Program failed to link shaders!");
-
 		}
 
 		// always detatch shaders after a successful link

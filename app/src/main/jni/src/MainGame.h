@@ -81,7 +81,6 @@ private:
 	std::vector<T3E::Sprite*> sprites_; // sprite container TODO: remove this when bv sprite is in right place. maybe use for ui or smt
 	int score_;							// the player's score
 	
-	
 	// [in] row to test
 	// [in] column to test
 	// [ret] true if successfully selected a cell, false otherwise
@@ -126,7 +125,7 @@ private:
 	T3E::GLSLProgram hexProgram_;
 	GLint hex_finalM_location, range_location, lerp_weight_location;
  	GLuint hexBufferName;
-	//T3E::Vertex hexVertexes[12];
+
 	void drawGrid();
 };
 

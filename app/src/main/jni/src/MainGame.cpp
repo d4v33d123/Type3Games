@@ -173,6 +173,7 @@ void MainGame::initSystems()
 	{
 		int spawned_healthy_cell_, spawned_mutated_cell_, spawned_cancer_cell_, spawned_bloodvessel_, spawned_stem_cell_, arrested_cell_;
 		int killed_healthy_cell_, killed_mutated_cell_, killed_cancer_cell_, killed_bloodvessel_, killed_stem_cell_, killed_arrested_cell_;
+		int cancer_per_second_;
 
 		configFile.getInt("spawned_healthy_cell", &spawned_healthy_cell_, 1 );
 		configFile.getInt("spawned_mutated_cell", &spawned_mutated_cell_, 1 );
@@ -188,6 +189,8 @@ void MainGame::initSystems()
 		configFile.getInt("killed_stem_cell", &killed_stem_cell_, 1 );
 		configFile.getInt("killed_arrested_cell", &killed_arrested_cell_, 1 );
 
+		configFile.getInt("cancer_per_second", &cancer_per_second_, -1 );
+
 		T3E::SCORE::SET_SPAWNED_HEALTHY_CELL( spawned_healthy_cell_ );
 		T3E::SCORE::SET_SPAWNED_MUTATED_CELL( spawned_mutated_cell_ );
 		T3E::SCORE::SET_SPAWNED_CANCER_CELL( spawned_cancer_cell_ );
@@ -201,6 +204,8 @@ void MainGame::initSystems()
 		T3E::SCORE::SET_KILLED_BLOODVESSEL( killed_bloodvessel_ );
 		T3E::SCORE::SET_KILLED_STEM_CELL( killed_stem_cell_ );
 		T3E::SCORE::SET_KILLED_ARRESTED_CELL( killed_arrested_cell_ );
+
+		T3E::SCORE::SET_CANCER_PER_SECOND( cancer_per_second_ );
 	}
 
     // Set the first cell
@@ -302,6 +307,9 @@ void MainGame::gameLoop()
 	//set line width for grid
 	glLineWidth(5.0f);
 
+	Uint32 old_ticks = 0;
+	Uint32 ticks = 0;
+
 	//our game loop
 	while( gameState_ != GameState::EXIT )
 	{
@@ -319,10 +327,21 @@ void MainGame::gameLoop()
 			grid_.resetPlayVessel();
 		}
 		
+		// Count the number of cancer cells
+		int num_cancer_cells = 0;
+		for( int i = 0; i < grid_.numCells(); ++i ) {
+			if( ((T3E::Cell*)grid_.getCell(i)->getNode())->getState() == T3E::CellState::CANCEROUS ) num_cancer_cells++;
+		}
+
+		// if a second has passed, reduce the score by the score per cancer per second
+		if( old_ticks / 1000 < ticks / 1000 ) {
+			score_ += num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND();
+			grid_.setScore( score_ );
+		}
+
 		score_ = grid_.getScore();
 		textRenderer_.putNumber( score_, 8, -0.05, 0.95, 44 );
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
-		SDL_Log("score: %i", score_);
 
 		renderGame();
 		
@@ -343,6 +362,9 @@ void MainGame::gameLoop()
 		{
 			SDL_Delay(1000.0f / maxFPS_ - frameTicks);
 		}
+
+		old_ticks = ticks;
+		ticks = SDL_GetTicks();
 	}
 }
 
@@ -650,7 +672,6 @@ void MainGame::renderGame()
 		//send matrix to shaders
 		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
 		//set tint
-		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
 		float tint[] = { 0.0f, 0.0f, 1.0f, 0.3f };
 		glUniform4fv(inputColour_location, 1, tint);
 		
@@ -663,7 +684,7 @@ void MainGame::renderGame()
 		worldM_ = glm::mat4();
 		finalM_ = projectionM_ * viewM_ * worldM_;
 	}
-	
+
 	//cells
 	for(int i = 0; i < grid_.numCells(); ++i)
 	{
