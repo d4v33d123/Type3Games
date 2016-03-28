@@ -136,6 +136,11 @@ namespace T3E
 		int num_digits = 1;
 		std::string num_str;
 
+		if( num < 0 ) {
+			num_str += '-';
+			num *= -1;
+		}
+		
 		while( std::pow(10, num_digits) < num ) num_digits++;
 		while( padding-- > num_digits ) num_str += ' ';
 
