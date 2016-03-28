@@ -225,9 +225,11 @@ void MainGame::initSystems()
 	hexVerts.push_back( 0.0f );
 	hexVerts.push_back( -size );
 	hexVerts.push_back( sizeCos30 );
-	hexVerts.push_back( -sizeSin30 );	
+	hexVerts.push_back( -sizeSin30 );
 	hexVerts.push_back( sizeCos30 );
 	hexVerts.push_back( sizeSin30 );
+	hexVerts.push_back( 0.0f ); // back to the start
+	hexVerts.push_back( size ); // 
 
 	glBindBuffer(GL_ARRAY_BUFFER, hexBufferName);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * hexVerts.size(), hexVerts.data(), GL_STATIC_DRAW);
@@ -887,13 +889,22 @@ void MainGame::drawGrid()
 				}
 				else // hex is not in any range of any bv, draw it normaly
 				{
+					//if( r%2 == 0 || c%2 == 0 ) continue;
+
 					//send matrix to shaders
 					glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
 					glm::mat4 final_matrix = finalM_ * tranlation_matrix;			
 					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(final_matrix));
 					
-					// draw our verticies
-					glDrawArrays(GL_LINE_LOOP, 0, 6);				
+					glDrawArrays(GL_LINE_STRIP, 0, 4);
+					
+					// Fill in the gaps at the edges
+					if( r == 0 && c < grid_.getSize() - 1 )
+						glDrawArrays( GL_LINES, 3, 2 );
+					if( r == grid_.getSize() - 1 )
+						glDrawArrays( GL_LINES, 5, 2);
+					if( c == grid_.getSize() - 1 )
+						glDrawArrays( GL_LINE_STRIP, 3, 3 );
 				}
 			}
 		}
