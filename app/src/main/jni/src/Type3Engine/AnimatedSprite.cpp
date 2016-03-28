@@ -19,7 +19,8 @@ namespace T3E
 	}
 	
 	//UV COORDS ARE SWAPPED!!! invert width with height and x with y for tiling, position in spritesheet etc
-	void AnimatedSprite::init(float x, float y, float width, float height, std::string texturePath, float tileX, float tileY, float tileWidth, float tileHeight, int numSprites)
+	void AnimatedSprite::init(float x, float y, float width, float height, std::string texturePath,
+		float tileX, float tileY, float tileWidth, float tileHeight, int numSprites, int framesPerLine)
 	{
 		x_ = x;
 		y_ = y;
@@ -33,6 +34,7 @@ namespace T3E
 		tileHeight_ = tileHeight;
 		tileWidth_ = tileWidth;
 		animEnd_ = 20;
+		framesPerLine_ = framesPerLine;
 		//tileSheet_.init(ResourceManager::getTexture(texturePath),glm::ivec2(TileWidth, TileHeight));
 		texture_ = ResourceManager::getTexture(texturePath);
 
@@ -104,8 +106,8 @@ namespace T3E
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void AnimatedSprite::Update(float dTime)
-	{
+	bool AnimatedSprite::Update(float dTime)
+	{	
 		int oldAnim = animPosition_;
 
 		animCount_ += dTime*animSpeed_;
@@ -113,13 +115,15 @@ namespace T3E
 		if(animCount_ >= animEnd_)
 		{
 			animPosition_++;
-			animCount_ = 0; 
+			animCount_ = 0;
+			if(animPosition_ % framesPerLine_ == 0 && animPosition_ < numSprites_)
+				tileX_ += tileWidth_;
 		}
 		
 		if (animPosition_ != oldAnim)
 		{
 			Vertex vertexData[6];
-		
+			
 			//UV COORDS ARE SWAPPED!!!
 			//top left
 			vertexData[0].setPosition(x_, y_ + height_);
@@ -151,10 +155,12 @@ namespace T3E
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 		
-		if(animPosition_ >= numSprites_)
+		if(animPosition_ == numSprites_ - 1)//rendered last frame of loop
 		{
 			animPosition_ = 0;
-		} 
+			return true;
+		}
+		return false;
 		
 	}
 

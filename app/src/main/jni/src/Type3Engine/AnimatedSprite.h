@@ -22,10 +22,13 @@ namespace T3E
 		~AnimatedSprite();
 
 		//UV COORDS ARE SWAPPED!!! invert width with height and x with y for tiling, position in spritesheet etc
-		void init(float x, float y, float width, float height, std::string texturePath, float tileX, float tileY, float tileWidth, float tileHeight, int numSprites);
+		void init(float x, float y, float width, float height, std::string texturePath,
+			float tileX, float tileY, float tileWidth, float tileHeight, int numSprites, int framesPerLine);
 
 		void draw();
-		void Update(float deltaTime);
+		
+		//return true when reached end frame of animation
+		bool Update(float deltaTime);
 
 		void setSpeed(float s){animSpeed_ = s;};
 		
@@ -35,7 +38,8 @@ namespace T3E
 		float animSpeed_;
 		int numSprites_;
 		float animCount_;
-		float animEnd_;		
+		float animEnd_;
+		int framesPerLine_;
 	};
 
 }

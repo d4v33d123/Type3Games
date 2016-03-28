@@ -33,9 +33,9 @@ void MainGame::run()
 	initSystems();
 	
 	//bloodVessel TODO: put in bv class like cell
-	sprites_.push_back( new T3E::Sprite() );
-	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 0.0f, 0.0f, 1.0f, 1.0f);
-
+ 	sprites_.push_back( new T3E::Sprite() );
+	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bvSpawnPoint.png", 0.0f, 0.0f, 1.0f, 1.0f);
+ 
 	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
 	
@@ -608,6 +608,8 @@ void MainGame::renderGame()
 	//blood vessels
 	for(int i = 0; i < grid_.numBloodVessels(); ++i)
 	{
+		T3E::BloodVessel* current = (T3E::BloodVessel*)grid_.getBloodVessel(i)->getNode();
+		
 		//move to hex position
 		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getBloodVessel(i)->getX(), grid_.getBloodVessel(i)->getY(), 0.0f ) );
 		finalM_ = projectionM_ * viewM_ * worldM_;
@@ -622,7 +624,7 @@ void MainGame::renderGame()
         //use texture 1
 		glActiveTexture(GL_TEXTURE0+0);
 		glUniform1i(sampler0_location, 0);
-		sprites_[0]->draw();
+		current->getSprite()->draw();
 		
 		//reset matrices
 		worldM_ = glm::mat4();

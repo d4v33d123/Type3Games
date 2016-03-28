@@ -374,6 +374,13 @@ namespace T3E
 				++sp;
 		}	
 		
+		//update bvs
+		for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
+		{
+			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
+			bloodVessel->update(dTime);
+		}
+		
 		//update cells
 		for(std::vector<Hex*>::iterator hex = cells_.begin(); hex != cells_.end(); ++hex)
         {
@@ -761,16 +768,14 @@ namespace T3E
 								if(distance <= bloodVessel->getRange()*1.5)
 								{				
 									data.z = 3;//is empty and next to selected cell
-									data.w = nextdoor * 1;
-									data.w /= 1.5;
+									data.w = 0;
 								}
 						
 							}
 							else
 							{
 								data.z = 3;//is empty and next to selected cell
-								data.w = nextdoor * 1;
-								data.w /= 1.5;
+								data.w = 0;
 							}
 							
 						}
@@ -797,8 +802,7 @@ namespace T3E
 							((killable->getState() == CellState::ARRESTED) && (score_ - T3E::SCORE::KILLED_ARRESTED_CELL() > 0)) )
 						{
 							data.z = 3;//is killable
-							data.w = 1.0f;
-							data.w /= 1.5;
+							data.w = 0;
 						}
 						break;
 					}
@@ -831,14 +835,12 @@ namespace T3E
 					if(noSpawnPoints)
 					{
 						data.z = 3;
-						data.w = 1.0f;
-						data.w /= 1.5;
+						data.w = 0;
 					}
 					else if(lowest > bloodVessel->getRange())
 					{
 						data.z = 3;
-						data.w = 1.0f;
-						data.w /= 1.5;
+						data.w = 0;
 					}
 				}
 			}
