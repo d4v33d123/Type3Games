@@ -80,7 +80,7 @@ private:
 	T3E::Camera camera_;                // 2d camera
 	std::vector<T3E::Sprite*> sprites_; // sprite container TODO: remove this when bv sprite is in right place. maybe use for ui or smt
 	int score_;							// the player's score
-	
+	bool paused_;
 	
 	// [in] row to test
 	// [in] column to test
@@ -88,8 +88,8 @@ private:
 	bool selectCell(int row, int col);
 	
     //INPUT
-	T3E::Button bvButton_;
-	T3E::Button killButton_;
+	
+	T3E::Button bvButton_, killButton_, menuButton_, resumeButton_, quitButton_;
 	bool finger_dragged_;
 	//detect when finger is down for a certain amount of time
 	bool fingerPressed_;
@@ -111,7 +111,6 @@ private:
 	T3E::TextRenderer textRenderer_;
 	
 	//AUDIO
-
     T3E::AudioEngine audioEngine_;
 	T3E::SoundEffect bloodV_;
 	T3E::SoundEffect cellMove_;
@@ -126,7 +125,7 @@ private:
 	T3E::GLSLProgram hexProgram_;
 	GLint hex_finalM_location, range_location, lerp_weight_location;
  	GLuint hexBufferName;
-	//T3E::Vertex hexVertexes[12];
+
 	void drawGrid();
 };
 

@@ -35,26 +35,29 @@ namespace T3E
 		
 		Vertex vertexData[6];
 		
-		//UV COORDS ARE SWAPPED!!!
 		//top left
 		vertexData[0].setPosition(x_, y_ + height_);
-		vertexData[0].setUV(tileX_ + 0 , tileY_ + tileWidth_);		
+		vertexData[0].setUV(tileX_, tileY_);	
+		
 		//bottom left
 		vertexData[1].setPosition(x_, y_);
-		vertexData[1].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_);
+		vertexData[1].setUV(tileX_ + tileWidth_, tileY_);
+		
 		//bottom right
 		vertexData[2].setPosition(x_ + width_, y_);
-		vertexData[2].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_+ tileWidth_);
+		vertexData[2].setUV(tileX_ + tileWidth_, tileY_ + tileHeight_);
 		
 		//bottom right
 		vertexData[3].setPosition(x_ + width_, y_);
-		vertexData[3].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_+ tileWidth_);	
+		vertexData[3].setUV(tileX_ + tileWidth_, tileY_ + tileHeight_);	
+		
 		//top right
 		vertexData[4].setPosition(x_ + width_, y_ + height_);
-		vertexData[4].setUV(tileX_ + 0, tileY_ + tileWidth_+ tileWidth_);		
+		vertexData[4].setUV(tileX_, tileY_ + tileHeight_);
+		
 		//top left
 		vertexData[5].setPosition(x_, y_ + height_);
-		vertexData[5].setUV(tileX_ + 0, tileY_ + tileWidth_);
+		vertexData[5].setUV(tileX_, tileY_);
 				
 		//set vertex colours
 		for (int i = 0; i < 6; i++)
