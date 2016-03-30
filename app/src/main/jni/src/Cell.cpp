@@ -29,7 +29,8 @@ namespace T3E
 	dead_(false),
 	splitting_(false),
 	splitRotation_(0),
-	inCreation_(true)
+	inCreation_(true),
+	fullyArrested_(false)
     {
 	}
 
@@ -89,15 +90,24 @@ namespace T3E
 		deathAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/death.png", 0, 0, 1.0f/4, 1.0f/4, 16, 4);		
 		//0.94 wide ,1.89 high ----->0.75 wide 1.5 high? nah go by eye
 		splitAnimation_.init(-0.6, -0.5, 1.8f, 1.8f, "textures/split.png", 0, 0, 1.0f/6, 1.0f/6, 34, 6);
+		arrestAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/arrest.png", 0, 0, 1.0f/4, 1.0f/4, 8, 4);
 	}
 	
 	bool Cell::update(float dTime)
-	{
-		
-		if(state_ == CellState::ARRESTED) return false;
-		
-		//don't update if parent split animation is playing
-		if(inCreation_)
+	{		
+		if(state_ == CellState::ARRESTED)
+		{
+			if(!fullyArrested_)
+			{
+				fullyArrested_ = arrestAnimation_.Update(dTime);
+				if(fullyArrested_)//here because we want to draw the last frame and not repeat this every subsequent update
+				{
+					normalTint_ = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f); // grey
+					tint_ = normalTint_;
+				}		
+			}							
+		}		
+		else if(inCreation_)//don't update if parent split animation is playing
 		{
 			//sync a split animation with the parent. when it's done we can start drawing and updating normally
 			if(splitAnimation_.Update(dTime))
@@ -130,7 +140,6 @@ namespace T3E
 				newSplitTime();
 				return true;
 			}
-			return false;
 		}
 		
 		return false;
@@ -149,8 +158,6 @@ namespace T3E
 	void Cell::arrest()
 	{
 		state_ = CellState::ARRESTED;
-		normalTint_ = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f); // grey
-		tint_ = normalTint_;
 		deathChance_ = 0;
 		splitTimer_ = 0.0f;
 	}
@@ -267,13 +274,16 @@ namespace T3E
 	void Cell::draw()
 	{
 		//don't draw if parent split animation is playing
-		if(inCreation_) return;
-		
-		if(splitting_)
-			splitAnimation_.draw();
-		else if(dying_)
-			deathAnimation_.draw();
-		else
-			idleAnimation_.draw();
+		if(!inCreation_)
+		{
+			if(state_ == CellState::ARRESTED)
+				arrestAnimation_.draw();
+			else if(splitting_)
+				splitAnimation_.draw();
+			else if(dying_)
+				deathAnimation_.draw();
+			else
+				idleAnimation_.draw();	
+		}
 	}
 }

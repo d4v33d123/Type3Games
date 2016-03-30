@@ -521,6 +521,7 @@ namespace T3E
 		}
             
 		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		if(cell->isSplitting() || cell->isInCreation()) return false;//can't arrest while splitting or creating!
 		
 		//only arrest normal cells
 		if(cell->getState() == CellState::NORMAL && score_ + T3E::SCORE::ARRESTED_CELL() > 0 )

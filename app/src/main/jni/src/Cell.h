@@ -90,6 +90,7 @@ namespace T3E
 		//spritesheets
 		AnimatedSprite idleAnimation_;
 		AnimatedSprite splitAnimation_;
+		AnimatedSprite arrestAnimation_;
 		AnimatedSprite deathAnimation_;
 		
 		glm::vec4 tint_; // current colour
@@ -109,6 +110,7 @@ namespace T3E
 		bool dead_;//cell needs to be deleted
 		bool splitting_;//split animation playing
 		bool inCreation_;//true while parent split animation is running
+		bool fullyArrested_;//true = arrest animation finished playing
 	};
 }
 
