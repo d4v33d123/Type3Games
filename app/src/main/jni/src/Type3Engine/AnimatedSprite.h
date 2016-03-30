@@ -32,7 +32,12 @@ namespace T3E
 
 		void setSpeed(float s){animSpeed_ = s;};
 		
+		void refresh(){needRefresh_ = true;};
+		
 	private:
+		
+		void updateUVs();//refresh uv coordinates and rebind geometry
+		
 		int animPosition_;
 		float counter;
 		float animSpeed_;
@@ -40,6 +45,8 @@ namespace T3E
 		float animCount_;
 		float animEnd_;
 		int framesPerLine_;
+		float originalTileX_;
+		bool needRefresh_;//after finishing a loop, when restarting we need to reset uv coords in update()
 	};
 
 }

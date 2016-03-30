@@ -392,7 +392,7 @@ namespace T3E
 				if(current->isDead())
 					deadCells.push_back(deathInfo((*hex)->getRow(), (*hex)->getCol()));
 				else
-					current->die(dTime);//do this after isDead() check so we don't skip rendering the last frame
+					current->update(dTime);//do this after isDead() check so we don't skip rendering the last frame
 			}
 			//update cell, check if it's time to split
 			else if(current->update(dTime))
@@ -410,6 +410,8 @@ namespace T3E
 					{
 						if(neighbours[lucky]->getType() == NodeType::EMPTY)
 						{
+							current->split(lucky);//signal for split animation
+							
 							int random_val = rand() & 255;
 							
 							// create a new cell depending on current's type
@@ -580,11 +582,13 @@ namespace T3E
 		
 		Cell* selectedCell = (Cell*)(grid_[selRow * CHUNK_WIDTH + selCol].getNode());
 		
+		if(selectedCell->isSplitting() || selectedCell->isInCreation()) return false;//can't split while splitting or creating!
+		
 		//a stem cell must be in alternate mode to spawn
 		if(selectedCell->getState() == CellState::STEM)
 			if(!selectedCell->isInAlternateMode())
 				return false;
-
+		
 		// get the neighbours of the currently selected cell
 		T3E::Hex* neighbours[6];
 		getNeighbours( selRow, selCol, neighbours );
@@ -602,11 +606,14 @@ namespace T3E
 						// spawn new cell, pass the selected cells de as it's parent
 						if(newCell(touchRow, touchCol, selectedCell->getState(), selectedCell->getDeathChance(), nullptr))
 						{
+							selectedCell->split(i);
+							
 							//now we increase parent's death chance aswell if it was normal
 							if(selectedCell->getState() == CellState::NORMAL)
-								// TODO: why is incDeathChance even a method? shoud be set( get + inc ) --- because incdeathchance also checks the increase doesn't add up to over 99
+								// TODO: why is incDeathChance even a method? shoud be set( get + inc )
+								//because incdeathchance also checks the increase doesn't add up
+								//to over 99 (is it still relevant to current gameplay rules?)
 								selectedCell->incDeathChance( parentDeathChanceIncrease_ );
-
 							return true;
 						}									
 					}
@@ -627,6 +634,9 @@ namespace T3E
             return false;
 		
 		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+		
+		if(cell->isSplitting() || cell->isInCreation()) return false;
+		
 		//different costs for normal and mutated cells
 		if( cell->getState() == CellState::NORMAL && score_ - T3E::SCORE::KILLED_HEALTHY_CELL() > 0 )
 		{
@@ -656,11 +666,10 @@ namespace T3E
             return false;
 
 		Cell* selectedCell = (Cell*)(grid_[selRow * CHUNK_WIDTH + selCol].getNode());
+				
+		if(selectedCell->getState() != CellState::STEM) return false;//not a stem cell selected, return error
+		if(selectedCell->isSplitting() || selectedCell->isInCreation()) return false;//don't move while splitting or creating!
 		
-		//a not a stem cell selected, return error
-		if(selectedCell->getState() != CellState::STEM)
-			return false;
-			
 		// get the neighbours of the currently selected cell
 		T3E::Hex* neighbours[6];
 		getNeighbours( selRow, selCol, neighbours );
@@ -673,7 +682,7 @@ namespace T3E
 				{
 					Cell* cell = (Cell*)(grid_[touchRow * CHUNK_WIDTH + touchCol].getNode());
 					
-					//if it's empty, spawn a cell
+					//if it's empty, spawn a new stem cell there
 					if(isEmpty(touchRow, touchCol))
 					{
 						//check if is in the range of at least one blood vessel
@@ -682,8 +691,11 @@ namespace T3E
 							BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
 							if(inRange((*bvs)->getRow(), (*bvs)->getCol(), touchRow, touchCol, bloodVessel->getRange()*1.5f))
 							{
-								if(newCell(touchRow, touchCol, CellState::STEM, 0, nullptr))
+								T3E::Cell* stem;
+								if(newCell(touchRow, touchCol, CellState::STEM, 0, &stem))
 								{
+									stem->ignoreBirthDelay();//we're not splitting, so no split animation stuff
+									stem = nullptr;
 									//delete the old stem cell
 									setEmpty(selRow, selCol);
 									return true;
@@ -693,7 +705,7 @@ namespace T3E
 							}
 						}
 					}
-					else if(cell->getState() == CellState::NORMAL)
+					else if(cell->getState() == CellState::NORMAL && !cell->isSplitting() && !cell->isInCreation())
 					{
 						int dc = cell->getDeathChance();
 						glm::vec4 tint = cell->getTint();
@@ -703,20 +715,24 @@ namespace T3E
 							BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
 							if(inRange((*bvs)->getRow(), (*bvs)->getCol(), touchRow, touchCol, bloodVessel->getRange()*1.5f))
 							{
+								T3E::Cell* theNewCell;
+								
 								setEmpty(touchRow, touchCol);
-								if(newCell(touchRow, touchCol, CellState::STEM, 0, nullptr))
+								if(newCell(touchRow, touchCol, CellState::STEM, 0, &theNewCell))
 								{
+									theNewCell->ignoreBirthDelay();//stem
 									//move the normal cell to the stem cell's new pos
-									newCell( selRow, selCol, CellState::NORMAL, dc, nullptr);
-									Cell* nCell = (Cell*)(grid_[selRow * CHUNK_WIDTH + selCol].getNode());
-									nCell->setTint(tint);
-									
+									newCell( selRow, selCol, CellState::NORMAL, dc, &theNewCell);
+									theNewCell->ignoreBirthDelay();
+									theNewCell->setTint(tint);
+									theNewCell = nullptr;
 									return true;
 								}				
 								// couldn't move the stem cell so put the normal cell back 
-								newCell( touchRow, touchCol, CellState::NORMAL, dc, nullptr);
-								Cell* nCell = (Cell*)(grid_[touchRow * CHUNK_WIDTH + touchCol].getNode());
-								nCell->setTint(tint);
+								newCell( touchRow, touchCol, CellState::NORMAL, dc, &theNewCell);
+								theNewCell->ignoreBirthDelay();
+								theNewCell->setTint(tint);
+								theNewCell = nullptr;
 								//couldn't create cell
 								return false;
 							}
@@ -782,29 +798,40 @@ namespace T3E
 					if(cellSelected)
 					{
 						Cell* sel = (Cell*)(grid_[selectedPos.x * CHUNK_WIDTH + selectedPos.y].getNode());
-						Hex* empty;
-						getHex(row, col, &empty);
-						
-						int nextdoor = getDistance(selectedPos.x, selectedPos.y, row, col);
-						if(nextdoor <= 1)
-						{				
-							if(sel->getState() == CellState::STEM)
-							{
-								if(sel->isInAlternateMode() && (empty->getType() == NodeType::EMPTY))
+						if(!(sel->isSplitting() || sel->isInCreation()))//can't split in those cases
+						{
+							Hex* empty;
+							getHex(row, col, &empty);
+							
+							int nextdoor = getDistance(selectedPos.x, selectedPos.y, row, col);
+							if(nextdoor <= 1)
+							{				
+								if(sel->getState() == CellState::STEM)
 								{
-									if(distance <= bloodVessel->getRange()*1.5)
-									{				
-										data.z = 3;//is empty and next to selected cell
-										data.w = 0;
-									}
-								}
-								else if((!sel->isInAlternateMode()) && ((empty->getType() == NodeType::EMPTY) || (empty->getType() == NodeType::CELL)) )
-								{
-									if(empty->getType() == NodeType::CELL)
+									if(sel->isInAlternateMode() && (empty->getType() == NodeType::EMPTY))
 									{
-										Cell* notEmpty;
-										notEmpty = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
-										if(notEmpty->getState() == CellState::NORMAL)
+										if(distance <= bloodVessel->getRange()*1.5)
+										{				
+											data.z = 3;//is empty and next to selected cell
+											data.w = 0;
+										}
+									}
+									else if((!sel->isInAlternateMode()) && ((empty->getType() == NodeType::EMPTY) || (empty->getType() == NodeType::CELL)) )
+									{
+										if(empty->getType() == NodeType::CELL)
+										{
+											Cell* notEmpty;
+											notEmpty = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
+											if(notEmpty->getState() == CellState::NORMAL)
+											{
+												if(distance <= bloodVessel->getRange()*1.5)
+												{				
+													data.z = 3;//is empty and next to selected cell
+													data.w = 0;
+												}
+											}
+										}
+										else if(empty->getType() == NodeType::EMPTY)
 										{
 											if(distance <= bloodVessel->getRange()*1.5)
 											{				
@@ -813,26 +840,17 @@ namespace T3E
 											}
 										}
 									}
-									else if(empty->getType() == NodeType::EMPTY)
-									{
-										if(distance <= bloodVessel->getRange()*1.5)
-										{				
-											data.z = 3;//is empty and next to selected cell
-											data.w = 0;
-										}
-									}
+									
+							
+								}
+								else if(empty->getType() == NodeType::EMPTY)
+								{
+									data.z = 3;//is empty and next to selected cell
+									data.w = 0;
 								}
 								
-						
-							}
-							else if(empty->getType() == NodeType::EMPTY)
-							{
-								data.z = 3;//is empty and next to selected cell
-								data.w = 0;
-							}
-							
+							}							
 						}
-					
 					}
 					break;
 				}
@@ -858,18 +876,18 @@ namespace T3E
 					{
 						// create a cell with the correct position
 						Cell* killable = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
-
-						// if it is a normal, arrested or a mutated cell highlight it
-						if( ((killable->getState() == CellState::NORMAL) && (score_ - T3E::SCORE::KILLED_HEALTHY_CELL() > 0)) ||
-							((killable->getState() == CellState::MUTATED) && (score_ - T3E::SCORE::KILLED_MUTATED_CELL() > 0)) ||
-							((killable->getState() == CellState::ARRESTED) && (score_ - T3E::SCORE::KILLED_ARRESTED_CELL() > 0)) )
-						{
-							data.z = 3;//is killable
-							data.w = 0;
-						}
-						break;
+						
+						if(!(killable->isSplitting() || killable->isInCreation()))//can't kill in those cases
+							// if it is a normal, arrested or a mutated cell highlight it
+							if( ((killable->getState() == CellState::NORMAL) && (score_ - T3E::SCORE::KILLED_HEALTHY_CELL() > 0)) ||
+								((killable->getState() == CellState::MUTATED) && (score_ - T3E::SCORE::KILLED_MUTATED_CELL() > 0)) ||
+								((killable->getState() == CellState::ARRESTED) && (score_ - T3E::SCORE::KILLED_ARRESTED_CELL() > 0)) )
+							{
+								data.z = 3;//is killable
+								data.w = 0;
+							}		
 					}
-					
+					break;
 				}
 				default:
 					// not a valid mode, cry

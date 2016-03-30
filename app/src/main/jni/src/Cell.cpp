@@ -26,7 +26,10 @@ namespace T3E
 	selected_(false),
 	alternateMode_(false),
 	dying_(false),
-	dead_(false)
+	dead_(false),
+	splitting_(false),
+	splitRotation_(0),
+	inCreation_(true)
     {
 	}
 
@@ -39,33 +42,33 @@ namespace T3E
 		switch(state)
 		{
 		case CellState::STEM:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18, 18);
+			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18, 18);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
 			alternateTint_ = glm::vec4(0.2, 0.8f, 0.2f, 1.0f);// green
 			deathChance_ = 0;
-			spriteSheet_.setSpeed(0.08);
+			idleAnimation_.setSpeed(0.08);
 			break;
 		case CellState::NORMAL:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18, 18);
+			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18, 18);
 			state_ = state;
 			setNormalTint(CellState::NORMAL);
 			deathChance_ = deathChance;
-			spriteSheet_.setSpeed(0.15);
+			idleAnimation_.setSpeed(0.15);
 			break;	
 		case CellState::MUTATED:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18, 18);
+			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18, 18);
 			state_ = state;
 			setNormalTint(CellState::MUTATED);
 			deathChance_ = deathChance;
-			spriteSheet_.setSpeed(0.25);
+			idleAnimation_.setSpeed(0.25);
 			break;
 		case CellState::CANCEROUS:
-			spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 2.0f/18, 0, 1.0f/18, 1.0f/18, 18, 18);
+			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 2.0f/18, 0, 1.0f/18, 1.0f/18, 18, 18);
 			state_ = state;
 			setNormalTint(CellState::CANCEROUS);
 			deathChance_ = deathChance;
-			spriteSheet_.setSpeed(0.4);
+			idleAnimation_.setSpeed(0.4);
 			break;
 		default:
 			SDL_Log("This log goes to the memory of that one f***ing bug, may he be remembered and never repeated");
@@ -81,14 +84,44 @@ namespace T3E
 		tint_ = normalTint_;
 		brightTint_ = normalTint_*2.0f;
 		brightAlternateTint_ = alternateTint_ * 2.0f;
+		
+		//TODO: differentiate these
+		deathAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/death.png", 0, 0, 1.0f/4, 1.0f/4, 16, 4);		
+		//0.94 wide ,1.89 high ----->0.75 wide 1.5 high? nah go by eye
+		splitAnimation_.init(-0.6, -0.5, 1.8f, 1.8f, "textures/split.png", 0, 0, 1.0f/6, 1.0f/6, 34, 6);
 	}
 	
 	bool Cell::update(float dTime)
 	{
-		if(state_ != CellState::ARRESTED)
-		{
-			spriteSheet_.Update(dTime);
 		
+		if(state_ == CellState::ARRESTED) return false;
+		
+		//don't update if parent split animation is playing
+		if(inCreation_)
+		{
+			//sync a split animation with the parent. when it's done we can start drawing and updating normally
+			if(splitAnimation_.Update(dTime))
+			{
+				inCreation_ = false;
+			}
+		}			
+		else if(dying_)
+		{
+			dead_ = deathAnimation_.Update(dTime);
+		}
+		else if(splitting_)
+		{
+			if(splitAnimation_.Update(dTime))
+			{
+				idleAnimation_.refresh();
+				idleAnimation_.Update(0);//needRefresh_ will be set so dTime is irrelevant
+				splitting_ = false;
+			}			
+		}
+		else
+		{
+			idleAnimation_.Update(dTime);
+	
 			if((splitTimer_ += dTime) >= splitTime_)
 			{
 				//reset split timer
@@ -99,6 +132,7 @@ namespace T3E
 			}
 			return false;
 		}
+		
 		return false;
 	}
 	
@@ -194,16 +228,52 @@ namespace T3E
 			break;
 		}
 	}
-
-	void Cell::kill()
+	
+	void Cell::split(int neighbour)
 	{
-		dying_ = true;
-		spriteSheet_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/death.png", 0, 0, 1.0f/4, 1.0f/4, 16, 4);
+		splitting_ = true;
+		
+		splitAnimation_.refresh();
+		//needRefresh_ will be set so dTime is irrelevant
+		splitAnimation_.Update(0);
+		
+		//relies on ordering of Grid::getNeighbours()
+		switch(neighbour)
+		{
+		case 0://left
+			splitRotation_ = 120;
+			break;
+		case 1://top left
+			splitRotation_ = 60;
+			break;
+		case 2://bottom left
+			splitRotation_ = 180;
+			break;
+		case 3://top right
+			splitRotation_ = 0;
+			break;
+		case 4://bottom right
+			splitRotation_ = 240;
+			break;
+		case 5://right
+			splitRotation_ = 300;
+			break;
+		default:
+			SDL_Log("Cell::split() reached default case");
+			break;			
+		}
 	}
 	
-	void Cell::die(float dTime)
+	void Cell::draw()
 	{
-		if(spriteSheet_.Update(dTime))
-			dead_ = true;
+		//don't draw if parent split animation is playing
+		if(inCreation_) return;
+		
+		if(splitting_)
+			splitAnimation_.draw();
+		else if(dying_)
+			deathAnimation_.draw();
+		else
+			idleAnimation_.draw();
 	}
 }

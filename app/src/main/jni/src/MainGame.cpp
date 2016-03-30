@@ -210,9 +210,12 @@ void MainGame::initSystems()
 	}
 
     // Set the first cell
-    grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
-
-    // Set a test blood vessel
+	T3E::Cell* firstStem;
+    grid_.newCell( 21, 23, T3E::CellState::STEM, 0, &firstStem );
+	firstStem->ignoreBirthDelay();
+    firstStem = nullptr;
+	
+	// Set a test blood vessel
     grid_.newBloodVessel( 24, 24, nullptr );
 	
 	//init the hex vertex buffer
@@ -820,6 +823,8 @@ void MainGame::renderGame()
 		
 		// move to hex position
 		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
+		if(current->isSplitting())
+			worldM_ = glm::rotate(worldM_, glm::radians(current->getSplitRotation()), glm::vec3(0.0f, 0.0f, 1.0f));
 		finalM_ = projectionM_ * viewM_ * worldM_;
 		
 		// send matrix to shaders
@@ -834,12 +839,11 @@ void MainGame::renderGame()
 		
 		glUniform1i(sampler0_location, 1);
 				
-		current->getSprite()->draw();
+		current->draw();
 		
 		// reset matrices
 		worldM_ = glm::mat4();
-		finalM_ = projectionM_*viewM_*worldM_;
-		
+		finalM_ = projectionM_*viewM_*worldM_;	
 	}
 	
 	//RENDER UI	
