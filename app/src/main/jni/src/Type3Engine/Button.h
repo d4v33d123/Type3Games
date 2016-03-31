@@ -31,9 +31,6 @@ namespace T3E
 		
 		//getters
 		bool isPressed(){return isPressed_;};
-		//yeh i be rturnin a pointah, whutchagunnadoo 'bout it, huh? yeeeeh
-		Sprite* getUnpressedSprite(){return &unpressedSprite_;};
-		Sprite* getPressedSprite(){return &pressedSprite_;};
 		
 	private:
 		Sprite unpressedSprite_, pressedSprite_;

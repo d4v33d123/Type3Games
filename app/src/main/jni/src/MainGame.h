@@ -31,7 +31,7 @@
 #include "BloodVessel.h"
 #include "Grid.h"
 
-
+#include "command.h"
 
 #include "Type3Engine/Vertex.h"//draw grid
 
@@ -44,7 +44,7 @@ public:
 	MainGame();
 	~MainGame();
 
-	void run();
+	command run(T3E::window* window, T3E::AudioEngine* audioEngine);
 
 private:
 	//camera sensitivity
@@ -57,19 +57,16 @@ private:
 	//control functions
 	void initSystems();
 	void initShaders();
-	void gameLoop();
+	command gameLoop();
 	void processInput(float dTime);
 	void renderGame();
 	void calculateFPS();
 	
 	//control vars
-	int screenWidth_;
-	int screenHeight_;
-	float time_;
 	float fps_;
 	float frameTime_;
 	float maxFPS_;
-	T3E::window window_;
+	T3E::window* window_;
 	GameState gameState_;
 	InteractionMode interactionMode_;
 	
@@ -111,7 +108,7 @@ private:
 	T3E::TextRenderer textRenderer_;
 	
 	//AUDIO
-    T3E::AudioEngine audioEngine_;
+    T3E::AudioEngine* audioEngine_;
 	T3E::SoundEffect bloodV_;
 	T3E::SoundEffect cellMove_;
 

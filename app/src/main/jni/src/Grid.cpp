@@ -14,17 +14,9 @@ namespace T3E
 
     Grid::~Grid()
     {
-		//free memory
-		for (std::vector<Hex*>::iterator it = cells_.begin() ; it != cells_.end(); ++it)
-		{
-			delete (*it);
-		} 
-		cells_.clear();
-		for (std::vector<Hex*>::iterator it = bloodVessels_.begin() ; it != bloodVessels_.end(); ++it)
-		{
-			delete (*it);
-		} 
-		bloodVessels_.clear();
+		for(int row = 0; row < CHUNK_WIDTH; ++row)
+			for(int col = 0; col < CHUNK_WIDTH; ++col)
+				setEmpty(row,col);
     }
 
     bool Grid::getNode( int row, int col, Node** node )

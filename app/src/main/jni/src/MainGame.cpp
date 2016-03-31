@@ -2,10 +2,7 @@
 #include "Type3Engine/ConfigFile.h"
 #include "GlobalScoreValues.h"
 
-MainGame::MainGame() : 
-	screenHeight_(800),
-	screenWidth_(600),
-	time_(0.0f), 
+MainGame::MainGame():
 	score_(0),
 	gameState_(GameState::PLAY),
 	maxFPS_(60.0f),
@@ -29,45 +26,40 @@ MainGame::~MainGame()
 	sprites_.clear();
 }
 
-void MainGame::run()
+command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine)
 {
+	window_ = window;
+	audioEngine_ = audioEngine;
+	
 	initSystems();
 	
-	//bloodVessel TODO: put in bv class like cell
  	sprites_.push_back( new T3E::Sprite() );
 	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bvSpawnPoint.png", 0.0f, 0.0f, 1.0f, 1.0f);
  
-	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
+	T3E::Music music = audioEngine_->loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
 	
-	bloodV_ = audioEngine_.loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
-	cellMove_ = audioEngine_.loadSoundEffect("sound/Player_CellDivide_Move.ogg");
+	bloodV_ = audioEngine_->loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
+	cellMove_ = audioEngine_->loadSoundEffect("sound/Player_CellDivide_Move.ogg");
 	
-	gameLoop();
+	return gameLoop();
 }
 
 void MainGame::initSystems()
 {
-	T3E::init();
-	
-	audioEngine_.init();
-	
-	//TODO: change name of window to game name!
-	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
-
 	// enable aplha blending	
 	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
 	//glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	// init projection matrix
-	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
-	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	// calculate aspect ratio
+	window_->updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
+	float ratio = float( window_->getScreenWidth() )/float( window_->getScreenHeight() );	// calculate aspect ratio
 	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
 	// init ortho matrix
 	// inverting top with bottom to avoid sprites being drawn upside down
 	// note that this will put origin at bottom left, while screen coords have origin at top left
-	orthoM_ = glm::ortho(0.0f, float( window_.getScreenWidth() ), 0.0f, float( window_.getScreenHeight() ));
+	orthoM_ = glm::ortho(0.0f, float( window_->getScreenWidth() ), 0.0f, float( window_->getScreenHeight() ));
 	
 	// Grab parameters from the config file
 	T3E::ConfigFile configFile("config/config.txt");
@@ -245,41 +237,41 @@ void MainGame::initSystems()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	
 
 	//Create buttons
-	menuButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(8.9f/10.0f),
-		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+	menuButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(8.9f/10.0f),
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
 		1/4.0f,1/4.0f,
 		1/4.0f, 3/4.0f,
 		2/4.0f, 3/4.0f);
 	
- 	bvButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(7.8f/10.0f),
-		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+ 	bvButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(7.8f/10.0f),
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
 		1/4.0f,1/4.0f,
 		0, 0,
 		0, 1.0f/4);
 		
- 	killButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(6.7f/10.0f),
-		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+ 	killButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(6.7f/10.0f),
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
 		1/4.0f,1/4.0f,
 		0, 2.0f/4,
 		0, 3.0f/4);
 	
-	resumeButton_.init(float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())*(4.0f/7.0f),
-		float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())/7.0f, "textures/ui.png",
+	resumeButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(4.0f/7.0f),
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ui.png",
 		1/4.0f,3/4.0f,
 		2/4.0f, 0,
 		1/4.0f, 0);
 		
- 	quitButton_.init(float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())*(2.0f/7.0f),
-		float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())/7.0f, "textures/ui.png",
+ 	quitButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(2.0f/7.0f),
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ui.png",
 		1/4.0f,3/4.0f,
 		3/4.0f, 0,
 		1/4.0f, 0);
 	
 	//background sprite
-	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
+	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
 
 	textRenderer_.init();
-	textRenderer_.setScreenSize( window_.getScreenWidth(), window_.getScreenHeight() );
+	textRenderer_.setScreenSize( window_->getScreenWidth(), window_->getScreenHeight() );
 
 	// Set the inital score
 	int initial_score_;
@@ -321,7 +313,7 @@ void MainGame::initShaders()
 	hex_finalM_location = hexProgram_.getUniformLocation("finalM");
 }
 
-void MainGame::gameLoop()
+command MainGame::gameLoop()
 {
 	//enable back face culling
 	glEnable(GL_CULL_FACE); // GL_BACK is default value
@@ -337,7 +329,6 @@ void MainGame::gameLoop()
 	{
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();		
-		time_ += 0.1f;
 		calculateFPS();
 
 		if(!paused_)
@@ -392,6 +383,8 @@ void MainGame::gameLoop()
 		old_ticks = ticks;
 		ticks = SDL_GetTicks();
 	}
+	
+	return command::MENU;
 }
 
 void MainGame::processInput(float dTime)
@@ -444,7 +437,7 @@ void MainGame::processInput(float dTime)
 				//Check for button presses
 				//get touch pos in screen coordinates for UI interaction
 				//invert y to match our ortho projection (origin at bottom left for ease of life)
-				screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+				screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
 				if(resumeButton_.touchCollides(screenCoords))
 				{
 					resumeButton_.press();
@@ -469,7 +462,7 @@ void MainGame::processInput(float dTime)
 					//Check for button presses
 					//get touch pos in screen coordinates for UI interaction
 					//invert y to match our ortho projection (origin at bottom left for ease of life)
-					screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+					screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
 					if(resumeButton_.touchCollides(screenCoords) || menuButton_.touchCollides(screenCoords))
 					{
 						menuButton_.unpress();
@@ -553,7 +546,7 @@ void MainGame::processInput(float dTime)
 					//Check for button presses
 					//get touch pos in screen coordinates for UI interaction
 					//invert y to match our ortho projection (origin at bottom left for ease of life)
-					glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+					glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
 					if(bvButton_.touchCollides(screenCoords))
 					{
 						//toggle blood vessel creation mode
@@ -877,7 +870,7 @@ void MainGame::renderGame()
 	textRenderer_.render();
 
 	// swap our buffers 
-	window_.swapBuffer();
+	window_->swapBuffer();
 }
 
 glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
@@ -1030,8 +1023,6 @@ void MainGame::drawGrid()
 	glUniform1f(range_location, 2.0f );
 	//set whether or not to highlight the grid
 	glUniform1i(avaliable_for_highlight, 0);
-
-	//glEnable( GL_BLEND );
 
 	for(int r = 0; r < grid_.getSize(); ++r)
 	{
