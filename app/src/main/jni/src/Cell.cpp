@@ -72,8 +72,7 @@ namespace T3E
 			idleAnimation_.setSpeed(0.4);
 			break;
 		default:
-			SDL_Log("This log goes to the memory of that one f***ing bug, may he be remembered and never repeated");
-			//mandatory treasure map with hint to solve this mysterious inscription - commit c263ddb77291b6dd94a99604cad51f4bc22b79cb
+			SDL_Log(" MISTAKES!!! Did you spawn a cell from an arrested one? no sprite is initialised so it will crash on the next glDrawArrays() call");
 			break;
 		}
 		
@@ -94,8 +93,12 @@ namespace T3E
 	}
 	
 	bool Cell::update(float dTime)
-	{		
-		if(state_ == CellState::ARRESTED)
+	{
+		if(dying_)
+		{
+			dead_ = deathAnimation_.Update(dTime);
+		}
+		else if(state_ == CellState::ARRESTED)
 		{
 			if(!fullyArrested_)
 			{
@@ -115,10 +118,6 @@ namespace T3E
 				inCreation_ = false;
 			}
 		}			
-		else if(dying_)
-		{
-			dead_ = deathAnimation_.Update(dTime);
-		}
 		else if(splitting_)
 		{
 			if(splitAnimation_.Update(dTime))
@@ -236,6 +235,13 @@ namespace T3E
 		}
 	}
 	
+	void Cell::hardcodeNormalTint(glm::vec4 normalTint)
+	{
+		normalTint_ = normalTint;
+		tint_ = normalTint_;
+		brightTint_ = normalTint_*2.0f;
+	}
+	
 	void Cell::split(int neighbour)
 	{
 		splitting_ = true;
@@ -276,12 +282,12 @@ namespace T3E
 		//don't draw if parent split animation is playing
 		if(!inCreation_)
 		{
-			if(state_ == CellState::ARRESTED)
+			if(dying_)
+				deathAnimation_.draw();
+			else if(state_ == CellState::ARRESTED)
 				arrestAnimation_.draw();
 			else if(splitting_)
-				splitAnimation_.draw();
-			else if(dying_)
-				deathAnimation_.draw();
+				splitAnimation_.draw();			
 			else
 				idleAnimation_.draw();	
 		}

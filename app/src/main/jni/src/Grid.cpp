@@ -365,7 +365,7 @@ namespace T3E
 		//try to create blood vessels at spawn points
 		for(std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end();)
 		{
-			if(growBloodVesselAt(sp->x, sp->y))
+			if(growBloodVesselAt(sp->x, sp->y, &selectedCellDied))
 			{
 				sp = bvSpawnPoints_.erase(sp);
 				playVessel_ = true;
@@ -406,70 +406,81 @@ namespace T3E
 					getNeighbours((*hex)->getRow(), (*hex)->getCol(), neighbours);
 					//pick a lucky neighbor and check if it's empty
 					int lucky = rand()%6;
+					
 					if(neighbours[lucky] != nullptr)
 					{
 						if(neighbours[lucky]->getType() == NodeType::EMPTY)
 						{
-							current->split(lucky);//signal for split animation
-							
-							int random_val = rand() & 255;
-							
-							// create a new cell depending on current's type
-							switch(current->getState())
+							bool reallyEmpty = true;
+							//check if we already selected this hex for a new cell in this update loop
+							for(std::vector<birthInfo>::iterator c = newCells.begin(); c != newCells.end(); ++c)
 							{
-							case CellState::STEM:
-								newCells.push_back( birthInfo(
-									neighbours[lucky]->getRow(),
-									neighbours[lucky]->getCol(),
-									CellState::STEM,
-									current->getDeathChance() ));
+								if(neighbours[lucky]->getRow() == c->row && neighbours[lucky]->getCol() == c->col)
+									reallyEmpty = false;
+							}
+							if(reallyEmpty)
+							{
+								current->split(lucky);//signal for split animation
+								
+								int random_val = rand() & 255;
+								
+								// create a new cell depending on current's type
+								switch(current->getState())
+								{
+								case CellState::STEM:
+									newCells.push_back( birthInfo(
+										neighbours[lucky]->getRow(),
+										neighbours[lucky]->getCol(),
+										CellState::STEM,
+										current->getDeathChance() ));
 
-								break;								
-							case CellState::NORMAL:
-								if( random_val < (chanceOfMutation_ / 100.0f) * 255 )
-								{
-									newCells.push_back( birthInfo(
-										neighbours[lucky]->getRow(),
-										neighbours[lucky]->getCol(),
-										CellState::MUTATED,
-										current->getDeathChance() ));
-								}
-								else
-								{
-									newCells.push_back( birthInfo(
-										neighbours[lucky]->getRow(),
-										neighbours[lucky]->getCol(),
-										CellState::NORMAL,
-										current->getDeathChance() ));
-								}
-								break;								
-							case CellState::MUTATED:
-								if( random_val < (chanceOfCancer_ / 100.0f) * 255 )
-								{
+									break;								
+								case CellState::NORMAL:
+									if( random_val < (chanceOfMutation_ / 100.0f) * 255 )
+									{
+										newCells.push_back( birthInfo(
+											neighbours[lucky]->getRow(),
+											neighbours[lucky]->getCol(),
+											CellState::MUTATED,
+											current->getDeathChance() ));
+									}
+									else
+									{
+										newCells.push_back( birthInfo(
+											neighbours[lucky]->getRow(),
+											neighbours[lucky]->getCol(),
+											CellState::NORMAL,
+											current->getDeathChance() ));
+									}
+									break;								
+								case CellState::MUTATED:
+									if( random_val < (chanceOfCancer_ / 100.0f) * 255 )
+									{
+										newCells.push_back( birthInfo(
+											neighbours[lucky]->getRow(),
+											neighbours[lucky]->getCol(),
+											CellState::CANCEROUS,
+											current->getDeathChance() ));
+									}
+									else
+									{
+										newCells.push_back( birthInfo(
+											neighbours[lucky]->getRow(),
+											neighbours[lucky]->getCol(),
+											CellState::MUTATED,
+											current->getDeathChance() ));
+									}
+									break;								
+								case CellState::CANCEROUS: // Cancerous cells always spawn more cancerous cells
 									newCells.push_back( birthInfo(
 										neighbours[lucky]->getRow(),
 										neighbours[lucky]->getCol(),
 										CellState::CANCEROUS,
 										current->getDeathChance() ));
+									break;								
+								default:
+									break;
 								}
-								else
-								{
-									newCells.push_back( birthInfo(
-										neighbours[lucky]->getRow(),
-										neighbours[lucky]->getCol(),
-										CellState::MUTATED,
-										current->getDeathChance() ));
-								}
-								break;								
-							case CellState::CANCEROUS: // Cancerous cells always spawn more cancerous cells
-								newCells.push_back( birthInfo(
-									neighbours[lucky]->getRow(),
-									neighbours[lucky]->getCol(),
-									CellState::CANCEROUS,
-									current->getDeathChance() ));
-								break;								
-							default:
-								break;
 							}
 						}
 					}	
@@ -512,7 +523,7 @@ namespace T3E
 		return selectedCellDied;
 	}
 	
-	bool Grid::arrestCell(int row, int col)
+	bool Grid::arrestCell(int row, int col, bool* cellSelected)
 	{
 		// If the hex does not lie on the board or is not a cell, return error
         if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
@@ -521,11 +532,16 @@ namespace T3E
 		}
             
 		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
-		if(cell->isSplitting() || cell->isInCreation()) return false;//can't arrest while splitting or creating!
+		if(cell->isSplitting() || cell->isInCreation() || cell->isDying()) return false;//can't arrest in those cases!
 		
 		//only arrest normal cells
-		if(cell->getState() == CellState::NORMAL && score_ + T3E::SCORE::ARRESTED_CELL() > 0 )
+		if(cell->getState() == CellState::NORMAL && score_ + T3E::SCORE::ARRESTED_CELL() >= 0 )
 		{
+			if(cell->isSelected())
+			{
+				*cellSelected = false;
+				cell->unselect();
+			}				
 			cell->arrest();
 			score_ += T3E::SCORE::ARRESTED_CELL();
 			return true;
@@ -590,6 +606,15 @@ namespace T3E
 			if(!selectedCell->isInAlternateMode())
 				return false;
 		
+		//don't spawn if arrested
+		//this could happen if you:
+		//	-select a cell and then hold down to arrest it
+		//	-without lifting your finger, slightly move it of a small amount that doesn't trigger fingerDragged but moves coordinates to nearby hex
+		//	-now lift the finger and you're trying to spawn from an arrested cell
+		// *** FIXED *** added call to Cell::unselect in Grid::arrestCell() and added notification to MainGame so not necessary anymore
+		// leaving this here since it's a tricky bug and could happen with future changes
+		if(selectedCell->getState() == CellState::ARRESTED) return false;
+		
 		// get the neighbours of the currently selected cell
 		T3E::Hex* neighbours[6];
 		getNeighbours( selRow, selCol, neighbours );
@@ -604,7 +629,7 @@ namespace T3E
 				{
 					if(isEmpty(touchRow, touchCol))
 					{
-						// spawn new cell, pass the selected cells de as it's parent
+						// spawn new cell, pass the selected cells dc as it's parent's
 						if(newCell(touchRow, touchCol, selectedCell->getState(), selectedCell->getDeathChance(), nullptr))
 						{
 							selectedCell->split(i);
@@ -636,20 +661,20 @@ namespace T3E
 		
 		Cell* cell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
 		
-		if(cell->isSplitting() || cell->isInCreation()) return false;
+		if(cell->isSplitting() || cell->isInCreation() || cell->isDying()) return false;
 		
 		//different costs for normal and mutated cells
-		if( cell->getState() == CellState::NORMAL && score_ - T3E::SCORE::KILLED_HEALTHY_CELL() > 0 )
+		if( cell->getState() == CellState::NORMAL && score_ - T3E::SCORE::KILLED_HEALTHY_CELL() >= 0 )
 		{
 			cell->kill();
 			return true;
 		}
-		else if( cell->getState() == CellState::MUTATED && score_ - T3E::SCORE::KILLED_MUTATED_CELL() > 0 )
+		else if( cell->getState() == CellState::MUTATED && score_ - T3E::SCORE::KILLED_MUTATED_CELL() >= 0 )
 		{
 			cell->kill();
 			return true;
 		}
-		else if( cell->getState() == CellState::ARRESTED && score_ - T3E::SCORE::KILLED_ARRESTED_CELL() > 0 )
+		else if( cell->getState() == CellState::ARRESTED && score_ - T3E::SCORE::KILLED_ARRESTED_CELL() >= 0 )
 		{
 			cell->kill();
 			return true;
@@ -725,14 +750,14 @@ namespace T3E
 									//move the normal cell to the stem cell's new pos
 									newCell( selRow, selCol, CellState::NORMAL, dc, &theNewCell);
 									theNewCell->ignoreBirthDelay();
-									theNewCell->setTint(tint);
+									theNewCell->hardcodeNormalTint(tint);
 									theNewCell = nullptr;
 									return true;
 								}				
 								// couldn't move the stem cell so put the normal cell back 
 								newCell( touchRow, touchCol, CellState::NORMAL, dc, &theNewCell);
 								theNewCell->ignoreBirthDelay();
-								theNewCell->setTint(tint);
+								theNewCell->hardcodeNormalTint(tint);
 								theNewCell = nullptr;
 								//couldn't create cell
 								return false;
@@ -857,7 +882,7 @@ namespace T3E
 				}
 				case InteractionMode::BVCREATION:
 				{
-					 if(distance >= bloodVessel->getRange()*1.2 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() > 0 )
+					 if(distance >= bloodVessel->getRange()*1.2 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 )
 					{
 						if(!(data.z < 1))
 						{
@@ -878,11 +903,11 @@ namespace T3E
 						// create a cell with the correct position
 						Cell* killable = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
 						
-						if(!(killable->isSplitting() || killable->isInCreation()))//can't kill in those cases
+						if(!(killable->isSplitting() || killable->isInCreation() || killable->isDying()))//can't kill in those cases
 							// if it is a normal, arrested or a mutated cell highlight it
-							if( ((killable->getState() == CellState::NORMAL) && (score_ - T3E::SCORE::KILLED_HEALTHY_CELL() > 0)) ||
-								((killable->getState() == CellState::MUTATED) && (score_ - T3E::SCORE::KILLED_MUTATED_CELL() > 0)) ||
-								((killable->getState() == CellState::ARRESTED) && (score_ - T3E::SCORE::KILLED_ARRESTED_CELL() > 0)) )
+							if( ((killable->getState() == CellState::NORMAL) && (score_ - T3E::SCORE::KILLED_HEALTHY_CELL() >= 0)) ||
+								((killable->getState() == CellState::MUTATED) && (score_ - T3E::SCORE::KILLED_MUTATED_CELL() >= 0)) ||
+								((killable->getState() == CellState::ARRESTED) && (score_ - T3E::SCORE::KILLED_ARRESTED_CELL() >= 0)) )
 							{
 								data.z = 3;//is killable
 								data.w = 0;
@@ -951,10 +976,10 @@ namespace T3E
 		return false;		
 	}
 	
-	bool Grid::growBloodVesselAt( int row, int col)
+	bool Grid::growBloodVesselAt( int row, int col, bool* selectedCellDied)
 	{
+		bool selectedCellInvolved = false;
 		T3E::Hex* neighbours[6];
-		int adjacentCells = 0;
 
 		// If the hex does not lie on the board or is not a cell, return error
         if( (!hexExists(row, col)) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
@@ -977,28 +1002,30 @@ namespace T3E
 					if(neighbours[i]->getType() == T3E::NodeType::CELL)
 					{
 						selectedCell = (Cell*)(grid_[neighbours[i]->getRow() * CHUNK_WIDTH + neighbours[i]->getCol()].getNode());
-						if(selectedCell->isSplitting() || selectedCell->isInCreation()) return false;//don't create while animating
-						adjacentCells++;
+						if(selectedCell->isSplitting() || selectedCell->isInCreation() || selectedCell->isDying()) return false;//don't create while animating
+						if(selectedCell->isSelected())//must notify or grid highlight will remain
+							selectedCellInvolved = true;
 					}
-						
 					else
-					{
-						return false;
-					}
+						return false;//not a cell
 				}
 				else
-				{
-					return false;
-				}
-					
+					return false;//not existing					
 			}
 		}
 
-		if( adjacentCells == 6 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() > 0 )
+		if(score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 )
 		{
-			newBloodVessel( row, col, nullptr );
-			return true;
+			if(newBloodVessel( row, col, nullptr ))
+			{
+				if(selectedCellInvolved)
+					*selectedCellDied = true;
+				else
+					*selectedCellDied = false;
+				return true;
+			}
 		}
+		return false;
 	}
 	
 	int Grid::getDistance(int rowA, int colA ,int rowB, int colB)

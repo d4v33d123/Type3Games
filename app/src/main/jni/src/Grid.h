@@ -85,8 +85,9 @@ namespace T3E
 		
 		// [in] row of cell to arrest
 		// [in] column of cell to arrest
+		// [out] a selected cell was arrested? need to unset selected flag in main game
 		// [ret] false if cell doesn't exist or is not CellState::NORMAL, true if success
-		bool arrestCell(int row, int col);
+		bool arrestCell(int row, int col, bool* cellSelected);
 		
 		// [in] row of cell to select
 		// [in] column of cell to select
@@ -147,9 +148,10 @@ namespace T3E
 		
 		// [in] row to test
 		// [in] column to test
+		// [out] selected cell died, needed to notify update loop and remove grid huighlight
 		// [ret] true if a bv was created, false otherwise
 		// try to create a blood vessel at the specified position
-		bool growBloodVesselAt( int row, int col );
+		bool growBloodVesselAt( int row, int col, bool* selectedCellDied);
 		
 		// [ret] true if to play blood vessel sound
 		inline bool playVessel() { return playVessel_; }

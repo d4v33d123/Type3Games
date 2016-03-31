@@ -59,6 +59,9 @@ namespace T3E
 		//set random colour based on state
 		void setNormalTint(CellState state); 
 		
+		//give a new tint. Sets current tint to normal!
+		void hardcodeNormalTint(glm::vec4 normalTint);
+		
 		//play split animation
 		void split(int neighbour);
 		
@@ -83,7 +86,6 @@ namespace T3E
 		//setters
 		void kill(){dying_ = true;};//play death animation
 		void setDeathChance(int dc) { deathChance_ = dc; }
-		void setTint(glm::vec4 tint) { tint_ = tint; }
 		
 	private:
 		float splitRotation_;//rotation for split animation sprite

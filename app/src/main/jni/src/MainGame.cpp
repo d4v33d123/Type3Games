@@ -600,56 +600,55 @@ void MainGame::processInput(float dTime)
 						else
 							menuButton_.unpress();
 					}
-
-					switch(interactionMode_)
+					else
 					{
-						case InteractionMode::NORMAL:
+						switch(interactionMode_)
 						{
-							//if a cell was selected
-							if(cellSelected_)
+							case InteractionMode::NORMAL:
 							{
-								
-								//try to spawn
-								if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
-								{
-									//try to move stem cell
-									grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-									cellMove_.play();
-								}	
-								else
-								{
-									cellMove_.play();
+								//if a cell was selected
+								if(cellSelected_)
+								{								
+									//try to spawn
+									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+									{
+										//try to move stem cell
+										grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+										cellMove_.play();
+									}	
+									else
+									{
+										cellMove_.play();
+									}
+									
+									grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+									//cellSelected_ = false;
 								}
 								
-								grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-								//cellSelected_ = false;
-								
-													
+								//try to select a cell
+								//also, if a new cell was created, select it
+								selectCell(rowCol.x, rowCol.y);
+								break;
 							}
-							
-							//try to select a cell
-							//also, if a new cell was created, select it
-							selectCell(rowCol.x, rowCol.y);
-							break;
-						}
-						case InteractionMode::KILLMODE:
-						{
-							if(!grid_.killCell(rowCol.x, rowCol.y))
+							case InteractionMode::KILLMODE:
 							{
-								// play error noise
-								cellMove_.play();
+								if(!grid_.killCell(rowCol.x, rowCol.y))
+								{
+									// play error noise
+									cellMove_.play();
+								}
+								else
+								{
+									// play kill noise
+									cellMove_.play();
+								}
+								break;
 							}
-							else
+							case InteractionMode::BVCREATION:
 							{
-								// play kill noise
-								cellMove_.play();
+								break;
 							}
-							break;
-						}
-						case InteractionMode::BVCREATION:
-						{
-							break;
-						}
+						}	
 					}
 				}
 								
@@ -715,7 +714,7 @@ void MainGame::processInput(float dTime)
 				case InteractionMode::NORMAL:
 				{
 					//try to arrest
-					if(!grid_.arrestCell(rowCol.x, rowCol.y))
+					if(!grid_.arrestCell(rowCol.x, rowCol.y, &cellSelected_))
 						//try to change stem cell mode
 						grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
 						
