@@ -964,6 +964,8 @@ namespace T3E
 		Cell* selectedCell = (Cell*)(grid_[row * CHUNK_WIDTH + col].getNode());
 		if(selectedCell->getState() != CellState::STEM)
 			return false;
+		
+		if(selectedCell->isSplitting() || selectedCell->isInCreation()) return false;//don't create while animating
 
 		if( getNeighbours( row, col, neighbours ) )
 		{
@@ -974,6 +976,8 @@ namespace T3E
 				{
 					if(neighbours[i]->getType() == T3E::NodeType::CELL)
 					{
+						selectedCell = (Cell*)(grid_[neighbours[i]->getRow() * CHUNK_WIDTH + neighbours[i]->getCol()].getNode());
+						if(selectedCell->isSplitting() || selectedCell->isInCreation()) return false;//don't create while animating
 						adjacentCells++;
 					}
 						
