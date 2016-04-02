@@ -327,7 +327,7 @@ command MainGame::gameLoop()
 		float startTicks = SDL_GetTicks();		
 		calculateFPS();
 
-		if(!paused_)
+		if( !paused_ )
 		{
 			if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
 			cellSelected_ = false;
@@ -337,17 +337,17 @@ command MainGame::gameLoop()
 				bloodV_.play();
 				grid_.resetPlayVessel();
 			}
-		}
 		
-		// Count the number of cancer cells
-		int num_cancer_cells = 0;
-		for( int i = 0; i < grid_.numCells(); ++i ) {
-			if( ((T3E::Cell*)grid_.getCell(i)->getNode())->getState() == T3E::CellState::CANCEROUS ) num_cancer_cells++;
-		}
+			// Count the number of cancer cells
+			int num_cancer_cells = 0;
+			for( int i = 0; i < grid_.numCells(); ++i ) {
+				if( ((T3E::Cell*)grid_.getCell(i)->getNode())->getState() == T3E::CellState::CANCEROUS ) num_cancer_cells++;
+			}
 
-		// if a second has passed, reduce the score by the score per cancer per second
-		if( old_ticks / 1000 < ticks / 1000 ) {
-			grid_.addScore( num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND() );
+			// if a second has passed, reduce the score by the score per cancer per second
+			if( old_ticks / 1000 < ticks / 1000 ) {
+				grid_.addScore( num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND() );
+			}
 		}
 
 		score_ = grid_.getHighScore();
