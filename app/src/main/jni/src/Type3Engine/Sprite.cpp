@@ -68,9 +68,11 @@ namespace T3E
 
 	void Sprite::draw()
 	{
-		// bind the texture
+		// bind the texture is not already bound
+		// NOTE: this doesn't take into account non-sprite bind calls so could forget to bind in certain cases
+		// But the way the code is structured curretly we should be fine
 		if( boundTextureUnit_ != texture_.unit ) {
-			glBindTexture(GL_TEXTURE_2D, texture_.unit); // dont want to unbind this
+			glBindTexture(GL_TEXTURE_2D, texture_.unit);
 			boundTextureUnit_ = texture_.unit;
 		}
 

@@ -2,7 +2,6 @@
 #define BUTTON_H
 
 #include "SDL.h"
-//#include "Type3Engine/AnimatedSprite.h"
 #include "Type3Engine/Sprite.h"
 #include <string>
 

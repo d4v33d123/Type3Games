@@ -290,7 +290,6 @@ void MainGame::initShaders()
 	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
 	tintedSpriteProgram_.addAttribute("aPosition");
 	tintedSpriteProgram_.addAttribute("aTexCoord");
-	//tintedSpriteProgram_.addAttribute("aColour");
 	tintedSpriteProgram_.linkShaders();
 
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
@@ -357,31 +356,9 @@ command MainGame::gameLoop()
 		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 
-		static int count = 0;
-		static Uint32 start = 0;
-		static Uint32 difference = 0;
-		if( count == 0 )
-			 start = SDL_GetTicks();
-
 		renderGame();
-		
-		count++;
-		if( count == 10 ) {
-			count = 0;
-			difference = SDL_GetTicks() - start;
-		}
-		textRenderer_.putNumber( difference, 4, 0.6,-0.6,32 );
 
 		processInput(frameTime_);
-		
-		/* print once every 10 frames
-		static int frameCounter = 0;
-		frameCounter++;
-		if( frameCounter == 10 )
-		{
-			SDL_Log("%f\n", fps_);
-			frameCounter = 0;
-		}*/
 
 		float frameTicks = SDL_GetTicks() - startTicks;
 		//Limit the FPS to the max FPS
@@ -746,7 +723,6 @@ void MainGame::renderGame()
 	glm::mat4 projectionView = projectionM_ * viewM_;
 	
 	// render background
-	//TODO: ideally we want to use and stop use just once per shader, but we need to draw backgruong -> grid -> game elements in this order...
 	tintedSpriteProgram_.use();
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
@@ -839,7 +815,7 @@ void MainGame::renderGame()
 		}
 	}
 	
-	//RENDER UI
+	// RENDER UI
 	{
 		// send ortho matrix to shaders
 		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
@@ -853,7 +829,7 @@ void MainGame::renderGame()
 		bvButton_.draw();
 		killButton_.draw();
 		
-		//RENDER MENU IF PAUSED
+		// RENDER MENU IF PAUSED
 		if( paused_ )
 		{
 			//draw sprite
@@ -861,8 +837,6 @@ void MainGame::renderGame()
 			quitButton_.draw();
 		}
 	}
-	
-	tintedSpriteProgram_.stopUse();	
 
 	textRenderer_.render();
 

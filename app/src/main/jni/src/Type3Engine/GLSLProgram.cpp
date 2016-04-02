@@ -156,7 +156,7 @@ namespace T3E
 	{
 		GLint location = glGetUniformLocation(programID_, uniformName.c_str());
 		//if (location == GL_INVALID_INDEX)
-		if (location == 0xFFFFFFFF)//GL_INVALID_INDEX is not defined in GLES
+		if (location == 0xFFFFFFFF) // GL_INVALID_INDEX is not defined in GLES
 		{
 			fatalError("Uniform " + uniformName + " not found in shader! (or it is unused)");
 		}
