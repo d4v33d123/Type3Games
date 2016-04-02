@@ -37,6 +37,8 @@ namespace T3E
 		float x_, y_, width_, height_, tileWidth_, tileHeight_, tileX_, tileY_;		
 		GLuint vboID_;
 		GLTexture texture_;
+
+		static GLuint boundTextureUnit_;
 	};
 }
 

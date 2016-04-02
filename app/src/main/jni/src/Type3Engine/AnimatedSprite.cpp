@@ -50,7 +50,7 @@ namespace T3E
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STREAM_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	

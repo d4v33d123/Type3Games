@@ -2,6 +2,8 @@
 
 namespace T3E
 {
+	GLuint Sprite::boundTextureUnit_ = 0;
+
 	Sprite::Sprite()
 	{
 		vboID_ = 0;
@@ -73,7 +75,10 @@ namespace T3E
 	void Sprite::draw()
 	{
 		// bind the texture
-		glBindTexture(GL_TEXTURE_2D, texture_.unit); // dont want to unbind this
+		if( boundTextureUnit_ != texture_.unit ) {
+			glBindTexture(GL_TEXTURE_2D, texture_.unit); // dont want to unbind this
+			boundTextureUnit_ = texture_.unit;
+		}
 
 		// bind the buffer object
 		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
