@@ -21,28 +21,24 @@ namespace T3E
 	
 	void AnimatedSprite::updateUVs()
 	{
-		Vertex vertexData[6];
+		Vertex vertexData[4];
 			
 		//UV COORDS ARE SWAPPED!!!
-		//top left
-		vertexData[0].setPosition(x_, y_ + height_);
-		vertexData[0].setUV(tileX_ , tileY_ + tileWidth_*animPosition_);		
 		//bottom left
-		vertexData[1].setPosition(x_, y_);
-		vertexData[1].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_ );
+		vertexData[0].setPosition(x_, y_);
+		vertexData[0].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_ );
+
 		//bottom right
-		vertexData[2].setPosition(x_ + width_, y_);
-		vertexData[2].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_+ tileWidth_);
+		vertexData[1].setPosition(x_ + width_, y_);
+		vertexData[1].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_+ tileWidth_);
 		
-		//bottom right
-		vertexData[3].setPosition(x_ + width_, y_);
-		vertexData[3].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_+ tileWidth_);	
-		//top right
-		vertexData[4].setPosition(x_ + width_, y_ + height_);
-		vertexData[4].setUV(tileX_, tileY_ + tileWidth_*animPosition_+ tileWidth_);		
 		//top left
-		vertexData[5].setPosition(x_, y_ + height_);
-		vertexData[5].setUV(tileX_, tileY_ + tileWidth_*animPosition_);
+		vertexData[2].setPosition(x_, y_ + height_);
+		vertexData[2].setUV(tileX_ , tileY_ + tileWidth_*animPosition_);
+
+		//top right
+		vertexData[3].setPosition(x_ + width_, y_ + height_);
+		vertexData[3].setUV(tileX_, tileY_ + tileWidth_*animPosition_+ tileWidth_);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STREAM_DRAW);
@@ -94,8 +90,8 @@ namespace T3E
 		//this is our UV attribute pointer;
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
-		// draw our 6 verticies
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// draw our verticies
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 
 	bool AnimatedSprite::Update(float dTime)
