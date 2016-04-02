@@ -32,6 +32,8 @@ namespace T3E
 		//getters
 		bool isPressed(){return isPressed_;};
 		
+		GLuint getTexUnit() { return pressedSprite_.getTexUnit(); }
+
 	private:
 		Sprite unpressedSprite_, pressedSprite_;
 		bool isPressed_;

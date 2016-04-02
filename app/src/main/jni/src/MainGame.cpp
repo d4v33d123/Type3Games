@@ -51,6 +51,8 @@ void MainGame::initSystems()
 	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
 	//glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	// Clear the depth buffer to 1
+	glClearDepthf(1.0);
 
 	// init projection matrix
 	window_->updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
@@ -284,28 +286,23 @@ void MainGame::initSystems()
 
 void MainGame::initShaders()
 {
-	 //CELL PRORGAM
-	// compile
+	// CELL SHADER
 	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
-	// add attributes
 	tintedSpriteProgram_.addAttribute("aPosition");
 	tintedSpriteProgram_.addAttribute("aColour");
 	tintedSpriteProgram_.addAttribute("aTexCoord");
-	// link
 	tintedSpriteProgram_.linkShaders();
+
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
 	cell_finalM_location = tintedSpriteProgram_.getUniformLocation("finalM");
 	sampler0_location = tintedSpriteProgram_.getUniformLocation("sampler0");
 	inputColour_location = tintedSpriteProgram_.getUniformLocation("inputColour");
 	
-	//HEX PROGRAM
-	// compile
+	// HEX SHADER This shader draws the grid
 	hexProgram_.compileShaders("shaders/hex_vs.txt", "shaders/hex_ps.txt");
-	// add attributes
 	hexProgram_.addAttribute("aPosition");
-	
-	// link
 	hexProgram_.linkShaders();
+
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
 	range_location = hexProgram_.getUniformLocation("range");
 	lerp_weight_location = hexProgram_.getUniformLocation("weight");
@@ -359,7 +356,6 @@ command MainGame::gameLoop()
 		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.05, 0.85, 44 );
 		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
-		//SDL_Log("score: %i", score_);
 
 		renderGame();
 		
@@ -393,11 +389,6 @@ void MainGame::processInput(float dTime)
 	glm::vec4 worldPos;
     SDL_Point rowCol;
 	glm::vec2 screenCoords;
-	
-	/*
-	glm::vec4 worldPos2;
-	SDL_Point rowCol2;
-	*/
 	
 	// processing our input
 	SDL_Event evnt;
@@ -731,46 +722,39 @@ void MainGame::processInput(float dTime)
 
 void MainGame::renderGame()
 {
-	//clear both buffers
-	glClearDepthf(1.0);
+	// clear both buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	static const float white[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	
-	//update matrices
+	// update matrices
 	viewM_ = glm::lookAt(camera_.getPosition(), camera_.getLookAt(), camera_.getUp());
 	finalM_ = projectionM_ * viewM_ * worldM_; // order matters!
-
 	// We can precalculate this because it's the same for each call or render game
 	glm::mat4 projectionView = projectionM_ * viewM_;
 	
-	//render background
+	// render background
 	//TODO: ideally we want to use and stop use just once per shader, but we need to draw backgruong -> grid -> game elements in this order...
 	tintedSpriteProgram_.use();
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glUniform4fv(inputColour_location, 1, bgtint);
+	glUniform4fv( inputColour_location, 1, white);
 	// set texture	
-	glActiveTexture(GL_TEXTURE0+3);	
-	glUniform1i(sampler0_location, 3);
-	glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + 3);
+	glActiveTexture( GL_TEXTURE0 + backgroundSprite_.getTexUnit() );	
+	glUniform1i( sampler0_location, backgroundSprite_.getTexUnit() );
+
 	//draw sprite
 	backgroundSprite_.draw();
-	tintedSpriteProgram_.stopUse();
 	
-	//RENDER THE HEX GRID
+	// RENDER THE HEX GRID
 	drawGrid();		
 	
 	tintedSpriteProgram_.use();
 
 	// Render blood vessels
 	{
-		glActiveTexture( GL_TEXTURE0 + 0 );
-		glUniform1i( sampler0_location, 0 );
-		glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + 0);
-
-		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
-		float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		glUniform4fv( inputColour_location, 1, tint );
+		GLuint bvUnit = T3E::ResourceManager::getTexture("textures/bloodVessel.png").unit;
+		glActiveTexture( GL_TEXTURE0 + bvUnit );
+		glUniform1i( sampler0_location, bvUnit );
 	
 		for(int i = 0; i < grid_.numBloodVessels(); ++i)
 		{
@@ -791,9 +775,8 @@ void MainGame::renderGame()
 	
 	// Render position checkers of bv spawn points
 	{
-		glActiveTexture(GL_TEXTURE0+0);
-		glUniform1i(sampler0_location, 0);
-		glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + 0);
+		glActiveTexture( GL_TEXTURE0 + sprites_[0]->getTexUnit() );
+		glUniform1i( sampler0_location, sprites_[0]->getTexUnit() );
 
 		float tint[] = { 0.0f, 0.0f, 1.0f, 0.3f };
 		glUniform4fv(inputColour_location, 1, tint);
@@ -815,6 +798,9 @@ void MainGame::renderGame()
 	}
 	{
 		// Render cells
+		GLuint cellTexture = T3E::ResourceManager::getTexture("textures/cellSheet.png").unit;
+		glActiveTexture( GL_TEXTURE0 + cellTexture );
+		glUniform1i( sampler0_location, cellTexture );
 		for(int i = 0; i < grid_.numCells(); ++i)
 		{
 			T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();
@@ -844,29 +830,23 @@ void MainGame::renderGame()
 	{
 		// send ortho matrix to shaders
 		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-		float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		glUniform4fv( inputColour_location, 1, tint );
-		// set texture	
-		glActiveTexture( GL_TEXTURE0 + 2 );
-		glUniform1i( sampler0_location, 2 );
-		//draw sprite
+		glUniform4fv( inputColour_location, 1, white );
+
+		// All the button textures are in one texture so we only have to do this once
+		glActiveTexture( GL_TEXTURE0 + menuButton_.getTexUnit() );
+		glUniform1i( sampler0_location, menuButton_.getTexUnit() );
+
 		menuButton_.draw();
 		bvButton_.draw();
 		killButton_.draw();
-	}
-
-	//RENDER MENU IF PAUSED
-	if( paused_ )
-	{
-		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-		float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};	
-		glUniform4fv(inputColour_location, 1, tint);
-		// set texture	
-		glActiveTexture(GL_TEXTURE0+2);	
-		glUniform1i(sampler0_location, 2);
-		//draw sprite
-		resumeButton_.draw();
-		quitButton_.draw();
+		
+		//RENDER MENU IF PAUSED
+		if( paused_ )
+		{
+			//draw sprite
+			resumeButton_.draw();
+			quitButton_.draw();
+		}
 	}
 	
 	tintedSpriteProgram_.stopUse();	
@@ -1004,7 +984,6 @@ void MainGame::calculateFPS()
 
 void MainGame::drawGrid()
 {
-
 	//draw highlighted hexes last so they're always on top of the others
 	std::vector<glm::vec4> hexesInRange;
 	std::vector<glm::vec4> hexesInLargeRange;
@@ -1126,10 +1105,4 @@ void MainGame::drawGrid()
 		// draw our verticies
 		glDrawArrays(GL_LINE_LOOP, 0, 6);
 	}
-	
-	// disable the vertex attrib array
-	glDisableVertexAttribArray(0);
-	// unbind the VBO
-	glBindBuffer(GL_ARRAY_BUFFER, 0);  
-	hexProgram_.stopUse();
 }

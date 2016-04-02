@@ -26,11 +26,12 @@ namespace T3E
 		void draw();
 		
 		//getters
-		glm::vec2 getPos(){return glm::vec2(x_, y_);};
-		float getWidth(){return width_;};
-		float getHeight(){return height_;};
-		GLuint getVbo() { return vboID_; }
+		glm::vec2 getPos()	{ return glm::vec2(x_, y_); }
+		float getWidth()	{ return width_; }
+		float getHeight()	{ return height_; }
+		GLuint getVbo()		{ return vboID_; }
 		GLTexture getTexture() { return texture_; }
+		GLuint getTexUnit() { return texture_.unit; }
 		
 	protected:
 		float x_, y_, width_, height_, tileWidth_, tileHeight_, tileX_, tileY_;		

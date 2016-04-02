@@ -141,7 +141,7 @@ void Credits::renderGame()
 	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glUniform4fv(inputColour_location, 1, bgtint);
 	// set texture	
-	GLint texid = T3E::ResourceManager::getTexture("textures/background.png").id;
+	GLint texid = T3E::ResourceManager::getTexture("textures/background.png").unit;
 	glActiveTexture(GL_TEXTURE0 + texid);	
 	glUniform1i(sampler0_location, texid);
 	//draw sprite
@@ -153,7 +153,7 @@ void Credits::renderGame()
 	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glUniform4fv(inputColour_location, 1, tint);
 	// set texture
-	texid = T3E::ResourceManager::getTexture("textures/ui.png").id;
+	texid = T3E::ResourceManager::getTexture("textures/ui.png").unit;
 	glActiveTexture(GL_TEXTURE0 + texid);	
 	glUniform1i(sampler0_location, texid);
 	//draw sprite
