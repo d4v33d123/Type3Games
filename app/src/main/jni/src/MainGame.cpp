@@ -356,7 +356,11 @@ command MainGame::gameLoop()
 		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 
+
 		renderGame();
+
+		textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
+		textRenderer_.putString( "m/s", 0.9, -0.9, 32 );
 
 		processInput(frameTime_);
 
@@ -815,7 +819,7 @@ void MainGame::renderGame()
 		}
 	}
 	
-	// RENDER UI
+	//RENDER UI
 	{
 		// send ortho matrix to shaders
 		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
@@ -829,7 +833,7 @@ void MainGame::renderGame()
 		bvButton_.draw();
 		killButton_.draw();
 		
-		// RENDER MENU IF PAUSED
+		//RENDER MENU IF PAUSED
 		if( paused_ )
 		{
 			//draw sprite
