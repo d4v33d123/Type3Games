@@ -7,6 +7,7 @@
 #include "Credits.h"
 #include "MainGame.h"
 
+#include "Type3Engine/glTexture.h"
 
 int main(int argc, char** argv)
 {
@@ -68,6 +69,7 @@ int main(int argc, char** argv)
 	//cleanup
 	audioEngine.clearMaps();//TESTING... does nothing
 	T3E::ResourceManager::clearTextures();
+	T3E::GLTexture::numTextures = 0;
 	SDL_Quit();	
 	return 0;
 }
