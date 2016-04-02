@@ -88,6 +88,8 @@ namespace T3E
 		glDetachShader(programID_, pixelShaderID_);
 		glDeleteShader(vertexShaderID_); // returning resources to opengl
 		glDeleteShader(pixelShaderID_);
+		vertexShaderID_ = 0;
+		pixelShaderID_ = 0;
 	}
 
 	void GLSLProgram::addAttribute(const std::string& attribute)

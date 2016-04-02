@@ -14,14 +14,6 @@ namespace T3E
 		GLfloat y;
 	};
 
-	struct Colour
-	{
-		GLubyte r;
-		GLubyte g;
-		GLubyte b;
-		GLubyte a;
-	};
-
 	struct UV
 	{
 		GLfloat v;
@@ -34,23 +26,11 @@ namespace T3E
 
 		UV uv;
 
-		//Colour colour;
-
 		void setPosition(float x, float y)
 		{
 			position.x = x;
 			position.y = y;
 		}
-
-		/*
-		void setColour(GLubyte r, GLubyte g, GLubyte b, GLubyte a)
-		{
-			colour.r = r;
-			colour.g = g;
-			colour.b = b;
-			colour.a = a;
-		}
-*/
 		void setUV(float u, float v)
 		{
 			uv.v = v;
