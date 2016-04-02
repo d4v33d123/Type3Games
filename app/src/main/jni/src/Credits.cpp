@@ -45,7 +45,7 @@ void Credits::initShaders()
 	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
 	// add attributes
 	tintedSpriteProgram_.addAttribute("aPosition");
-	tintedSpriteProgram_.addAttribute("aColour");
+	//tintedSpriteProgram_.addAttribute("aColour");
 	tintedSpriteProgram_.addAttribute("aTexCoord");
 	// link
 	tintedSpriteProgram_.linkShaders();

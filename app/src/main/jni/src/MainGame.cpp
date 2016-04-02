@@ -289,8 +289,8 @@ void MainGame::initShaders()
 	// CELL SHADER
 	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
 	tintedSpriteProgram_.addAttribute("aPosition");
-	tintedSpriteProgram_.addAttribute("aColour");
 	tintedSpriteProgram_.addAttribute("aTexCoord");
+	//tintedSpriteProgram_.addAttribute("aColour");
 	tintedSpriteProgram_.linkShaders();
 
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
@@ -357,8 +357,21 @@ command MainGame::gameLoop()
 		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 
+		static int count = 0;
+		static Uint32 start = 0;
+		static Uint32 difference = 0;
+		if( count == 0 )
+			 start = SDL_GetTicks();
+
 		renderGame();
 		
+		count++;
+		if( count == 10 ) {
+			count = 0;
+			difference = SDL_GetTicks() - start;
+		}
+		textRenderer_.putNumber( difference, 4, 0.6,-0.6,32 );
+
 		processInput(frameTime_);
 		
 		/* print once every 10 frames

@@ -10,8 +10,8 @@ namespace T3E
 {
 	struct Position
 	{
-		float x;
-		float y;
+		GLfloat x;
+		GLfloat y;
 	};
 
 	struct Colour
@@ -24,8 +24,8 @@ namespace T3E
 
 	struct UV
 	{
-		float v;
-		float u;
+		GLfloat v;
+		GLfloat u;
 	};
 
 	struct Vertex
@@ -34,7 +34,7 @@ namespace T3E
 
 		UV uv;
 
-		Colour colour;
+		//Colour colour;
 
 		void setPosition(float x, float y)
 		{
