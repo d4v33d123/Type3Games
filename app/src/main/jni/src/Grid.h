@@ -160,8 +160,10 @@ namespace T3E
 		inline void resetPlayVessel() { playVessel_ = false; }
 				
 		// [ret] the score
-		inline int getScore() { return score_; }
-		inline void setScore( int score ) { score_ = score; }
+		inline int getHighScore() { return high_score_; }
+		inline int getCurrency() { return currency_; }
+		inline void setScore( int score ) { currency_ = high_score_ = score; }
+		void addScore( int score );
 
 		// [in] row to test
 		// [in] column to test
@@ -214,7 +216,8 @@ namespace T3E
 		};
 		
 		// the number of points the player has
-		int score_;
+		int high_score_;
+		int currency_;
 
 		int chanceOfMutation_;	// Liklyhood of healthy cell becoming mutated, 0.0 = 0% 1.0 = 100%
 		int chanceOfCancer_;	// Liklyhood of mutated cell becoming cancerous [0.0, 1.0]

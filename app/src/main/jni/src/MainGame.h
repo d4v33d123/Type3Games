@@ -30,12 +30,10 @@
 #include "Cell.h"
 #include "BloodVessel.h"
 #include "Grid.h"
-
 #include "command.h"
-
 #include "Type3Engine/Vertex.h"//draw grid
 
-enum class GameState {PLAY, EXIT};
+enum class GameState { PLAY, EXIT };
 
 
 class MainGame

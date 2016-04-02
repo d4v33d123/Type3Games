@@ -30,12 +30,11 @@ namespace T3E
 
 	struct Vertex
 	{
-		// position
 		Position position;
-		//colour
-		Colour colour;
-		//texturecoordinates
+
 		UV uv;
+
+		Colour colour;
 
 		void setPosition(float x, float y)
 		{
@@ -43,6 +42,7 @@ namespace T3E
 			position.y = y;
 		}
 
+		/*
 		void setColour(GLubyte r, GLubyte g, GLubyte b, GLubyte a)
 		{
 			colour.r = r;
@@ -50,7 +50,7 @@ namespace T3E
 			colour.b = b;
 			colour.a = a;
 		}
-
+*/
 		void setUV(float u, float v)
 		{
 			uv.v = v;

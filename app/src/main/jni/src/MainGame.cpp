@@ -351,12 +351,13 @@ command MainGame::gameLoop()
 
 		// if a second has passed, reduce the score by the score per cancer per second
 		if( old_ticks / 1000 < ticks / 1000 ) {
-			score_ += num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND();
-			grid_.setScore( score_ );
+			grid_.addScore( num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND() );
 		}
 
-		score_ = grid_.getScore();
-		textRenderer_.putNumber( score_, 8, -0.05, 0.95, 44 );
+		score_ = grid_.getHighScore();
+		textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.05, 0.95, 44 );
+		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.05, 0.85, 44 );
+		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 		//SDL_Log("score: %i", score_);
 
@@ -736,7 +737,10 @@ void MainGame::renderGame()
 	
 	//update matrices
 	viewM_ = glm::lookAt(camera_.getPosition(), camera_.getLookAt(), camera_.getUp());
-	finalM_ = projectionM_*viewM_*worldM_;//order matters!
+	finalM_ = projectionM_ * viewM_ * worldM_; // order matters!
+
+	// We can precalculate this because it's the same for each call or render game
+	glm::mat4 projectionView = projectionM_ * viewM_;
 	
 	//render background
 	//TODO: ideally we want to use and stop use just once per shader, but we need to draw backgruong -> grid -> game elements in this order...
@@ -748,6 +752,7 @@ void MainGame::renderGame()
 	// set texture	
 	glActiveTexture(GL_TEXTURE0+3);	
 	glUniform1i(sampler0_location, 3);
+	glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + 3);
 	//draw sprite
 	backgroundSprite_.draw();
 	tintedSpriteProgram_.stopUse();
@@ -755,104 +760,103 @@ void MainGame::renderGame()
 	//RENDER THE HEX GRID
 	drawGrid();		
 	
-	//RENDER CELLS AND BLOOD VESSELS
 	tintedSpriteProgram_.use();
-	//blood vessels
-	for(int i = 0; i < grid_.numBloodVessels(); ++i)
+
+	// Render blood vessels
 	{
-		T3E::BloodVessel* current = (T3E::BloodVessel*)grid_.getBloodVessel(i)->getNode();
-		
-		//move to hex position
-		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getBloodVessel(i)->getX(), grid_.getBloodVessel(i)->getY(), 0.0f ) );
-		finalM_ = projectionM_ * viewM_ * worldM_;
-		
-		//send matrix to shaders
-		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//set tint
+		glActiveTexture( GL_TEXTURE0 + 0 );
+		glUniform1i( sampler0_location, 0 );
+		glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + 0);
+
 		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
 		float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		glUniform4fv(inputColour_location, 1, tint);
-		
-        //use texture 1
-		glActiveTexture(GL_TEXTURE0+0);
-		glUniform1i(sampler0_location, 0);
-		current->getSprite()->draw();
-		
-		//reset matrices
-		worldM_ = glm::mat4();
-		finalM_ = projectionM_ * viewM_ * worldM_;
+		glUniform4fv( inputColour_location, 1, tint );
+	
+		for(int i = 0; i < grid_.numBloodVessels(); ++i)
+		{
+			T3E::BloodVessel* current = (T3E::BloodVessel*)grid_.getBloodVessel(i)->getNode();
+			
+			//move to hex position
+			glm::mat4 worldM_;
+			worldM_ = glm::translate( worldM_, glm::vec3( grid_.getBloodVessel(i)->getX(), grid_.getBloodVessel(i)->getY(), 0.0f ) );
+			glm::mat4 finalM_ = projectionView * worldM_;
+			
+			//send matrix to shaders
+			glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+			
+	        //use texture 1
+			current->getSprite()->draw();
+		}
 	}
 	
-	//render position checkers of bv spawn points
-	for(int i = 0; i < grid_.numBvSpawns(); ++i)
+	// Render position checkers of bv spawn points
 	{
-		glm::vec2 coords = grid_.getBvSpawnCoords(i);
-		
-		// move to hex position
-		worldM_ = glm::translate( worldM_, glm::vec3( coords.x, coords.y, 0.0f ) );
-		finalM_ = projectionM_ * viewM_ * worldM_;
-		
-		//send matrix to shaders
-		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//set tint
+		glActiveTexture(GL_TEXTURE0+0);
+		glUniform1i(sampler0_location, 0);
+		glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + 0);
+
 		float tint[] = { 0.0f, 0.0f, 1.0f, 0.3f };
 		glUniform4fv(inputColour_location, 1, tint);
-		
-        //use texture 1
-		glActiveTexture(GL_TEXTURE0+0);
-		glUniform1i(sampler0_location, 0);
-		sprites_[0]->draw();
-		
-		//reset matrices
-		worldM_ = glm::mat4();
-		finalM_ = projectionM_ * viewM_ * worldM_;
-	}
 
-	//cells
-	for(int i = 0; i < grid_.numCells(); ++i)
+		for(int i = 0; i < grid_.numBvSpawns(); ++i)
+		{
+			glm::vec2 coords = grid_.getBvSpawnCoords(i);
+			
+			// move to hex position
+			glm::mat4 worldM_;
+			worldM_ = glm::translate( worldM_, glm::vec3( coords.x, coords.y, 0.0f ) );
+			finalM_ = projectionView * worldM_;
+			
+			// send matrix to shaders
+			glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
+			
+			sprites_[0]->draw();
+		}
+	}
 	{
-		T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();
-		
-		// move to hex position
-		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
-		if(current->isSplitting())
-			worldM_ = glm::rotate(worldM_, glm::radians(current->getSplitRotation()), glm::vec3(0.0f, 0.0f, 1.0f));
-		finalM_ = projectionM_ * viewM_ * worldM_;
-		
-		// send matrix to shaders
-		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
+		// Render cells
+		for(int i = 0; i < grid_.numCells(); ++i)
+		{
+			T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();
+			
+			// move to hex position
+			glm::mat4 worldM_;
+			worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
 
-		// set tint
-		float tint[] = {current->getTint().x ,current->getTint().y , current->getTint().z, current->getTint().w};
-		glUniform4fv(inputColour_location, 1, tint);
+			// Rotate splitting cells to face the direction they are splitting
+			if( current->isSplitting() )
+				worldM_ = glm::rotate(worldM_, glm::radians(current->getSplitRotation()), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		// set texture	
-        glActiveTexture(GL_TEXTURE0+1);
-		
-		glUniform1i(sampler0_location, 1);
-				
-		current->draw();
-		
-		// reset matrices
-		worldM_ = glm::mat4();
-		finalM_ = projectionM_*viewM_*worldM_;	
+			glm::mat4 finalM_ = projectionView * worldM_;
+			
+			// send matrix to shaders
+			glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
+
+			// set tint
+			float tint[] = {current->getTint().x ,current->getTint().y , current->getTint().z, current->getTint().w};
+			glUniform4fv(inputColour_location, 1, tint);
+
+			current->draw();
+		}
 	}
 	
-	//RENDER UI	
-	// send ortho matrix to shaders
-	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};	
-	glUniform4fv(inputColour_location, 1, tint);
-	// set texture	
-	glActiveTexture(GL_TEXTURE0+2);	
-	glUniform1i(sampler0_location, 2);
-	//draw sprite
-	menuButton_.draw();
-	bvButton_.draw();
-	killButton_.draw();
-	
+	//RENDER UI
+	{
+		// send ortho matrix to shaders
+		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
+		float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glUniform4fv( inputColour_location, 1, tint );
+		// set texture	
+		glActiveTexture( GL_TEXTURE0 + 2 );
+		glUniform1i( sampler0_location, 2 );
+		//draw sprite
+		menuButton_.draw();
+		bvButton_.draw();
+		killButton_.draw();
+	}
+
 	//RENDER MENU IF PAUSED
-	if(paused_)
+	if( paused_ )
 	{
 		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
 		float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};	
@@ -1047,8 +1051,6 @@ void MainGame::drawGrid()
 				}
 				else // hex is not in any range of any bv, draw it normaly
 				{
-					//if( r%2 == 0 || c%2 == 0 ) continue;
-
 					//send matrix to shaders
 					glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
 					glm::mat4 final_matrix = finalM_ * tranlation_matrix;			

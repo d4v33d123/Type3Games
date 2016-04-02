@@ -77,11 +77,11 @@ namespace T3E
 		inline int getDeathChance() { return deathChance_; }
 		inline bool isSelected() { return selected_; }
 		inline bool isInAlternateMode() { return alternateMode_; }
-		inline bool isDying(){return dying_;};
-		inline bool isDead(){return dead_;};
-		inline bool isSplitting(){return splitting_;};
-		inline bool isInCreation(){return inCreation_;};
-		inline float getSplitRotation(){return splitRotation_;};
+		inline bool isDying() { return dying_; }
+		inline bool isDead() { return dead_; }
+		inline bool isSplitting() { return splitting_; }
+		inline bool isInCreation() { return inCreation_; }
+		inline float getSplitRotation() { return splitRotation_; }
 		
 		//setters
 		void kill(){dying_ = true;};//play death animation

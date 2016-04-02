@@ -46,7 +46,7 @@ namespace T3E
 		
 		for (int i = 0; i < 6; i++)
 		{
-			vertexData[i].setColour(255, 255, 255, 255);
+			//vertexData[i].setColour(255, 255, 255, 255);
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
@@ -82,7 +82,6 @@ namespace T3E
 		}
 
 		updateUVs();
-
 	}
 
 	void AnimatedSprite::draw()
@@ -106,10 +105,10 @@ namespace T3E
 		// draw our 6 verticies
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		// disable the vertex attrib array
-		glDisableVertexAttribArray(0);
+		//glDisableVertexAttribArray(0);
 
 		// unbind the VBO
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 	bool AnimatedSprite::Update(float dTime)

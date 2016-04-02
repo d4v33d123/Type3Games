@@ -11,6 +11,7 @@
 #include "glTexture.h"
 #include <string>
 #include "glm/glm.hpp"
+
 namespace T3E
 {
 	class Sprite
@@ -28,6 +29,8 @@ namespace T3E
 		glm::vec2 getPos(){return glm::vec2(x_, y_);};
 		float getWidth(){return width_;};
 		float getHeight(){return height_;};
+		GLuint getVbo() { return vboID_; }
+		GLTexture getTexture() { return texture_; }
 		
 	protected:
 		float x_, y_, width_, height_, tileWidth_, tileHeight_, tileX_, tileY_;		

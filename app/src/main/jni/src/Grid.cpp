@@ -107,16 +107,16 @@ namespace T3E
         switch( state )
         {
         	case CellState::STEM:
-        		score_ += T3E::SCORE::SPAWNED_STEM_CELL();
+        		addScore( T3E::SCORE::SPAWNED_STEM_CELL() );
         	break;
         	case CellState::NORMAL:
-        		score_ += T3E::SCORE::SPAWNED_HEALTHY_CELL();
+        		addScore( T3E::SCORE::SPAWNED_HEALTHY_CELL() );
         	break;
         	case CellState::MUTATED:
-        		score_ += T3E::SCORE::SPAWNED_MUTATED_CELL();
+        		addScore( T3E::SCORE::SPAWNED_MUTATED_CELL() );
         	break;
         	case CellState::CANCEROUS:
-        		score_ += T3E::SCORE::SPAWNED_CANCER_CELL();
+        		addScore( T3E::SCORE::SPAWNED_CANCER_CELL() );
         	break;
         	default:
         		// No points for you
@@ -173,7 +173,7 @@ namespace T3E
             return false;
         }
 
-        score_ += T3E::SCORE::SPAWNED_BLOODVESSEL();
+        addScore( T3E::SCORE::SPAWNED_BLOODVESSEL() );
 
         return true;
     }
@@ -205,16 +205,16 @@ namespace T3E
 	        		//score_ += T3E::SCORE::KILLED_STEM_CELL();
 	        	break;
 	        	case CellState::NORMAL:
-	        		score_ += T3E::SCORE::KILLED_HEALTHY_CELL();
+	        		addScore( T3E::SCORE::KILLED_HEALTHY_CELL() );
 	        	break;
 	        	case CellState::MUTATED:
-	        		score_ += T3E::SCORE::KILLED_MUTATED_CELL();
+	        		addScore( T3E::SCORE::KILLED_MUTATED_CELL() );
 	        	break;
 	        	case CellState::CANCEROUS:
-	        		score_ += T3E::SCORE::KILLED_CANCER_CELL();
+	        		addScore( T3E::SCORE::KILLED_CANCER_CELL() );
 	        	break;
 	        	case CellState::ARRESTED:
-	        		score_ += T3E::SCORE::KILLED_ARRESTED_CELL();
+	        		addScore( T3E::SCORE::KILLED_ARRESTED_CELL() );
 	        	break;
 	        	default:
 	        		// No points for you
@@ -261,7 +261,7 @@ namespace T3E
                 grid_[ neighbours[i]->getRow() * CHUNK_WIDTH + neighbours[i]->getCol() ].setType( NodeType::EMPTY );
             }
 
-            score_ += T3E::SCORE::KILLED_BLOODVESSEL();
+            addScore( T3E::SCORE::KILLED_BLOODVESSEL() );
         }
 
         // Delete the node itself, set the hex's node to nullptr and set the hex to emtpy, 
@@ -527,7 +527,7 @@ namespace T3E
 		if(cell->isSplitting() || cell->isInCreation() || cell->isDying()) return false;//can't arrest in those cases!
 		
 		//only arrest normal cells
-		if(cell->getState() == CellState::NORMAL && score_ + T3E::SCORE::ARRESTED_CELL() >= 0 )
+		if(cell->getState() == CellState::NORMAL && currency_ + T3E::SCORE::ARRESTED_CELL() >= 0 )
 		{
 			if(cell->isSelected())
 			{
@@ -535,7 +535,7 @@ namespace T3E
 				cell->unselect();
 			}				
 			cell->arrest();
-			score_ += T3E::SCORE::ARRESTED_CELL();
+			addScore( T3E::SCORE::ARRESTED_CELL() );
 			return true;
 		}
 		else
@@ -656,17 +656,17 @@ namespace T3E
 		if(cell->isSplitting() || cell->isInCreation() || cell->isDying()) return false;
 		
 		//different costs for normal and mutated cells
-		if( cell->getState() == CellState::NORMAL && score_ - T3E::SCORE::KILLED_HEALTHY_CELL() >= 0 )
+		if( cell->getState() == CellState::NORMAL && currency_ - T3E::SCORE::KILLED_HEALTHY_CELL() >= 0 )
 		{
 			cell->kill();
 			return true;
 		}
-		else if( cell->getState() == CellState::MUTATED && score_ - T3E::SCORE::KILLED_MUTATED_CELL() >= 0 )
+		else if( cell->getState() == CellState::MUTATED && currency_ - T3E::SCORE::KILLED_MUTATED_CELL() >= 0 )
 		{
 			cell->kill();
 			return true;
 		}
-		else if( cell->getState() == CellState::ARRESTED && score_ - T3E::SCORE::KILLED_ARRESTED_CELL() >= 0 )
+		else if( cell->getState() == CellState::ARRESTED && currency_ - T3E::SCORE::KILLED_ARRESTED_CELL() >= 0 )
 		{
 			cell->kill();
 			return true;
@@ -874,7 +874,7 @@ namespace T3E
 				}
 				case InteractionMode::BVCREATION:
 				{
-					 if(distance >= bloodVessel->getRange()*1.2 && score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 )
+					 if(distance >= bloodVessel->getRange()*1.2 && currency_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 )
 					{
 						if(!(data.z < 1))
 						{
@@ -897,9 +897,9 @@ namespace T3E
 						
 						if(!(killable->isSplitting() || killable->isInCreation() || killable->isDying()))//can't kill in those cases
 							// if it is a normal, arrested or a mutated cell highlight it
-							if( ((killable->getState() == CellState::NORMAL) && (score_ - T3E::SCORE::KILLED_HEALTHY_CELL() >= 0)) ||
-								((killable->getState() == CellState::MUTATED) && (score_ - T3E::SCORE::KILLED_MUTATED_CELL() >= 0)) ||
-								((killable->getState() == CellState::ARRESTED) && (score_ - T3E::SCORE::KILLED_ARRESTED_CELL() >= 0)) )
+							if( ((killable->getState() == CellState::NORMAL) && (currency_ - T3E::SCORE::KILLED_HEALTHY_CELL() >= 0)) ||
+								((killable->getState() == CellState::MUTATED) && (currency_ - T3E::SCORE::KILLED_MUTATED_CELL() >= 0)) ||
+								((killable->getState() == CellState::ARRESTED) && (currency_ - T3E::SCORE::KILLED_ARRESTED_CELL() >= 0)) )
 							{
 								data.z = 3;//is killable
 								data.w = 0;
@@ -915,7 +915,7 @@ namespace T3E
 		}
 		if(interactionMode_ == InteractionMode::BVCREATION)
 		{
-			if(score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0)//enough points to set spawn
+			if(currency_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0)//enough points to set spawn
 			{
 				BloodVessel* bloodVessel = (BloodVessel*)(bloodVessels_[0]->getNode());
 				if(closest > bloodVessel->getRange())//we're out of all bvs
@@ -1006,7 +1006,7 @@ namespace T3E
 			}
 		}
 
-		if(score_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 )
+		if(currency_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 )
 		{
 			if(newBloodVessel( row, col, nullptr ))
 			{
@@ -1060,5 +1060,13 @@ namespace T3E
 		coords.x = grid_[bvSpawnPoints_[i].x * CHUNK_WIDTH + bvSpawnPoints_[i].y].getX();
 		coords.y = grid_[bvSpawnPoints_[i].x * CHUNK_WIDTH + bvSpawnPoints_[i].y].getY();
 		return coords;
+	}
+
+	void Grid::addScore( int score )
+	{
+		if( score > 0 )
+			high_score_ += score;
+
+		currency_ += score;
 	}
 }

@@ -7,8 +7,8 @@ uniform lowp vec4 inputColour;
 
 //input variables
 attribute vec4 aPosition;
-attribute lowp vec4 aColour;
 attribute vec2 aTexCoord;
+//attribute lowp vec4 aColour;
 
 //output variables
 varying lowp vec4 vColour;
@@ -20,7 +20,7 @@ void main()
 	gl_Position = finalM * aPosition;
 
 	//modify colour
-	vColour = aColour*inputColour;
+	vColour = inputColour;
 
 	//pass on unchanged tex coord
     vTexCoord = aTexCoord;
