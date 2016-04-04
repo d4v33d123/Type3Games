@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['score',['SCORE',['../struct_t3_e_1_1_s_c_o_r_e.html',1,'T3E']]],
-  ['soundeffect',['SoundEffect',['../class_t3_e_1_1_sound_effect.html',1,'T3E']]],
-  ['sprite',['Sprite',['../class_t3_e_1_1_sprite.html',1,'T3E']]],
-  ['startmenu',['StartMenu',['../class_start_menu.html',1,'']]]
+  ['resetplayvessel',['resetPlayVessel',['../class_t3_e_1_1_grid.html#a29e30f8451fbb0805cd20258efb66ab9',1,'T3E::Grid']]],
+  ['resourcemanager',['ResourceManager',['../class_t3_e_1_1_resource_manager.html',1,'T3E']]]
 ];
