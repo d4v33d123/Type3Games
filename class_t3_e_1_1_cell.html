@@ -132,9 +132,21 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>unselect</b> ()</td><
 <tr class="memitem:a840843d6af73c4a81439919f48ebf5a0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a840843d6af73c4a81439919f48ebf5a0"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>toggleMode</b> ()</td></tr>
 <tr class="separator:a840843d6af73c4a81439919f48ebf5a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8bdcb174c2c148714245eb1c5608b497"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8bdcb174c2c148714245eb1c5608b497"></a>
-<a class="el" href="class_t3_e_1_1_animated_sprite.html">AnimatedSprite</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getSprite</b> ()</td></tr>
-<tr class="separator:a8bdcb174c2c148714245eb1c5608b497"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae70774e3312493952da32296796ee87"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae70774e3312493952da32296796ee87"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setNormalTint</b> (CellState state)</td></tr>
+<tr class="separator:aae70774e3312493952da32296796ee87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc9f7e1574defcf0ef16c501865e71a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc9f7e1574defcf0ef16c501865e71a8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hardcodeNormalTint</b> (glm::vec4 normalTint)</td></tr>
+<tr class="separator:adc9f7e1574defcf0ef16c501865e71a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0483e8f1fa6528ac8ab818cec8d96f9e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0483e8f1fa6528ac8ab818cec8d96f9e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>split</b> (int neighbour)</td></tr>
+<tr class="separator:a0483e8f1fa6528ac8ab818cec8d96f9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8922372fdd157045ab418c0b0a81a02"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa8922372fdd157045ab418c0b0a81a02"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ignoreBirthDelay</b> ()</td></tr>
+<tr class="separator:aa8922372fdd157045ab418c0b0a81a02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add59095225afb1c115646192de4da794"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add59095225afb1c115646192de4da794"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>draw</b> ()</td></tr>
+<tr class="separator:add59095225afb1c115646192de4da794"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08837bf629271951cb210dd39500d514"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a08837bf629271951cb210dd39500d514"></a>
 glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>getTint</b> ()</td></tr>
 <tr class="separator:a08837bf629271951cb210dd39500d514"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -150,19 +162,104 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>isSelected</b> ()</td
 <tr class="memitem:a8c1886fe1eed298c024115262aa68405"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8c1886fe1eed298c024115262aa68405"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>isInAlternateMode</b> ()</td></tr>
 <tr class="separator:a8c1886fe1eed298c024115262aa68405"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad813e6e6de5d604eb06376596622ef54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad813e6e6de5d604eb06376596622ef54"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isDying</b> ()</td></tr>
+<tr class="separator:ad813e6e6de5d604eb06376596622ef54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa22655b7794880cd16fcd60ece4cf219"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa22655b7794880cd16fcd60ece4cf219"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isDead</b> ()</td></tr>
+<tr class="separator:aa22655b7794880cd16fcd60ece4cf219"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03e173d76bfdf74d7fa603358e4ac967"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a03e173d76bfdf74d7fa603358e4ac967"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isSplitting</b> ()</td></tr>
+<tr class="separator:a03e173d76bfdf74d7fa603358e4ac967"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d4f8abb4228088409a8db3ddda35b49"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d4f8abb4228088409a8db3ddda35b49"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isInCreation</b> ()</td></tr>
+<tr class="separator:a2d4f8abb4228088409a8db3ddda35b49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9fc88443279734fb0a3ab3189b12376"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac9fc88443279734fb0a3ab3189b12376"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>getSplitRotation</b> ()</td></tr>
+<tr class="separator:ac9fc88443279734fb0a3ab3189b12376"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f3ed76f7e05c8f7d9bfeec6225f283c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0f3ed76f7e05c8f7d9bfeec6225f283c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>kill</b> ()</td></tr>
+<tr class="separator:a0f3ed76f7e05c8f7d9bfeec6225f283c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac46211835ea163c06b2482600f4c75e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac46211835ea163c06b2482600f4c75e1"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setDeathChance</b> (int dc)</td></tr>
 <tr class="separator:ac46211835ea163c06b2482600f4c75e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:a52ff5a583afbf00a4e997f3e72177ce2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a52ff5a583afbf00a4e997f3e72177ce2"></a>
-static const int&#160;</td><td class="memItemRight" valign="bottom"><b>MIN_ST</b> = 500</td></tr>
-<tr class="separator:a52ff5a583afbf00a4e997f3e72177ce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af816777670dcc29e2dfcbee389126c1e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af816777670dcc29e2dfcbee389126c1e"></a>
-static const int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_ST</b> = 5000</td></tr>
-<tr class="separator:af816777670dcc29e2dfcbee389126c1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a34e8f6b1d6cb829b156d623cac2c45"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a34e8f6b1d6cb829b156d623cac2c45"></a>
+static int&#160;</td><td class="memItemRight" valign="bottom"><b>MIN_ST</b> = 500</td></tr>
+<tr class="separator:a7a34e8f6b1d6cb829b156d623cac2c45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc1e9ce75e53ac83f75410e6231581a1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc1e9ce75e53ac83f75410e6231581a1"></a>
+static int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_ST</b> = 5000</td></tr>
+<tr class="separator:afc1e9ce75e53ac83f75410e6231581a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ec97196656e61417dbf27850e9f4acb"><td class="memItemLeft" align="right" valign="top">static glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>normalColourRange_</b> [2]</td></tr>
+<tr class="separator:a3ec97196656e61417dbf27850e9f4acb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d940ff05b98d09e022022c19c2ccce1"><td class="memItemLeft" align="right" valign="top">static glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>mutatedColourRange_</b> [2]</td></tr>
+<tr class="separator:a7d940ff05b98d09e022022c19c2ccce1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96c7b07ff8473984a87cf0e1b4ea483d"><td class="memItemLeft" align="right" valign="top">static glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>cancerousColourRange_</b> [2]</td></tr>
+<tr class="separator:a96c7b07ff8473984a87cf0e1b4ea483d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="a96c7b07ff8473984a87cf0e1b4ea483d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">glm::vec4 T3E::Cell::cancerousColourRange_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    glm::vec4( 255.0f, 0.0f, 255.0f, 255.0f ),</div><div class="line">    glm::vec4( 255.0f, 0.0f, 255.0f, 255.0f )</div><div class="line">}</div></div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a7d940ff05b98d09e022022c19c2ccce1"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">glm::vec4 T3E::Cell::mutatedColourRange_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    glm::vec4( 255.0f, 180.0f, 0.0f, 255.0f ),</div><div class="line">    glm::vec4( 255.0f, 180.0f, 0.0f, 255.0f )</div><div class="line">}</div></div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a3ec97196656e61417dbf27850e9f4acb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">glm::vec4 T3E::Cell::normalColourRange_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div><div class="line">    glm::vec4( 0.0f, 0.0f, 255.0f, 255.0f ),</div><div class="line">    glm::vec4( 0.0f, 0.0f, 255.0f, 255.0f )</div><div class="line">}</div></div><!-- fragment -->
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_cell_8h_source.html">Cell.h</a></li>
 <li>Cell.cpp</li>

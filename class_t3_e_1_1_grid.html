@@ -126,18 +126,18 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>numCells</b> ()</td></
 <tr class="memitem:ad396aad85ebd5cef5d802384db527468"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad396aad85ebd5cef5d802384db527468"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>numBloodVessels</b> ()</td></tr>
 <tr class="separator:ad396aad85ebd5cef5d802384db527468"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3f17423f284647e4a81a3ccf1ecccb0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3f17423f284647e4a81a3ccf1ecccb0"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (float dTime)</td></tr>
-<tr class="separator:ad3f17423f284647e4a81a3ccf1ecccb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39d4e3e9a595547d33b9b04e0305e878"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39d4e3e9a595547d33b9b04e0305e878"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (float dTime, SDL_Point fingerRowCol)</td></tr>
+<tr class="separator:a39d4e3e9a595547d33b9b04e0305e878"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a340e289c86874c05b1cfbcff3b428523"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a340e289c86874c05b1cfbcff3b428523"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>inRange</b> (int rowA, int colA, int rowB, int colB, int range)</td></tr>
 <tr class="separator:a340e289c86874c05b1cfbcff3b428523"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acef5abb8d2591f9001c4c7a12c761cd5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acef5abb8d2591f9001c4c7a12c761cd5"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>getDistance</b> (int rowA, int colA, int rowB, int colB)</td></tr>
 <tr class="separator:acef5abb8d2591f9001c4c7a12c761cd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ab55a230e2f7ffacea8a7d9597e7bb1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4ab55a230e2f7ffacea8a7d9597e7bb1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>arrestCell</b> (int row, int col)</td></tr>
-<tr class="separator:a4ab55a230e2f7ffacea8a7d9597e7bb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a354c8dd5e677964ac06892158551415f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a354c8dd5e677964ac06892158551415f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>arrestCell</b> (int row, int col, bool *cellSelected)</td></tr>
+<tr class="separator:a354c8dd5e677964ac06892158551415f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adad4215c56605f9ce3f0cfe376d20ba2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adad4215c56605f9ce3f0cfe376d20ba2"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>selectCell</b> (int row, int col)</td></tr>
 <tr class="separator:adad4215c56605f9ce3f0cfe376d20ba2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,24 +147,84 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>unselectCell</b> (int
 <tr class="memitem:a27e88dc11de83398d71096d9e8756ffb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27e88dc11de83398d71096d9e8756ffb"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>spawnCell</b> (int selRow, int selCol, int touchRow, int touchCol)</td></tr>
 <tr class="separator:a27e88dc11de83398d71096d9e8756ffb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85c6e053cd6294eaf4bcbd3ed9097f1c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a85c6e053cd6294eaf4bcbd3ed9097f1c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>killCell</b> (int row, int col)</td></tr>
+<tr class="separator:a85c6e053cd6294eaf4bcbd3ed9097f1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1492e089d69c8175870e4da2417b7136"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1492e089d69c8175870e4da2417b7136"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>getHex</b> (int row, int col, <a class="el" href="class_t3_e_1_1_hex.html">Hex</a> **hex)</td></tr>
 <tr class="separator:a1492e089d69c8175870e4da2417b7136"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a628d4185e6e574cb52f39ffd4cbbcecc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a628d4185e6e574cb52f39ffd4cbbcecc"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>getSize</b> ()</td></tr>
 <tr class="separator:a628d4185e6e574cb52f39ffd4cbbcecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a2fc48d5edbe0ca58a9be1d7e8df8db"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a2fc48d5edbe0ca58a9be1d7e8df8db"></a>
-glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>getHexDrawInfo</b> (int row, int col)</td></tr>
-<tr class="separator:a6a2fc48d5edbe0ca58a9be1d7e8df8db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b32ebb5234f1877bd4d4acfbf4137ed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b32ebb5234f1877bd4d4acfbf4137ed"></a>
+glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><b>getHexDrawInfo</b> (int row, int col, bool cellSelected, glm::vec2 selectedPos, InteractionMode interactionMode_)</td></tr>
+<tr class="separator:a4b32ebb5234f1877bd4d4acfbf4137ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9f26676affdce36c78b8fe23836d287"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab9f26676affdce36c78b8fe23836d287"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>moveStemCell</b> (int selRow, int selCol, int touchRow, int touchCol)</td></tr>
 <tr class="separator:ab9f26676affdce36c78b8fe23836d287"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af75dca10e6a9365c4eb11b80272ee277"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af75dca10e6a9365c4eb11b80272ee277"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>setStemToSpawnMode</b> (int row, int col)</td></tr>
 <tr class="separator:af75dca10e6a9365c4eb11b80272ee277"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd93b0b6e7ef1b27b646dd2797eb344d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd93b0b6e7ef1b27b646dd2797eb344d"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>growBloodVesselAt</b> (int row, int col)</td></tr>
-<tr class="separator:acd93b0b6e7ef1b27b646dd2797eb344d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a609cf06f13974ba25ae1374346f4a4c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a609cf06f13974ba25ae1374346f4a4c2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>growBloodVesselAt</b> (int row, int col, bool *selectedCellDied)</td></tr>
+<tr class="separator:a609cf06f13974ba25ae1374346f4a4c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac2801180e510eb22b10d8ec3bca1a80"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac2801180e510eb22b10d8ec3bca1a80"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>playVessel</b> ()</td></tr>
+<tr class="separator:aac2801180e510eb22b10d8ec3bca1a80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29e30f8451fbb0805cd20258efb66ab9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29e30f8451fbb0805cd20258efb66ab9"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>resetPlayVessel</b> ()</td></tr>
+<tr class="separator:a29e30f8451fbb0805cd20258efb66ab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea71a01a443832874d7e35370b0f64ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea71a01a443832874d7e35370b0f64ec"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>getHighScore</b> ()</td></tr>
+<tr class="separator:aea71a01a443832874d7e35370b0f64ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26f41bfccb27782160900670802ef554"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a26f41bfccb27782160900670802ef554"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>getCurrency</b> ()</td></tr>
+<tr class="separator:a26f41bfccb27782160900670802ef554"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adaac9028e09f37ecb276e769e84a6d1e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adaac9028e09f37ecb276e769e84a6d1e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setScore</b> (int score)</td></tr>
+<tr class="separator:adaac9028e09f37ecb276e769e84a6d1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adaa2cc5a6fc5689a56ee4c47c89ed3cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adaa2cc5a6fc5689a56ee4c47c89ed3cb"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>addScore</b> (int score)</td></tr>
+<tr class="separator:adaa2cc5a6fc5689a56ee4c47c89ed3cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0beb649fca621793032072b16d3d1379"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0beb649fca621793032072b16d3d1379"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>setBvSpawn</b> (int row, int col)</td></tr>
+<tr class="separator:a0beb649fca621793032072b16d3d1379"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af20f6ce0c62feacfee65bbfcb5fa64fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af20f6ce0c62feacfee65bbfcb5fa64fc"></a>
+glm::vec2&#160;</td><td class="memItemRight" valign="bottom"><b>getBvSpawnCoords</b> (int i)</td></tr>
+<tr class="separator:af20f6ce0c62feacfee65bbfcb5fa64fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a145bfc363f00f504a35b967015cfc0d4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a145bfc363f00f504a35b967015cfc0d4"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>numBvSpawns</b> ()</td></tr>
+<tr class="separator:a145bfc363f00f504a35b967015cfc0d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae30bccd9d8f40dfd316ce9ec1ba8553c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae30bccd9d8f40dfd316ce9ec1ba8553c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setChanceOfMutation</b> (int c)</td></tr>
+<tr class="separator:ae30bccd9d8f40dfd316ce9ec1ba8553c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ad80388f12c58a536ffb9fae2fbf560"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6ad80388f12c58a536ffb9fae2fbf560"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setChanceOfCancer</b> (int c)</td></tr>
+<tr class="separator:a6ad80388f12c58a536ffb9fae2fbf560"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c0265db1927ce984d8992f8c6f1ffe6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3c0265db1927ce984d8992f8c6f1ffe6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setCancerDeathChance</b> (int c)</td></tr>
+<tr class="separator:a3c0265db1927ce984d8992f8c6f1ffe6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a615ed4fd359cfd24bf3d33513dc00223"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a615ed4fd359cfd24bf3d33513dc00223"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setAdjBloodvesselDeathChance</b> (int c)</td></tr>
+<tr class="separator:a615ed4fd359cfd24bf3d33513dc00223"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a978fff10fa824f0af5488cb6eccb5abe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a978fff10fa824f0af5488cb6eccb5abe"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setFarBloodvesselDeathChance</b> (int c)</td></tr>
+<tr class="separator:a978fff10fa824f0af5488cb6eccb5abe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4986d6a04802428eb73e579ea2111a38"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4986d6a04802428eb73e579ea2111a38"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setParentDeathChanceIncrease</b> (int c)</td></tr>
+<tr class="separator:a4986d6a04802428eb73e579ea2111a38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cd11c3dd3b71d0c5401806fdf79b2d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6cd11c3dd3b71d0c5401806fdf79b2d6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setChildDeathChanceIncrease</b> (int c)</td></tr>
+<tr class="separator:a6cd11c3dd3b71d0c5401806fdf79b2d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfafcfe772c49c5fe44930e93ccc3918"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adfafcfe772c49c5fe44930e93ccc3918"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setMinDeathChance</b> (int c)</td></tr>
+<tr class="separator:adfafcfe772c49c5fe44930e93ccc3918"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34bab94065f938113df03e1dda3b825c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a34bab94065f938113df03e1dda3b825c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b> (int c)</td></tr>
+<tr class="separator:a34bab94065f938113df03e1dda3b825c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fa6966b1806e2cc2f31c06e63c60db5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6fa6966b1806e2cc2f31c06e63c60db5"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>clampPercnt</b> (int a) const </td></tr>
+<tr class="separator:a6fa6966b1806e2cc2f31c06e63c60db5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_grid_8h_source.html">Grid.h</a></li>
