@@ -30,6 +30,18 @@ namespace T3E
 
         return true;
     }
+	
+	bool Grid::getHex(int row, int col, Hex** hex)
+	{
+		 // If the hex does not lie on the board, return error
+        if( !hexExists( row, col ) )
+            return false;
+
+        // get that hex
+        *hex = &(grid_[ row * CHUNK_WIDTH + col ]);
+
+        return true;
+	}
 
     bool Grid::getNeighbours( int row, int col, Hex** neighbours )
     {
@@ -283,10 +295,9 @@ namespace T3E
 	bool Grid::inRange(int rowA, int colA ,int rowB, int colB, int range)
 	{		
 		//calculate the squared distance (avoid sqrt operation)
+		// TODO: Doesn't range also need to be squared?!
 		int dSquared = (std::abs(colA - colB) + std::abs(rowA - rowB) + std::abs((-colA-rowA) - (-colB-rowB))) / 2;
-		if(dSquared > range)
-			return false;
-		return true;
+		return dSquared <= range;
 	}
 	
 	int Grid::calcDeathChance(int row, int col, int parentDchance, bool cancerous)
@@ -316,8 +327,7 @@ namespace T3E
 			if( distToBv <= 2 )
 			{
 				// The hex is adjacent to the blood vessel
-				death_chance = adjacentBloodvesselDeathChance_; 
-				//SDL_Log("Adjacent cell distance %i dc %i", distToBv, death_chance);
+				death_chance = adjacentBloodvesselDeathChance_;
 			}
 			else if( distToBv <= bloodvessel_range )
 			{
@@ -327,15 +337,12 @@ namespace T3E
 				// As the cell gets farther away from the blood vessel
 				// Lerp from the adjacent_death_chance to the far_death_chance
 				death_chance = (adjacentBloodvesselDeathChance_ * (1.0f - lerpAmount)) + (farBloodvesselDeathChance_ * lerpAmount);
-				//SDL_Log("adjbvdc %i farbvdc %i", adjacentBloodvesselDeathChance_, farBloodvesselDeathChance_ );
-				//SDL_Log("In range cell lerp %f, dc %i", lerpAmount, death_chance);
 			}
 			else
 			{
 				// If the cell is outside the range of a blood vessel
 				// It's death chance is based on it's parents + some value
 				death_chance = parentDchance + childDeathChanceIncrease_;
-				//SDL_Log("Distant cell, %i parentDC %i dc %i", distToBv, parentDchance, death_chance);
 			}			
 		}
 		
@@ -763,18 +770,6 @@ namespace T3E
 		}
 		//not one of the neighbours
 		return false;
-	}
-	
-	bool Grid::getHex(int row, int col, Hex** hex)
-	{
-		 // If the hex does not lie on the board, return error
-        if( !hexExists( row, col ) )
-            return false;
-
-        // get that hex
-        *hex = &(grid_[ row * CHUNK_WIDTH + col ]);
-
-        return true;
 	}
 	
 	glm::vec4 Grid::getHexDrawInfo(int row, int col, bool cellSelected, glm::vec2 selectedPos, InteractionMode interactionMode_)
