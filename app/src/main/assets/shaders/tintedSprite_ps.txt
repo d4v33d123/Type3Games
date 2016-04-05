@@ -1,5 +1,5 @@
 //pixel shader
-//sample texture and add its colour to the vertex colour
+//sample texture and add its colour to the tint colour
 
 //set default float precision to mediump since highp is not supported on all devices in fragment stage
 precision mediump float;
@@ -19,7 +19,7 @@ void main()
     // Reduce cell transparency
     texColour.w *= 1.8;
 
-    //blend vertex colour with texture colour
+    //blend tint colour with texture colour
     vec4 finalColour = vColour * texColour;
 
     gl_FragColor = finalColour;

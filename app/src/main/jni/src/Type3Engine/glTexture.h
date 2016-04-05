@@ -13,6 +13,8 @@ namespace T3E
 		GLuint id;
 		int width;
 		int height;
+		GLuint unit;
+		static GLuint numTextures;
 	};
 }
 

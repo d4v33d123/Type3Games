@@ -59,11 +59,17 @@ namespace T3E
 		//set random colour based on state
 		void setNormalTint(CellState state); 
 		
-		//set spritesheet to death animation
-		void kill();
+		//give a new tint. Sets current tint to normal!
+		void hardcodeNormalTint(glm::vec4 normalTint);
 		
-		//play death animation
-		void die(float dTime);
+		//play split animation
+		void split(int neighbour);
+		
+		//don't wait for the split animation to end on creation
+		void ignoreBirthDelay(){inCreation_ = false;};
+		
+		//draw the correct sprite
+		void draw();
 		
 		//getters
 		inline glm::vec4 getTint() { return tint_; }
@@ -71,16 +77,23 @@ namespace T3E
 		inline int getDeathChance() { return deathChance_; }
 		inline bool isSelected() { return selected_; }
 		inline bool isInAlternateMode() { return alternateMode_; }
-		inline AnimatedSprite* getSprite() { return &spriteSheet_; }
-		inline bool isDying(){return dying_;};
-		inline bool isDead(){return dead_;};
+		inline bool isDying() { return dying_; }
+		inline bool isDead() { return dead_; }
+		inline bool isSplitting() { return splitting_; }
+		inline bool isInCreation() { return inCreation_; }
+		inline float getSplitRotation() { return splitRotation_; }
 		
 		//setters
+		void kill(){dying_ = true;};//play death animation
 		void setDeathChance(int dc) { deathChance_ = dc; }
-		void setTint(glm::vec4 tint) { tint_ = tint; }
 		
 	private:
-		AnimatedSprite spriteSheet_;
+		float splitRotation_;//rotation for split animation sprite
+		//spritesheets
+		AnimatedSprite idleAnimation_;
+		AnimatedSprite splitAnimation_;
+		AnimatedSprite arrestAnimation_;
+		AnimatedSprite deathAnimation_;
 		
 		glm::vec4 tint_; // current colour
 		glm::vec4 normalTint_; // colour when non selected
@@ -89,13 +102,17 @@ namespace T3E
 		glm::vec4 brightAlternateTint_; // colour when alternate and selected
 
 		CellState state_; // see CellState enum
-		bool selected_; // cell is the current selection?
 		int deathChance_; // chance to die instead of splitting
 		float splitTimer_; // time since last split; milliseconds //TODO: counting milliseconds with a float is probably a bad idea
 		float splitTime_; // time to reach to start split; milliseconds
+		
+		bool selected_; // cell is the current selection?
 		bool alternateMode_; // true when cell is in secondary mode (e.g. stem cell in spawn mode)
 		bool dying_;//death animation is playing
 		bool dead_;//cell needs to be deleted
+		bool splitting_;//split animation playing
+		bool inCreation_;//true while parent split animation is running
+		bool fullyArrested_;//true = arrest animation finished playing
 	};
 }
 

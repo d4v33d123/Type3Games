@@ -12,9 +12,10 @@ void main()
 	
 	gl_FragColor = texture2D( font_bitmap, fTexCoord );
 
-	/*
-   	vec4 sample = texture2D(font_bitmap, fTexCoord );
 
+	//*
+   	vec4 sample = texture2D(font_bitmap, fTexCoord );
+   	/*
    	if( sample.g < 1.0f )
    	{
    		gl_FragColor = vec4( 0.0f, 0.0f, 0.0f, 0.0f );

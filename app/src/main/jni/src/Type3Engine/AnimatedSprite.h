@@ -61,13 +61,21 @@ namespace T3E
 		*/
 		void setSpeed(float s){animSpeed_ = s;};
 		
+		void refresh(){needRefresh_ = true;};
+		
 	private:
+		
+		void updateUVs();//refresh uv coordinates and rebind geometry
+		
 		int animPosition_; // The position of the animation out of the full animation
 		float animSpeed_; // multiplier of delta time to control the speed of the animation
 		int numSprites_; // the number of sprites in the animation
 		float animCount_; // the time since the last frame change
 		float animEnd_; // the time between each fram change
 		int framesPerLine_; // the number of frames in each line of the spritesheet
+		float originalTileX_;
+		bool needRefresh_;//after finishing a loop, when restarting we need to reset uv coords in update()
+
 	};
 
 }

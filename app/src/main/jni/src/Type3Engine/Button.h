@@ -2,7 +2,6 @@
 #define BUTTON_H
 
 #include "SDL.h"
-//#include "Type3Engine/AnimatedSprite.h"
 #include "Type3Engine/Sprite.h"
 #include <string>
 
@@ -58,10 +57,9 @@ namespace T3E
 		
 		//getters
 		bool isPressed(){return isPressed_;};
-		//yeh i be rturnin a pointah, whutchagunnadoo 'bout it, huh? yeeeeh
-		Sprite* getUnpressedSprite(){return &unpressedSprite_;};
-		Sprite* getPressedSprite(){return &pressedSprite_;};
 		
+		GLuint getTexUnit() { return pressedSprite_.getTexUnit(); }
+
 	private:
 		Sprite unpressedSprite_, pressedSprite_;
 		bool isPressed_;

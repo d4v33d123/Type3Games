@@ -17,7 +17,7 @@ namespace T3E
 		auto mit = textureMap_.find(texturePath);
 
 		//check if it's not in the map
-		if( mit == textureMap_.end() )
+		if (mit == textureMap_.end())
 		{
 			// load the texture
 			GLTexture newTexture = ImageLoader::loadPNG(texturePath);
@@ -27,14 +27,17 @@ namespace T3E
 			// insert it into the map
 			textureMap_.insert(make_pair(texturePath, newTexture));
 
-			SDL_Log("Loaded Texture %s", texturePath.c_str() );
+			//SDL_Log("Loaded Texture");
 
 			return newTexture;
 		}
-		
-		//SDL_Log("Used Cached Texture! %s", texturePath.c_str());
-		
+		//SDL_Log("Used Cached Texture!\n");
 		// return our texture if it is already in the map
 		return mit->second;
+	}
+	
+	void TextureCache::clear()
+	{
+		textureMap_.clear();
 	}
 }

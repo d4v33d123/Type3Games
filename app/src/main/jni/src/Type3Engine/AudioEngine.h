@@ -14,6 +14,9 @@ namespace T3E
 	public:
 		friend class AudioEngine;
 		
+		SoundEffect(){;};
+		~SoundEffect(){m_chunk = nullptr;};
+		
 		void play(int loops = 0);
 	private:
 		Mix_Chunk* m_chunk = nullptr;
@@ -24,6 +27,9 @@ namespace T3E
 	{
 	public:
 		friend class AudioEngine;
+		
+		Music(){;};
+		~Music(){m_music = nullptr;};
 		
 		void play(int loops = 1);
 		
@@ -50,6 +56,9 @@ namespace T3E
 		
 		SoundEffect loadSoundEffect(const std::string& filePath);
 		Music loadMusic(const std::string& filePath);
+		
+		void clearMaps();//TESTING
+		
 	private:
 	
 		std::map<std::string, Mix_Chunk*>m_effectMap;

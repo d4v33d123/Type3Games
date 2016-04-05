@@ -22,8 +22,8 @@ namespace T3E
 
 	void TextRenderer::init()
 	{
+
 		bitmap_font_ = ResourceManager::getTexture( "textures/font.png" );
-		SDL_Log("Bitmap font %i %i %i", bitmap_font_.id, bitmap_font_.width, bitmap_font_.height );
 
 		// Create the shader, should probably be using the GLSLshader class here but I don't understand it yet...
 		shader_program_ = glCreateProgram();
@@ -37,6 +37,8 @@ namespace T3E
 		{
 			fatalError("Could not create font pixel shader");
 		}
+
+
 		// Compile the vertex shader
 		{
 			std::vector<char> source;
@@ -97,9 +99,9 @@ namespace T3E
 		glAttachShader( shader_program_, pixel_shader_ );
 		glLinkProgram( shader_program_ );
 
-		GLuint isLinked = 0;
-		glGetProgramiv( shader_program_, GL_LINK_STATUS, (int*)&isLinked );
-		if( isLinked == GL_FALSE )
+		GLint success = GL_FALSE;
+		glGetProgramiv( shader_program_, GL_LINK_STATUS, &success );
+		if( success == GL_FALSE )
 		{
 			GLint maxLength = 0;
 			glGetProgramiv( shader_program_, GL_INFO_LOG_LENGTH, &maxLength );
@@ -128,7 +130,7 @@ namespace T3E
 		glUseProgram( shader_program_ );
 	    glGenBuffers( 1, &vbo_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
-		glUniform1i( texture_sampler_, bitmap_font_.id );
+		glUniform1i( texture_sampler_, bitmap_font_.unit );
 	}
 
 	void TextRenderer::putNumber( int num, unsigned padding, float x, float y, unsigned size_pixels )
@@ -203,8 +205,8 @@ namespace T3E
 		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * verts_.size(), verts_.data(), GL_STREAM_DRAW );
 
     	// Sent the texture and set properties
-		glActiveTexture( GL_TEXTURE0 + bitmap_font_.id );	
-    	glBindTexture( GL_TEXTURE_2D, bitmap_font_.id );
+		glActiveTexture( GL_TEXTURE0 + bitmap_font_.unit );	
+    	glBindTexture( GL_TEXTURE_2D, bitmap_font_.unit );
 
 	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );

@@ -2,10 +2,7 @@
 #include "Type3Engine/ConfigFile.h"
 #include "GlobalScoreValues.h"
 
-MainGame::MainGame() : 
-	screenHeight_(800),
-	screenWidth_(600),
-	time_(0.0f), 
+MainGame::MainGame():
 	score_(0),
 	gameState_(GameState::PLAY),
 	maxFPS_(60.0f),
@@ -29,45 +26,42 @@ MainGame::~MainGame()
 	sprites_.clear();
 }
 
-void MainGame::run()
+command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine)
 {
+	window_ = window;
+	audioEngine_ = audioEngine;
+	
 	initSystems();
 	
-	//bloodVessel TODO: put in bv class like cell
  	sprites_.push_back( new T3E::Sprite() );
 	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bvSpawnPoint.png", 0.0f, 0.0f, 1.0f, 1.0f);
  
-	T3E::Music music = audioEngine_.loadMusic("sound/backgroundSlow.ogg");
+	T3E::Music music = audioEngine_->loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
 	
-	bloodV_ = audioEngine_.loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
-	cellMove_ = audioEngine_.loadSoundEffect("sound/Player_CellDivide_Move.ogg");
+	bloodV_ = audioEngine_->loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
+	cellMove_ = audioEngine_->loadSoundEffect("sound/Player_CellDivide_Move.ogg");
 	
-	gameLoop();
+	return gameLoop();
 }
 
 void MainGame::initSystems()
 {
-	T3E::init();
-	
-	audioEngine_.init();
-	
-	//TODO: change name of window to game name!
-	window_.create("Game Engine", screenWidth_, screenHeight_, T3E::BORDERLESS);
-
 	// enable aplha blending	
 	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
 	//glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	// Clear the depth buffer to 1
+	glClearDepthf(1.0);
 
 	// init projection matrix
-	window_.updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
-	float ratio = float( window_.getScreenWidth() )/float( window_.getScreenHeight() );	// calculate aspect ratio
+	window_->updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
+	float ratio = float( window_->getScreenWidth() )/float( window_->getScreenHeight() );	// calculate aspect ratio
 	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
 	// init ortho matrix
 	// inverting top with bottom to avoid sprites being drawn upside down
 	// note that this will put origin at bottom left, while screen coords have origin at top left
-	orthoM_ = glm::ortho(0.0f, float( window_.getScreenWidth() ), 0.0f, float( window_.getScreenHeight() ));
+	orthoM_ = glm::ortho(0.0f, float( window_->getScreenWidth() ), 0.0f, float( window_->getScreenHeight() ));
 	
 	// Grab parameters from the config file
 	T3E::ConfigFile configFile("config/config.txt");
@@ -210,9 +204,12 @@ void MainGame::initSystems()
 	}
 
     // Set the first cell
-    grid_.newCell( 21, 23, T3E::CellState::STEM, 0, nullptr );
-
-    // Set a test blood vessel
+	T3E::Cell* firstStem;
+    grid_.newCell( 21, 23, T3E::CellState::STEM, 0, &firstStem );
+	firstStem->ignoreBirthDelay();
+    firstStem = nullptr;
+	
+	// Set a test blood vessel
     grid_.newBloodVessel( 24, 24, nullptr );
 	
 	//init the hex vertex buffer
@@ -242,41 +239,41 @@ void MainGame::initSystems()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	
 
 	//Create buttons
-	menuButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(8.9f/10.0f),
-		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+	menuButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(8.9f/10.0f),
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
 		1/4.0f,1/4.0f,
 		1/4.0f, 3/4.0f,
 		2/4.0f, 3/4.0f);
 	
- 	bvButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(7.8f/10.0f),
-		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+ 	bvButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(7.8f/10.0f),
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
 		1/4.0f,1/4.0f,
 		0, 0,
 		0, 1.0f/4);
 		
- 	killButton_.init(float(window_.getScreenWidth())/100.0f, float(window_.getScreenHeight())*(6.7f/10.0f),
-		float(window_.getScreenHeight())/10.0f, float(window_.getScreenHeight())/10.0f, "textures/ui.png",
+ 	killButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(6.7f/10.0f),
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
 		1/4.0f,1/4.0f,
 		0, 2.0f/4,
 		0, 3.0f/4);
 	
-	resumeButton_.init(float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())*(4.0f/7.0f),
-		float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())/7.0f, "textures/ui.png",
+	resumeButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(4.0f/7.0f),
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ui.png",
 		1/4.0f,3/4.0f,
 		2/4.0f, 0,
 		1/4.0f, 0);
 		
- 	quitButton_.init(float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())*(2.0f/7.0f),
-		float(window_.getScreenWidth())/3.0f, float(window_.getScreenHeight())/7.0f, "textures/ui.png",
+ 	quitButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(2.0f/7.0f),
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ui.png",
 		1/4.0f,3/4.0f,
 		3/4.0f, 0,
 		1/4.0f, 0);
 	
 	//background sprite
-	backgroundSprite_.init(0.0f, 0.0f, float(window_.getScreenWidth()), float(window_.getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
+	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
 
 	textRenderer_.init();
-	textRenderer_.setScreenSize( window_.getScreenWidth(), window_.getScreenHeight() );
+	textRenderer_.setScreenSize( window_->getScreenWidth(), window_->getScreenHeight() );
 
 	// Set the inital score
 	int initial_score_;
@@ -289,28 +286,22 @@ void MainGame::initSystems()
 
 void MainGame::initShaders()
 {
-	 //CELL PRORGAM
-	// compile
+	// CELL SHADER
 	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
-	// add attributes
 	tintedSpriteProgram_.addAttribute("aPosition");
-	tintedSpriteProgram_.addAttribute("aColour");
 	tintedSpriteProgram_.addAttribute("aTexCoord");
-	// link
 	tintedSpriteProgram_.linkShaders();
+
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
 	cell_finalM_location = tintedSpriteProgram_.getUniformLocation("finalM");
 	sampler0_location = tintedSpriteProgram_.getUniformLocation("sampler0");
 	inputColour_location = tintedSpriteProgram_.getUniformLocation("inputColour");
 	
-	//HEX PROGRAM
-	// compile
+	// HEX SHADER This shader draws the grid
 	hexProgram_.compileShaders("shaders/hex_vs.txt", "shaders/hex_ps.txt");
-	// add attributes
 	hexProgram_.addAttribute("aPosition");
-	
-	// link
 	hexProgram_.linkShaders();
+
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
 	range_location = hexProgram_.getUniformLocation("range");
 	lerp_weight_location = hexProgram_.getUniformLocation("weight");
@@ -318,7 +309,7 @@ void MainGame::initShaders()
 	hex_finalM_location = hexProgram_.getUniformLocation("finalM");
 }
 
-void MainGame::gameLoop()
+command MainGame::gameLoop()
 {
 	//enable back face culling
 	glEnable(GL_CULL_FACE); // GL_BACK is default value
@@ -334,10 +325,9 @@ void MainGame::gameLoop()
 	{
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();		
-		time_ += 0.1f;
 		calculateFPS();
 
-		if(!paused_)
+		if( !paused_ )
 		{
 			if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
 			cellSelected_ = false;
@@ -347,37 +337,32 @@ void MainGame::gameLoop()
 				bloodV_.play();
 				grid_.resetPlayVessel();
 			}
-		}
 		
-		// Count the number of cancer cells
-		int num_cancer_cells = 0;
-		for( int i = 0; i < grid_.numCells(); ++i ) {
-			if( ((T3E::Cell*)grid_.getCell(i)->getNode())->getState() == T3E::CellState::CANCEROUS ) num_cancer_cells++;
+			// Count the number of cancer cells
+			int num_cancer_cells = 0;
+			for( int i = 0; i < grid_.numCells(); ++i ) {
+				if( ((T3E::Cell*)grid_.getCell(i)->getNode())->getState() == T3E::CellState::CANCEROUS ) num_cancer_cells++;
+			}
+
+			// if a second has passed, reduce the score by the score per cancer per second
+			if( old_ticks / 1000 < ticks / 1000 ) {
+				grid_.addScore( num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND() );
+			}
 		}
 
-		// if a second has passed, reduce the score by the score per cancer per second
-		if( old_ticks / 1000 < ticks / 1000 ) {
-			score_ += num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND();
-			grid_.setScore( score_ );
-		}
-
-		score_ = grid_.getScore();
-		textRenderer_.putNumber( score_, 8, -0.05, 0.95, 44 );
+		score_ = grid_.getHighScore();
+		textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.05, 0.95, 44 );
+		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.05, 0.85, 44 );
+		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
-		//SDL_Log("score: %i", score_);
+
 
 		renderGame();
-		
+
+		textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
+		textRenderer_.putString( "m/s", 0.9, -0.9, 32 );
+
 		processInput(frameTime_);
-		
-		/* print once every 10 frames
-		static int frameCounter = 0;
-		frameCounter++;
-		if( frameCounter == 10 )
-		{
-			SDL_Log("%f\n", fps_);
-			frameCounter = 0;
-		}*/
 
 		float frameTicks = SDL_GetTicks() - startTicks;
 		//Limit the FPS to the max FPS
@@ -389,6 +374,8 @@ void MainGame::gameLoop()
 		old_ticks = ticks;
 		ticks = SDL_GetTicks();
 	}
+	
+	return command::MENU;
 }
 
 void MainGame::processInput(float dTime)
@@ -396,11 +383,6 @@ void MainGame::processInput(float dTime)
 	glm::vec4 worldPos;
     SDL_Point rowCol;
 	glm::vec2 screenCoords;
-	
-	/*
-	glm::vec4 worldPos2;
-	SDL_Point rowCol2;
-	*/
 	
 	// processing our input
 	SDL_Event evnt;
@@ -441,7 +423,7 @@ void MainGame::processInput(float dTime)
 				//Check for button presses
 				//get touch pos in screen coordinates for UI interaction
 				//invert y to match our ortho projection (origin at bottom left for ease of life)
-				screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+				screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
 				if(resumeButton_.touchCollides(screenCoords))
 				{
 					resumeButton_.press();
@@ -466,7 +448,7 @@ void MainGame::processInput(float dTime)
 					//Check for button presses
 					//get touch pos in screen coordinates for UI interaction
 					//invert y to match our ortho projection (origin at bottom left for ease of life)
-					screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+					screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
 					if(resumeButton_.touchCollides(screenCoords) || menuButton_.touchCollides(screenCoords))
 					{
 						menuButton_.unpress();
@@ -550,7 +532,7 @@ void MainGame::processInput(float dTime)
 					//Check for button presses
 					//get touch pos in screen coordinates for UI interaction
 					//invert y to match our ortho projection (origin at bottom left for ease of life)
-					glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_.getScreenWidth()), float(window_.getScreenHeight()) - evnt.tfinger.y * float(window_.getScreenHeight()));					
+					glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
 					if(bvButton_.touchCollides(screenCoords))
 					{
 						//toggle blood vessel creation mode
@@ -597,56 +579,55 @@ void MainGame::processInput(float dTime)
 						else
 							menuButton_.unpress();
 					}
-
-					switch(interactionMode_)
+					else
 					{
-						case InteractionMode::NORMAL:
+						switch(interactionMode_)
 						{
-							//if a cell was selected
-							if(cellSelected_)
+							case InteractionMode::NORMAL:
 							{
-								
-								//try to spawn
-								if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
-								{
-									//try to move stem cell
-									grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-									cellMove_.play();
-								}	
-								else
-								{
-									cellMove_.play();
+								//if a cell was selected
+								if(cellSelected_)
+								{								
+									//try to spawn
+									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+									{
+										//try to move stem cell
+										grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+										cellMove_.play();
+									}	
+									else
+									{
+										cellMove_.play();
+									}
+									
+									grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+									//cellSelected_ = false;
 								}
 								
-								grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-								//cellSelected_ = false;
-								
-													
+								//try to select a cell
+								//also, if a new cell was created, select it
+								selectCell(rowCol.x, rowCol.y);
+								break;
 							}
-							
-							//try to select a cell
-							//also, if a new cell was created, select it
-							selectCell(rowCol.x, rowCol.y);
-							break;
-						}
-						case InteractionMode::KILLMODE:
-						{
-							if(!grid_.killCell(rowCol.x, rowCol.y))
+							case InteractionMode::KILLMODE:
 							{
-								// play error noise
-								cellMove_.play();
+								if(!grid_.killCell(rowCol.x, rowCol.y))
+								{
+									// play error noise
+									cellMove_.play();
+								}
+								else
+								{
+									// play kill noise
+									cellMove_.play();
+								}
+								break;
 							}
-							else
+							case InteractionMode::BVCREATION:
 							{
-								// play kill noise
-								cellMove_.play();
+								break;
 							}
-							break;
-						}
-						case InteractionMode::BVCREATION:
-						{
-							break;
-						}
+						}	
 					}
 				}
 								
@@ -712,7 +693,7 @@ void MainGame::processInput(float dTime)
 				case InteractionMode::NORMAL:
 				{
 					//try to arrest
-					if(!grid_.arrestCell(rowCol.x, rowCol.y))
+					if(!grid_.arrestCell(rowCol.x, rowCol.y, &cellSelected_))
 						//try to change stem cell mode
 						grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
 						
@@ -735,146 +716,136 @@ void MainGame::processInput(float dTime)
 
 void MainGame::renderGame()
 {
-	//clear both buffers
-	glClearDepthf(1.0);
+	// clear both buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	static const float white[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	
-	//update matrices
+	// update matrices
 	viewM_ = glm::lookAt(camera_.getPosition(), camera_.getLookAt(), camera_.getUp());
-	finalM_ = projectionM_*viewM_*worldM_;//order matters!
+	finalM_ = projectionM_ * viewM_ * worldM_; // order matters!
+	// We can precalculate this because it's the same for each call or render game
+	glm::mat4 projectionView = projectionM_ * viewM_;
 	
-	//render background
-	//TODO: ideally we want to use and stop use just once per shader, but we need to draw backgruong -> grid -> game elements in this order...
+	// render background
 	tintedSpriteProgram_.use();
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glUniform4fv(inputColour_location, 1, bgtint);
+	glUniform4fv( inputColour_location, 1, white);
 	// set texture	
-	glActiveTexture(GL_TEXTURE0+3);	
-	glUniform1i(sampler0_location, 3);
+	glActiveTexture( GL_TEXTURE0 + backgroundSprite_.getTexUnit() );	
+	glUniform1i( sampler0_location, backgroundSprite_.getTexUnit() );
+
 	//draw sprite
 	backgroundSprite_.draw();
-	tintedSpriteProgram_.stopUse();
 	
-	//RENDER THE HEX GRID
+	// RENDER THE HEX GRID
 	drawGrid();		
 	
-	//RENDER CELLS AND BLOOD VESSELS
 	tintedSpriteProgram_.use();
-	//blood vessels
-	for(int i = 0; i < grid_.numBloodVessels(); ++i)
+
+	// Render blood vessels
 	{
-		T3E::BloodVessel* current = (T3E::BloodVessel*)grid_.getBloodVessel(i)->getNode();
-		
-		//move to hex position
-		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getBloodVessel(i)->getX(), grid_.getBloodVessel(i)->getY(), 0.0f ) );
-		finalM_ = projectionM_ * viewM_ * worldM_;
-		
-		//send matrix to shaders
-		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//set tint
-		//TODO: we don't need to tint blood vessels; remove this and make new shader that doesn't use tint? 
-		float tint[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		glUniform4fv(inputColour_location, 1, tint);
-		
-        //use texture 1
-		glActiveTexture(GL_TEXTURE0+0);
-		glUniform1i(sampler0_location, 0);
-		current->getSprite()->draw();
-		
-		//reset matrices
-		worldM_ = glm::mat4();
-		finalM_ = projectionM_ * viewM_ * worldM_;
+		GLuint bvUnit = T3E::ResourceManager::getTexture("textures/bloodVessel.png").unit;
+		glActiveTexture( GL_TEXTURE0 + bvUnit );
+		glUniform1i( sampler0_location, bvUnit );
+	
+		for(int i = 0; i < grid_.numBloodVessels(); ++i)
+		{
+			T3E::BloodVessel* current = (T3E::BloodVessel*)grid_.getBloodVessel(i)->getNode();
+			
+			//move to hex position
+			glm::mat4 worldM_;
+			worldM_ = glm::translate( worldM_, glm::vec3( grid_.getBloodVessel(i)->getX(), grid_.getBloodVessel(i)->getY(), 0.0f ) );
+			glm::mat4 finalM_ = projectionView * worldM_;
+			
+			//send matrix to shaders
+			glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
+			
+	        //use texture 1
+			current->getSprite()->draw();
+		}
 	}
 	
-	//render position checkers of bv spawn points
-	for(int i = 0; i < grid_.numBvSpawns(); ++i)
+	// Render position checkers of bv spawn points
 	{
-		glm::vec2 coords = grid_.getBvSpawnCoords(i);
-		
-		// move to hex position
-		worldM_ = glm::translate( worldM_, glm::vec3( coords.x, coords.y, 0.0f ) );
-		finalM_ = projectionM_ * viewM_ * worldM_;
-		
-		//send matrix to shaders
-		glUniformMatrix4fv(cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_));
-		//set tint
+		glActiveTexture( GL_TEXTURE0 + sprites_[0]->getTexUnit() );
+		glUniform1i( sampler0_location, sprites_[0]->getTexUnit() );
+
 		float tint[] = { 0.0f, 0.0f, 1.0f, 0.3f };
 		glUniform4fv(inputColour_location, 1, tint);
-		
-        //use texture 1
-		glActiveTexture(GL_TEXTURE0+0);
-		glUniform1i(sampler0_location, 0);
-		sprites_[0]->draw();
-		
-		//reset matrices
-		worldM_ = glm::mat4();
-		finalM_ = projectionM_ * viewM_ * worldM_;
+
+		for(int i = 0; i < grid_.numBvSpawns(); ++i)
+		{
+			glm::vec2 coords = grid_.getBvSpawnCoords(i);
+			
+			// move to hex position
+			glm::mat4 worldM_;
+			worldM_ = glm::translate( worldM_, glm::vec3( coords.x, coords.y, 0.0f ) );
+			finalM_ = projectionView * worldM_;
+			
+			// send matrix to shaders
+			glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
+			
+			sprites_[0]->draw();
+		}
 	}
-
-	//cells
-	for(int i = 0; i < grid_.numCells(); ++i)
 	{
-		T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();
-		
-		// move to hex position
-		worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
-		finalM_ = projectionM_ * viewM_ * worldM_;
-		
-		// send matrix to shaders
-		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
+		// Render cells
+		GLuint cellTexture = T3E::ResourceManager::getTexture("textures/cellSheet.png").unit;
+		glActiveTexture( GL_TEXTURE0 + cellTexture );
+		glUniform1i( sampler0_location, cellTexture );
+		for(int i = 0; i < grid_.numCells(); ++i)
+		{
+			T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();
+			
+			// move to hex position
+			glm::mat4 worldM_;
+			worldM_ = glm::translate( worldM_, glm::vec3( grid_.getCell(i)->getX(), grid_.getCell(i)->getY(), 0.0f ) );
 
-		// set tint
-		float tint[] = {current->getTint().x ,current->getTint().y , current->getTint().z, current->getTint().w};
-		glUniform4fv(inputColour_location, 1, tint);
+			// Rotate splitting cells to face the direction they are splitting
+			if( current->isSplitting() )
+				worldM_ = glm::rotate(worldM_, glm::radians(current->getSplitRotation()), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		// set texture	
-        glActiveTexture(GL_TEXTURE0+1);
-		
-		glUniform1i(sampler0_location, 1);
-				
-		current->getSprite()->draw();
-		
-		// reset matrices
-		worldM_ = glm::mat4();
-		finalM_ = projectionM_*viewM_*worldM_;
-		
+			glm::mat4 finalM_ = projectionView * worldM_;
+			
+			// send matrix to shaders
+			glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(finalM_) );
+
+			// set tint
+			float tint[] = {current->getTint().x ,current->getTint().y , current->getTint().z, current->getTint().w};
+			glUniform4fv(inputColour_location, 1, tint);
+
+			current->draw();
+		}
 	}
 	
-	//RENDER UI	
-	// send ortho matrix to shaders
-	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};	
-	glUniform4fv(inputColour_location, 1, tint);
-	// set texture	
-	glActiveTexture(GL_TEXTURE0+2);	
-	glUniform1i(sampler0_location, 2);
-	//draw sprite
-	menuButton_.draw();
-	bvButton_.draw();
-	killButton_.draw();
-	
-	//RENDER MENU IF PAUSED
-	if(paused_)
+	//RENDER UI
 	{
+		// send ortho matrix to shaders
 		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-		float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};	
-		glUniform4fv(inputColour_location, 1, tint);
-		// set texture	
-		glActiveTexture(GL_TEXTURE0+2);	
-		glUniform1i(sampler0_location, 2);
-		//draw sprite
-		resumeButton_.draw();
-		quitButton_.draw();
+		glUniform4fv( inputColour_location, 1, white );
+
+		// All the button textures are in one texture so we only have to do this once
+		glActiveTexture( GL_TEXTURE0 + menuButton_.getTexUnit() );
+		glUniform1i( sampler0_location, menuButton_.getTexUnit() );
+
+		menuButton_.draw();
+		bvButton_.draw();
+		killButton_.draw();
+		
+		//RENDER MENU IF PAUSED
+		if( paused_ )
+		{
+			//draw sprite
+			resumeButton_.draw();
+			quitButton_.draw();
+		}
 	}
-	
-	tintedSpriteProgram_.stopUse();	
 
 	textRenderer_.render();
 
 	// swap our buffers 
-	window_.swapBuffer();
+	window_->swapBuffer();
 }
 
 glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
@@ -1004,7 +975,6 @@ void MainGame::calculateFPS()
 
 void MainGame::drawGrid()
 {
-
 	//draw highlighted hexes last so they're always on top of the others
 	std::vector<glm::vec4> hexesInRange;
 	std::vector<glm::vec4> hexesInLargeRange;
@@ -1027,8 +997,6 @@ void MainGame::drawGrid()
 	glUniform1f(range_location, 2.0f );
 	//set whether or not to highlight the grid
 	glUniform1i(avaliable_for_highlight, 0);
-
-	//glEnable( GL_BLEND );
 
 	for(int r = 0; r < grid_.getSize(); ++r)
 	{
@@ -1053,8 +1021,6 @@ void MainGame::drawGrid()
 				}
 				else // hex is not in any range of any bv, draw it normaly
 				{
-					//if( r%2 == 0 || c%2 == 0 ) continue;
-
 					//send matrix to shaders
 					glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
 					glm::mat4 final_matrix = finalM_ * tranlation_matrix;			
@@ -1130,10 +1096,4 @@ void MainGame::drawGrid()
 		// draw our verticies
 		glDrawArrays(GL_LINE_LOOP, 0, 6);
 	}
-	
-	// disable the vertex attrib array
-	glDisableVertexAttribArray(0);
-	// unbind the VBO
-	glBindBuffer(GL_ARRAY_BUFFER, 0);  
-	hexProgram_.stopUse();
 }

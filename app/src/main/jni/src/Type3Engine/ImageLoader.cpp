@@ -2,6 +2,8 @@
 
 namespace T3E
 {
+	GLuint GLTexture::numTextures = 0;
+
 	//workaround for 'to_string' is not a member of 'std'
 	template <typename T>
 	std::string to_string(T value)
@@ -35,10 +37,17 @@ namespace T3E
 			fatalError("decodePNG failed with error: " + to_string(errorCode));
 		}
 
+		// set the width and height 
+		texture.width = width;
+		texture.height = height;
+		texture.unit = GLTexture::numTextures;
+		GLTexture::numTextures++;
+
 		// generate the texture
 		glGenTextures(1, &(texture.id));
 
-		glBindTexture(GL_TEXTURE_2D, texture.id);
+		glActiveTexture( GL_TEXTURE0 + texture.unit );
+		glBindTexture( GL_TEXTURE_2D, texture.unit );
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(out[0]));
 
@@ -52,9 +61,8 @@ namespace T3E
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		// set the width and height 
-		texture.width = width;
-		texture.height = height;
+
+		SDL_Log("Loaded texture %s id %i unit %i", filePath.c_str(), texture.id, texture.unit );
 
 		return texture;
 	}
