@@ -76,6 +76,7 @@ private:
 	std::vector<T3E::Sprite*> sprites_; // sprite container TODO: remove this when bv sprite is in right place. maybe use for ui or smt
 	int score_;							// the player's score
 	bool paused_;
+	bool gameOver_;
 	
 	// [in] row to test
 	// [in] column to test

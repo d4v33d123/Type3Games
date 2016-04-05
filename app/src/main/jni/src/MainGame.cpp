@@ -14,7 +14,8 @@ MainGame::MainGame():
 	fingerPressed_(false),
 	cellSelected_(false),
 	interactionMode_(InteractionMode::NORMAL),
-	paused_(false)
+	paused_(false),
+	gameOver_(false)
 {}
 
 MainGame::~MainGame()
@@ -326,36 +327,43 @@ command MainGame::gameLoop()
 		// used for frame time measuring
 		float startTicks = SDL_GetTicks();		
 		calculateFPS();
-
-		if( !paused_ )
+			
+		if(grid_.getCurrency() > 0)
 		{
-			if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
-				cellSelected_ = false;
-		
-			if(grid_.playVessel())
+			if( !paused_ )
 			{
-				bloodV_.play();
-				grid_.resetPlayVessel();
-			}
-		
-			// Count the number of cancer cells
-			int num_cancer_cells = 0;
-			for( int i = 0; i < grid_.numCells(); ++i ) {
-				if( ((T3E::Cell*)grid_.getCell(i)->getNode())->getState() == T3E::CellState::CANCEROUS ) num_cancer_cells++;
-			}
+				if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
+					cellSelected_ = false;
+			
+				if(grid_.playVessel())
+				{
+					bloodV_.play();
+					grid_.resetPlayVessel();
+				}
+			
+				// Count the number of cancer cells
+				int num_cancer_cells = 0;
+				for( int i = 0; i < grid_.numCells(); ++i ) {
+					if( ((T3E::Cell*)grid_.getCell(i)->getNode())->getState() == T3E::CellState::CANCEROUS ) num_cancer_cells++;
+				}
 
-			// if a second has passed, reduce the score by the score per cancer per second
-			if( old_ticks / 1000 < ticks / 1000 ) {
-				grid_.addScore( num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND() );
+				// if a second has passed, reduce the score by the score per cancer per second
+				if( old_ticks / 1000 < ticks / 1000 ) {
+					grid_.addScore( num_cancer_cells * T3E::SCORE::CANCER_PER_SECOND() );
+				}
 			}
 		}
-
+		else//game over!!!
+		{
+			gameOver_ = true;
+			textRenderer_.putString( "Game over!", -0.5, 0.3, 100 );
+		}
+		
 		score_ = grid_.getHighScore();
 		textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.05, 0.95, 44 );
 		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.05, 0.85, 44 );
 		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
-
 
 		renderGame();
 
@@ -388,7 +396,83 @@ void MainGame::processInput(float dTime)
 	SDL_Event evnt;
 	while (SDL_PollEvent(&evnt))
 	{
-		if(paused_)
+		if(gameOver_)//waith for touch then go to main menu
+		{
+			switch( evnt.type )
+			{
+			case SDL_QUIT:
+				gameState_ = GameState::EXIT;
+				break;
+								
+			case SDL_FINGERDOWN:
+				++nOfFingers_;
+				
+				fingerPressed_ = true;
+				//record position in case we need it later
+				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
+				
+				// Convert the touch position to a world position
+				worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+							
+				// Draw cursor for debug purposes
+				cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
+				
+				//Check for button presses
+				//get touch pos in screen coordinates for UI interaction
+				//invert y to match our ortho projection (origin at bottom left for ease of life)
+				screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
+				if(quitButton_.touchCollides(screenCoords))
+				{
+					quitButton_.press();
+				}
+					
+				break;
+				
+			case SDL_FINGERUP:
+				--nOfFingers_;
+				
+				fingerPressed_ = false;			
+				
+				// Only act when the last finger is lifted,
+				if( nOfFingers_ == 0 && finger_dragged_ == false)
+				{
+					//Check for button presses
+					//get touch pos in screen coordinates for UI interaction
+					//invert y to match our ortho projection (origin at bottom left for ease of life)
+					screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
+					if(quitButton_.touchCollides(screenCoords))
+						gameState_ = GameState::EXIT;
+					
+					quitButton_.unpress();
+				}
+								
+				// Reset the type of touch if the last finger was released
+				if( nOfFingers_ == 0 ) finger_dragged_ = false;
+				break;
+					
+			case SDL_FINGERMOTION:
+				if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
+				{
+					finger_dragged_ = true;
+					fingerPressed_ = false;	
+				}
+				
+				if( nOfFingers_ < 2)
+				{
+					camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
+				}
+				break;
+			
+			case SDL_MULTIGESTURE: 		
+				// pinch zoom
+				camera_.zoom( -evnt.mgesture.dDist );
+				break;
+			
+			default:
+				break;
+			}
+		}
+		else if(paused_)
 		{
 			switch( evnt.type )
 			{
@@ -838,6 +922,14 @@ void MainGame::renderGame()
 		{
 			//draw sprite
 			resumeButton_.draw();
+			quitButton_.draw();
+		}
+		
+		if(gameOver_)
+		{
+			//render message
+			//Game over!!!
+			//final score: 00000
 			quitButton_.draw();
 		}
 	}

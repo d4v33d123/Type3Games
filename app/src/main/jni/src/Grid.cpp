@@ -9,7 +9,13 @@ namespace T3E
         // Initialise all the cells ( to empty )
         for( int col = 0; col < CHUNK_WIDTH; col++ )
 			for( int row = 0; row < CHUNK_WIDTH; row++ )
-                grid_[ row * CHUNK_WIDTH + col ].init( row, col );	
+                grid_[ row * CHUNK_WIDTH + col ].init( row, col );
+			
+		/* fill grid with cells to test stuff 
+		for(int row = 0; row < CHUNK_WIDTH; ++row)
+			for(int col = 0; col < CHUNK_WIDTH; ++col)
+				newCell(row, col, CellState::MUTATED, 5, nullptr);
+		*/
     }
 
     Grid::~Grid()
@@ -361,6 +367,13 @@ namespace T3E
 		std::vector<birthInfo> newCells;
 		std::vector<deathInfo> deadCells;
 	
+		//update bvs
+		for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
+		{
+			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
+			bloodVessel->update(dTime);
+		}
+		
 		//try to create blood vessels at spawn points
 		for(std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end();)
 		{
@@ -371,14 +384,7 @@ namespace T3E
 			}
 			else
 				++sp;
-		}	
-		
-		//update bvs
-		for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
-		{
-			BloodVessel* bloodVessel = (BloodVessel*)((*bvs)->getNode());
-			bloodVessel->update(dTime);
-		}
+		}		
 		
 		//update cells
 		for(std::vector<Hex*>::iterator hex = cells_.begin(); hex != cells_.end(); ++hex)
@@ -981,6 +987,8 @@ namespace T3E
 		
 		if(selectedCell->isSplitting() || selectedCell->isInCreation()) return false;//don't create while animating
 
+		if(currency_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 ) return false;// not enough points
+
 		if( getNeighbours( row, col, neighbours ) )
 		{
 			// Count the number of adjacent cells
@@ -1003,16 +1011,11 @@ namespace T3E
 			}
 		}
 
-		if(currency_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 )
+		if(newBloodVessel( row, col, nullptr ))
 		{
-			if(newBloodVessel( row, col, nullptr ))
-			{
-				if(selectedCellInvolved)
-					*selectedCellDied = true;
-				else
-					*selectedCellDied = false;
-				return true;
-			}
+			if(selectedCellInvolved)
+				*selectedCellDied = true;
+			return true;
 		}
 		return false;
 	}

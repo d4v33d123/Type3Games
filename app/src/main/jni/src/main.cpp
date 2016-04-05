@@ -11,6 +11,7 @@
 
 int main(int argc, char** argv)
 {
+	srand(time(NULL));
 	T3E::window window;
 	T3E::AudioEngine audioEngine;
 	T3E::Music menuMusic;
@@ -22,7 +23,6 @@ int main(int argc, char** argv)
 	MainGame* mainGame;
 	
 	//setup game, window, render flags
-	srand(time(NULL));
 	T3E::init();
 	window.create("Type3Games - Mutagenesis", 800, 600, T3E::BORDERLESS);//screen size is overwritten on android devices to be full screen
 	audioEngine.init();
