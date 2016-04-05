@@ -490,9 +490,11 @@ namespace T3E
 					//make sure the player is not hovering the finger on this cell
 					if(fingerRowCol.x != (*hex)->getRow() || fingerRowCol.y != (*hex)->getCol())
 					{
-						selectedCellDied = current->isSelected();
-						if(selectedCellDied)
+						if(current->isSelected())
+						{
+							selectedCellDied = true;
 							current->unselect();
+						}
 						current->kill();
 					}
 				}

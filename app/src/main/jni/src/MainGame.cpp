@@ -330,7 +330,7 @@ command MainGame::gameLoop()
 		if( !paused_ )
 		{
 			if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
-			cellSelected_ = false;
+				cellSelected_ = false;
 		
 			if(grid_.playVessel())
 			{
@@ -601,7 +601,7 @@ void MainGame::processInput(float dTime)
 									}
 									
 									grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-									//cellSelected_ = false;
+									//cellSelected_ = false;// no need since we're testing for select right after this
 								}
 								
 								//try to select a cell
