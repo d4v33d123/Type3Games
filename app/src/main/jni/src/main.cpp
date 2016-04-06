@@ -67,9 +67,9 @@ int main(int argc, char** argv)
 	}
 
 	//cleanup
-	audioEngine.clearMaps();//TESTING... does nothing
 	T3E::ResourceManager::clearTextures();
 	T3E::GLTexture::numTextures = 0;
-	SDL_Quit();	
+	SDL_Quit();
+	exit(0);//temp fix to music bug...
 	return 0;
 }

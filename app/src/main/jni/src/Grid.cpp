@@ -987,7 +987,7 @@ namespace T3E
 		
 		if(selectedCell->isSplitting() || selectedCell->isInCreation()) return false;//don't create while animating
 
-		if(currency_ - T3E::SCORE::SPAWNED_BLOODVESSEL() >= 0 ) return false;// not enough points
+		if(currency_ - T3E::SCORE::SPAWNED_BLOODVESSEL() <= 0 ) return false;// not enough points
 
 		if( getNeighbours( row, col, neighbours ) )
 		{
