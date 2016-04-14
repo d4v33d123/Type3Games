@@ -8,6 +8,9 @@
 	
 namespace T3E
 {
+	/**
+	* Stores all the information about a texture
+	*/
 	struct GLTexture
 	{
 		GLuint id;

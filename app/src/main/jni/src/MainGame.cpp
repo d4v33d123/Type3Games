@@ -40,7 +40,10 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine)
 	music.play(-1);
 	
 	bloodV_ = audioEngine_->loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
-	cellMove_ = audioEngine_->loadSoundEffect("sound/Player_CellDivide_Move.ogg");
+	cellDeath_ = audioEngine_->loadSoundEffect("sound/Player_CellDeath.ogg");
+	cellArrest_ = audioEngine_->loadSoundEffect("sound/Player_CellArrest.ogg");
+	cellModeChange_ = audioEngine_->loadSoundEffect("sound/Player_CellModeChange.ogg");
+	select_ = audioEngine_->loadSoundEffect("sound/Player_Select.ogg");
 	
 	return gameLoop();
 }
@@ -591,13 +594,17 @@ void MainGame::processInput(float dTime)
 									//try to spawn
 									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
 									{
+										T3E::Cell* sel = (T3E::Cell*)((grid_.getNode());
 										//try to move stem cell
-										grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-										cellMove_.play();
+										if(!(sel->isInCreation()))
+										{
+											grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
+										}
+										
 									}	
 									else
 									{
-										cellMove_.play();
+										select_.play();
 									}
 									
 									grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
@@ -614,12 +621,12 @@ void MainGame::processInput(float dTime)
 								if(!grid_.killCell(rowCol.x, rowCol.y))
 								{
 									// play error noise
-									cellMove_.play();
+									
 								}
 								else
 								{
 									// play kill noise
-									cellMove_.play();
+									cellDeath_.play();
 								}
 								break;
 							}
@@ -694,9 +701,15 @@ void MainGame::processInput(float dTime)
 				{
 					//try to arrest
 					if(!grid_.arrestCell(rowCol.x, rowCol.y, &cellSelected_))
+					{
 						//try to change stem cell mode
 						grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
-						
+						cellModeChange_.play();
+					}					
+					else
+					{
+						cellArrest_.play();
+					}
 					break;
 				}
 				case InteractionMode::BVCREATION:
@@ -707,6 +720,7 @@ void MainGame::processInput(float dTime)
 						bvButton_.unpress();
 						interactionMode_ = InteractionMode::NORMAL;
 					}
+					
 				}
 				
 			}

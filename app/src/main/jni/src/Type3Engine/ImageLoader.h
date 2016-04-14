@@ -18,6 +18,13 @@ namespace T3E
 	class ImageLoader
 	{	
 	public:
+	
+		/**
+		*
+		* Loads a PNG into the game
+		*
+		* @param [in] The string containing the file path that is going to be accessed 
+		*/
 		static GLTexture loadPNG(std::string filePath);
 	};
 }

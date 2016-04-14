@@ -50,14 +50,34 @@ namespace T3E
 		
 		
 		//Setters
-		
+		/**
+		* sets the button as being pressed
+		*/
 		void press(){isPressed_ = true;};
+		
+		/**
+		* sets the button as not being pressed
+		*/
 		void unpress(){isPressed_ = false;};
+		
+		/**
+		* toggles whether or not the button has been pressed or not
+		*/
 		void toggle(){isPressed_ = !isPressed_;};
 		
 		//getters
+		/**
+		* checks to see if the button is pressed or not 
+		*
+		* @return [out] the true or false value of if the button has been pressed or not
+		*/
 		bool isPressed(){return isPressed_;};
 		
+		/**
+		* Gets the texture unit of the pressed sprite 
+		*
+		* @return the GLuint containing the texture unit of the pressed sprite
+		*/
 		GLuint getTexUnit() { return pressedSprite_.getTexUnit(); }
 
 	private:

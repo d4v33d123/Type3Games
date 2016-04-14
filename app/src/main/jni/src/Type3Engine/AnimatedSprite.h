@@ -61,10 +61,16 @@ namespace T3E
 		*/
 		void setSpeed(float s){animSpeed_ = s;};
 		
+		/**
+		* lets the update function know that the sprite needs refreshed
+		*/
 		void refresh(){needRefresh_ = true;};
 		
 	private:
 		
+		/**
+		*	Updates the UV coordinates of the sprite
+		*/
 		void updateUVs();//refresh uv coordinates and rebind geometry
 		
 		int animPosition_; // The position of the animation out of the full animation
