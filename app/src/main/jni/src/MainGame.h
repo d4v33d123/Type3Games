@@ -109,7 +109,10 @@ private:
 	//AUDIO
     T3E::AudioEngine* audioEngine_;
 	T3E::SoundEffect bloodV_;
-	T3E::SoundEffect cellMove_;
+	T3E::SoundEffect cellDeath_;
+	T3E::SoundEffect cellArrest_;
+	T3E::SoundEffect cellModeChange_;
+	T3E::SoundEffect select_;
 
 	// Conversion Functions
     // Returns a vec4 where x and y are the touch world positions, z is 0.0f, w is a number
