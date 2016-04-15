@@ -678,12 +678,12 @@ void MainGame::processInput(float dTime)
 									//try to spawn
 									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
 									{
-										T3E::Cell* sel = (T3E::Cell*)((grid_.getNode());
+										//T3E::Cell* sel = (T3E::Cell*)((grid_.getNode());
 										//try to move stem cell
-										if(!(sel->isInCreation()))
-										{
+										//if(!(sel->isInCreation()))
+										//{
 											grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-										}
+										//}
 										
 									}	
 									else
