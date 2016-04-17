@@ -94,6 +94,9 @@ namespace T3E
 	
 	bool Cell::update(float dTime)
 	{
+		// TODO: incorporate some of these into the cell state enum and
+		// use a switch case instead, povided we can only be in one state at a time
+
 		if(dying_)
 		{
 			dead_ = deathAnimation_.Update(dTime);
@@ -110,7 +113,7 @@ namespace T3E
 				}		
 			}							
 		}		
-		else if(inCreation_)//don't update if parent split animation is playing
+		else if( inCreation_ )//don't update if parent split animation is playing
 		{
 			//sync a split animation with the parent. when it's done we can start drawing and updating normally
 			if(splitAnimation_.Update(dTime))
@@ -118,7 +121,7 @@ namespace T3E
 				inCreation_ = false;
 			}
 		}			
-		else if(splitting_)
+		else if( splitting_ )
 		{
 			if(splitAnimation_.Update(dTime))
 			{
@@ -129,6 +132,7 @@ namespace T3E
 		}
 		else
 		{
+			// The cell is in currently idling
 			idleAnimation_.Update(dTime);
 	
 			if((splitTimer_ += dTime) >= splitTime_)

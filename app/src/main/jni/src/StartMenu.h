@@ -32,7 +32,13 @@
 class StartMenu
 {
 public:
-	command run(T3E::window* window, T3E::AudioEngine* audioEngine);
+
+	/**
+	* @param [in] Window* The window to render to
+	* @param [in] AudioEngine* The audio engine to use
+	* Run handles initialisation of the state then enters the game loop
+	*/
+	command run( T3E::window* window, T3E::AudioEngine* audioEngine );
 
 private:
 	//control functions

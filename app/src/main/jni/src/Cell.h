@@ -30,48 +30,83 @@ namespace T3E
 		static glm::vec4 mutatedColourRange_[2];
 		static glm::vec4 cancerousColourRange_[2];
 		
-		// [in] see CellState enum
+		/**
+		* @param [in] The state the cell should be in after initalisation
+		* @param [in] The inital death chance of the cell
+		* @see T3E::CellState
+		*/
 		void init(CellState state, int deathChance);
 		
-		// [in] time since last frame was rendered
-		// [ret] true if time to split, false otherwise
+		/**
+		// @param [in] deltaTime time since last frame was rendered
+		// @return true if time to split, false otherwise
 		// increase timer
+		*/
 		bool update(float dTime);
 		
-		// [in] minimum new split timer value
-		// [in] maximum new split timer value
-		// get a new random div time <= max
+		// TODO: should this be private instaed?
+		// TODO: `new` impiles memory allocation, should rename
+		/**
+		* @param [in] minimum new split timer value
+		* @param [in] maximum new split timer value
+		* Recalculates the spit time of the cell
+		*/
 		void newSplitTime(int min = MIN_ST, int max = MAX_ST);
 	
-		// [in] amount to add to current death chance
+		/***
+		* @param [in] dc Amount to add to current death chance
+		*/		
 		void incDeathChance(int dc);
 		
-		// set state to arrested
+		/***
+		* Set state to arrested and reset timers
+		*/
 		void arrest();
 		
-		// set/unset as currently selected
+		/**
+		* set/unset as currently selected
+		*/
+		///@{
 		void select();
 		void unselect();
+		///@}
 		
-		//swaps between normal and alternate mode
+		/**
+		* swaps between normal and alternate mode
+		*/
 		void toggleMode();
 
-		//set random colour based on state
+		/**
+		* @param [in] state Sets the colour tint based on the given cell state
+		*/
 		void setNormalTint(CellState state); 
 		
-		//give a new tint. Sets current tint to normal!
+		/**
+		* @param [in] tint Sets the current tint to a Vec4 XYZW = RGBA
+		* Sets current tint to normal!
+		*/
 		void hardcodeNormalTint(glm::vec4 normalTint);
 		
-		//play split animation
+		/**
+		* @param [in] neighbour Which of the 6 neighbours to split into
+		* play split animation rotated to towards the given neighbour
+		*/
 		void split(int neighbour);
 		
-		//don't wait for the split animation to end on creation
-		void ignoreBirthDelay(){inCreation_ = false;};
+		/**
+		* don't wait for the split animation to end on creation
+		*/
+		void ignoreBirthDelay() { inCreation_ = false; }
 		
-		//draw the correct sprite
+		/**
+		* Calls draw on the correct sprite depending on the cells state
+		*/
 		void draw();
 		
-		//getters
+		/** @name getters
+		* Get over it
+		*/
+		///@{
 		inline glm::vec4 getTint() { return tint_; }
 		inline CellState getState() { return state_; }
 		inline int getDeathChance() { return deathChance_; }
@@ -82,10 +117,15 @@ namespace T3E
 		inline bool isSplitting() { return splitting_; }
 		inline bool isInCreation() { return inCreation_; }
 		inline float getSplitRotation() { return splitRotation_; }
-		
-		//setters
-		void kill(){dying_ = true;};//play death animation
+		///@}
+
+		/** @name setters
+		* Set over it
+		*/
+		///@{
+		void kill() { dying_ = true; } //play death animation
 		void setDeathChance(int dc) { deathChance_ = dc; }
+		///@}
 		
 	private:
 		float splitRotation_;//rotation for split animation sprite
@@ -94,7 +134,7 @@ namespace T3E
 		AnimatedSprite splitAnimation_;
 		AnimatedSprite arrestAnimation_;
 		AnimatedSprite deathAnimation_;
-		
+
 		glm::vec4 tint_; // current colour
 		glm::vec4 normalTint_; // colour when non selected
 		glm::vec4 brightTint_; // colour when selected
@@ -106,6 +146,7 @@ namespace T3E
 		float splitTimer_; // time since last split; milliseconds //TODO: counting milliseconds with a float is probably a bad idea
 		float splitTime_; // time to reach to start split; milliseconds
 		
+		// TODO: Some of these should probably be incorporated into the CellState enum
 		bool selected_; // cell is the current selection?
 		bool alternateMode_; // true when cell is in secondary mode (e.g. stem cell in spawn mode)
 		bool dying_;//death animation is playing
