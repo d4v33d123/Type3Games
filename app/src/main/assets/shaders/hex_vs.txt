@@ -18,7 +18,7 @@ void main()
 	//transform position with world view and projection matrices
 	gl_Position = finalM * aPosition;
 
-    lowp vec4 neutralColour = vec4(1.0, 1.0, 1.0, 0.1); // light grey
+    lowp vec4 neutralColour = vec4(1.0, 1.0, 1.0, 0.2); // light grey
     lowp vec4 midColour = vec4(0.1, 0.3, 0.4, 0.7); // dark blueish
     lowp vec4 highlightColour = vec4(1.0, 0.0, 0.0, 1.0); // red
 	lowp vec4 highlightColour2 = vec4(1.0, 1.0, 0.0, 1.0); // yellow?

@@ -53,6 +53,8 @@ void MainGame::initSystems()
 {
 	// Clear the depth buffer to 1
 	glClearDepthf(1.0);
+	//set line width for grid
+	glLineWidth(5.0f);
 
 	// init projection matrix
 	window_->updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
@@ -311,12 +313,6 @@ void MainGame::initShaders()
 
 command MainGame::gameLoop()
 {
-	//enable back face culling
-	glEnable(GL_CULL_FACE); // GL_BACK is default value
-	
-	//set line width for grid
-	glLineWidth(5.0f);
-
 	Uint32 old_ticks = 0;
 	Uint32 ticks = 0;
 
@@ -1125,7 +1121,7 @@ void MainGame::drawGrid()
 				{
 					//send matrix to shaders
 					glm::mat4 tranlation_matrix = glm::translate(worldM_, glm::vec3(drawData.x, drawData.y, 0.0f));
-					glm::mat4 final_matrix = finalM_ * tranlation_matrix;			
+					glm::mat4 final_matrix = projectionM_ * viewM_ * tranlation_matrix;			
 					glUniformMatrix4fv(hex_finalM_location, 1, GL_FALSE, glm::value_ptr(final_matrix));
 					
 					glDrawArrays(GL_LINE_STRIP, 0, 4);

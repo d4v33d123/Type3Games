@@ -14,21 +14,29 @@ namespace T3E
 	{		
 	public:
 	
-	void makeGreen(){tint_ = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);} // for testing
-	
 	    Cell();
         virtual ~Cell();
 		
-		// The following static values are theoreticaly constant, but they aren't const
-		// They are set by reading from the config file, So just dont change them with code
-		// max and min split time
+		/** @name minimum and maximum split times
+		* The following static values are theoreticaly constant, but they aren't const
+		* They are set by reading from the config file, So just dont change them with code, please
+		* max and min split time
+		*/
+        ///@{
 		static int MIN_ST;
 		static int MAX_ST;
+		///@}
 
-		// colour ranges (min and max)
+        /** @name Cell colour ranges
+		* These colour values are shared across all cells.
+		* Cells will then choose a random colour between these two values depenting on their state
+		* @note These are given inital values, but they are likely to be overwritten by whats in the config.txt anyway
+        */
+        ///@{
 		static glm::vec4 normalColourRange_[2];		
 		static glm::vec4 mutatedColourRange_[2];
 		static glm::vec4 cancerousColourRange_[2];
+		///@}
 		
 		/**
 		* @param [in] The state the cell should be in after initalisation
@@ -70,16 +78,13 @@ namespace T3E
 		void select();
 		void unselect();
 		///@}
-		
+
+		//swaps between normal and alternate mode
 		/**
-		* swaps between normal and alternate mode
+		* Switches between normal and alternate mode.
+		* Only relevant for stem cells, alternate mode is when they can split
 		*/
 		void toggleMode();
-
-		/**
-		* @param [in] state Sets the colour tint based on the given cell state
-		*/
-		void setNormalTint(CellState state); 
 		
 		/**
 		* @param [in] tint Sets the current tint to a Vec4 XYZW = RGBA
@@ -94,19 +99,13 @@ namespace T3E
 		void split(int neighbour);
 		
 		/**
-		* don't wait for the split animation to end on creation
-		*/
-		void ignoreBirthDelay() { inCreation_ = false; }
-		
-		/**
 		* Calls draw on the correct sprite depending on the cells state
 		*/
 		void draw();
-		
-		/** @name getters
-		* Get over it
-		*/
-		///@{
+
+
+        /** @name Getters */
+        ///@{
 		inline glm::vec4 getTint() { return tint_; }
 		inline CellState getState() { return state_; }
 		inline int getDeathChance() { return deathChance_; }
@@ -118,20 +117,28 @@ namespace T3E
 		inline bool isInCreation() { return inCreation_; }
 		inline float getSplitRotation() { return splitRotation_; }
 		///@}
-
-		/** @name setters
-		* Set over it
+		
+        /** @name Setters */
+        ///@{
+		/**
+		* Takes in a CellState and sets the sprites colour to a value aproprite for that state
+		*
+		* This is what gives cells their slight colour variation even within cells of the same type
+		* @param [in] state The state that this cells colour should reflect
 		*/
 		///@{
-		void kill() { dying_ = true; } //play death animation
-		void setDeathChance(int dc) { deathChance_ = dc; }
         void stemToStemOn() { stemToStem_ = true; }
         void showChangeOn() { showChange_ = true; }
+		void setNormalTint( CellState state );							///< Set the colour based on the given cell state
+		void kill() { dying_ = true; } 									///< play death animation
+		void setDeathChance(int dc) { deathChance_ = dc; }				///< Sets the cells death chance @warning does not clamp range
+		void ignoreBirthDelay() { inCreation_ = false; } 				///< don't wait for the split animation to end on creation
+		void makeGreen() { tint_ = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); }	///< for testing mainly
 		///@}
 		
 	private:
-		float splitRotation_;//rotation for split animation sprite
-		//spritesheets
+		float splitRotation_; // rotation for split animation sprite
+
 		AnimatedSprite idleAnimation_;
 		AnimatedSprite splitAnimation_;
 		AnimatedSprite arrestAnimation_;
@@ -154,14 +161,14 @@ namespace T3E
 		// TODO: Some of these should probably be incorporated into the CellState enum
 		bool selected_; // cell is the current selection?
 		bool alternateMode_; // true when cell is in secondary mode (e.g. stem cell in spawn mode)
-		bool dying_;//death animation is playing
-		bool dead_;//cell needs to be deleted
-		bool splitting_;//split animation playing
-		bool inCreation_;//true while parent split animation is running
-		bool fullyArrested_;//true = arrest animation finished playing
         bool stemToStem_;//a stem cell is being (manually) split into another stem cell
         bool showChange_;//cell should play state change animation before idling
         bool showingChange_;//currently doing ^^^
+		bool dying_; // death animation is playing
+		bool dead_; // cell needs to be deleted
+		bool splitting_; // split animation playing
+		bool inCreation_; // true while parent split animation is running
+		bool fullyArrested_; // true = arrest animation finished playing
 	};
 }
 

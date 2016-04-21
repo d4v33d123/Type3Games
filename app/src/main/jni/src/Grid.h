@@ -240,12 +240,12 @@ namespace T3E
 		bool growBloodVesselAt( int row, int col, bool* selectedCellDied);
 		
 		/**
-		* @param true if to play blood vessel sound
+		* @return true if to play blood vessel sound
 		*/
 		inline bool playVessel() { return playVessel_; }
 		
 		/**
-		* resets the blood vessel sound effect 
+		* Resets the blood vessel sound effect
 		*/
 		inline void resetPlayVessel() { playVessel_ = false; }
 				
