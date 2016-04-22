@@ -1,9 +1,9 @@
 // Input parameters
 attribute vec2 vPosition;
-attribute vec2 vTexCoord;
+attribute vec3 vTexCoord;
 
 // Output parameters
-varying vec2 fTexCoord;
+varying vec3 fTexCoord;
 
 void main()
 {

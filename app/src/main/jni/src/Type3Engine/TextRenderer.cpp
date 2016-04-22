@@ -17,12 +17,10 @@ namespace T3E
 
 	TextRenderer::~TextRenderer()
 	{
-
 	}
 
 	void TextRenderer::init()
 	{
-
 		bitmap_font_ = ResourceManager::getTexture( "textures/font.png" );
 
 		// Create the shader, should probably be using the GLSLshader class here but I don't understand it yet...
@@ -32,12 +30,11 @@ namespace T3E
 		{
 			fatalError("Could not create font vertex shader");
 		}
-		pixel_shader_ = glCreateShader(GL_FRAGMENT_SHADER);
+		pixel_shader_ = glCreateShader( GL_FRAGMENT_SHADER );
 		if( pixel_shader_ == 0 )
 		{
 			fatalError("Could not create font pixel shader");
 		}
-
 
 		// Compile the vertex shader
 		{
@@ -133,7 +130,7 @@ namespace T3E
 		glUniform1i( texture_sampler_, bitmap_font_.unit );
 	}
 
-	void TextRenderer::putNumber( int num, unsigned padding, float x, float y, unsigned size_pixels )
+	void TextRenderer::putNumber( int num, unsigned padding, float x, float y, unsigned size_pixels, float alpha )
 	{
 		int num_digits = 1;
 		std::string num_str;
@@ -156,10 +153,10 @@ namespace T3E
 			prev_digit = digit * 10;
 		}
 
-		putString( num_str, x, y, size_pixels );
+		putString( num_str, x, y, size_pixels, alpha );
 	}
 
-	void TextRenderer::putString( std::string str, float x, float y, unsigned int size_pixels )
+	void TextRenderer::putString( std::string str, float x, float y, unsigned int size_pixels, float alpha )
 	{
 		float char_width = (size_pixels / (float)width_) * 2.0f;
 		int chars_this_line = 0;
@@ -174,12 +171,12 @@ namespace T3E
 				continue;
 			}
 
-			putChar( str[i], x + char_width * i, y, size_pixels );
+			putChar( str[i], x + char_width * i, y, size_pixels, alpha );
 			chars_this_line++;
 		}
 	}
 
-	void TextRenderer::putChar( unsigned char c, float x, float y, unsigned int size_pixels )
+	void TextRenderer::putChar( unsigned char c, float x, float y, unsigned int size_pixels, float alpha )
 	{			
 		static float tex_width = 1.0f / 16.0f;
 		static float tex_height = 1.0f / 16.0f;
@@ -189,12 +186,12 @@ namespace T3E
 		float width = (size_pixels / (float)width_) * 2.0f;
 		float height = (size_pixels / (float)height_) * -2.0f;
 
-		pushVert( x, 			y, 			tex_x, 				tex_y );
-		pushVert( x, 			y + height, tex_x, 				tex_y + tex_height );
-		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height );
-		pushVert( x, 			y, 			tex_x, 				tex_y );
-		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height );
-		pushVert( x + width, 	y, 			tex_x + tex_width, 	tex_y );
+		pushVert( x, 			y, 			tex_x, 				tex_y, 				alpha );
+		pushVert( x, 			y + height, tex_x, 				tex_y + tex_height, alpha );
+		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height, alpha );
+		pushVert( x, 			y, 			tex_x, 				tex_y, 				alpha );
+		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height, alpha );
+		pushVert( x + width, 	y, 			tex_x + tex_width, 	tex_y, 				alpha );
 	}
 
 	void TextRenderer::render()
@@ -215,9 +212,9 @@ namespace T3E
 
 	    // Specify the vertex layout
 		glEnableVertexAttribArray( 0 );
-		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, 0 );
+		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, 0 );
 		glEnableVertexAttribArray( 1 );
-		glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (void*)(2*sizeof(GLfloat)) );
+		glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void*)(2*sizeof(GLfloat)) );
 
 		glDrawArrays( GL_TRIANGLES, 0, verts_.size() / 4 );
 
@@ -225,11 +222,12 @@ namespace T3E
 		verts_.clear();
 	}
 
-	void TextRenderer::pushVert( float x, float y, float u, float v )
+	void TextRenderer::pushVert( float x, float y, float u, float v, float a )
 	{
 		verts_.push_back( x );
 		verts_.push_back( y );
 		verts_.push_back( u );
 		verts_.push_back( v );
+		verts_.push_back( a );
 	}
 }

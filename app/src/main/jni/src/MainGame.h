@@ -26,6 +26,7 @@
 #include "Type3Engine/AudioEngine.h"
 #include "Type3Engine/Button.h"
 #include "Type3Engine/TextRenderer.h"
+#include "Type3Engine/Timer.h"
 //game classes
 #include "Cell.h"
 #include "BloodVessel.h"
@@ -45,9 +46,10 @@ public:
 	/**
 	* @param [in] Window* The window to render to
 	* @param [in] AudioEngine* The audio engine to use
+	* @param [in] Bool flag of weather to run the game with tutorial hints on	
 	* Run handles initialisation of the state then enters the game loop
 	*/
-	command run(T3E::window* window, T3E::AudioEngine* audioEngine);
+	command run(T3E::window* window, T3E::AudioEngine* audioEngine, bool tutorial);
 
 private:
 	//camera sensitivity
@@ -75,13 +77,17 @@ private:
 	
     T3E::Grid grid_;
 
-	//GAMEPLAY
+	// GAMEPLAY
 	Uint8 nOfFingers_;                  // n of fingers currently touching screen
 	T3E::Camera camera_;                // 2d camera
 	std::vector<T3E::Sprite*> sprites_; // sprite container TODO: remove this when bv sprite is in right place. maybe use for ui or smt
 	int score_;							// the player's score
 	bool paused_;
 	bool gameOver_;
+
+	// TUTORIAL
+	bool tutorial_;
+	T3E::Timer timer_;
 	
 	/**
 	* @param [in] row to test
@@ -90,7 +96,7 @@ private:
 	*/
 	bool selectCell(int row, int col);
 	
-    //INPUT
+    // INPUT
 	
 	T3E::Button bvButton_, killButton_, menuButton_, resumeButton_, quitButton_;
 	bool finger_dragged_;
@@ -104,16 +110,16 @@ private:
 	//interaction mode
 	bool bvCreationMode_;
 	
-	//GRAPHICS
+	// GRAPHICS
 	T3E::GLSLProgram tintedSpriteProgram_;//shader programs
 	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
 	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse, orthoM_; // transform matrices
-	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex(profile this?)
+	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex. TODO: profile this?
 	bool avaliable_for_highlight;
 	T3E::Sprite backgroundSprite_;
 	T3E::TextRenderer textRenderer_;
 	
-	//AUDIO
+	// AUDIO
     T3E::AudioEngine* audioEngine_;
 	T3E::SoundEffect bloodV_;
 	T3E::SoundEffect cellDeath_;

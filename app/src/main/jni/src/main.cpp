@@ -6,7 +6,6 @@
 #include "Tutorial.h"
 #include "Credits.h"
 #include "MainGame.h"
-
 #include "Type3Engine/glTexture.h"
 
 int main(int argc, char** argv)
@@ -42,16 +41,16 @@ int main(int argc, char** argv)
 		{
 		case command::PLAY:
 			mainGame = new MainGame();
-			c = mainGame->run(&window, &audioEngine);
+			c = mainGame->run(&window, &audioEngine, false);
 			delete mainGame;
 			mainGame = NULL;
 			menuMusic.play(-1);//put menu music back on
 			break;
 		case command::TUTORIAL:
-			tutorial = new Tutorial();
-			c = tutorial->run(&window, &audioEngine);
-			delete tutorial;
-			tutorial = NULL;
+			mainGame = new MainGame();
+			c = mainGame->run(&window, &audioEngine, true);
+			delete mainGame;
+			mainGame = NULL;
 			break;
 		case command::CREDITS:
 			credits = new Credits();

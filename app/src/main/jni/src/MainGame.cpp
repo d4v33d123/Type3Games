@@ -15,7 +15,8 @@ MainGame::MainGame():
 	cellSelected_(false),
 	interactionMode_(InteractionMode::NORMAL),
 	paused_(false),
-	gameOver_(false)
+	gameOver_(false),
+	tutorial_(false)
 {}
 
 MainGame::~MainGame()
@@ -27,10 +28,11 @@ MainGame::~MainGame()
 	sprites_.clear();
 }
 
-command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine)
+command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, bool tutorial)
 {
 	window_ = window;
 	audioEngine_ = audioEngine;
+	tutorial_ = tutorial;
 	
 	initSystems();
 	
@@ -316,6 +318,8 @@ command MainGame::gameLoop()
 	Uint32 old_ticks = 0;
 	Uint32 ticks = 0;
 
+	timer_.set( 3000 );
+
 	//our game loop
 	while( gameState_ != GameState::EXIT )
 	{
@@ -323,7 +327,7 @@ command MainGame::gameLoop()
 		float startTicks = SDL_GetTicks();		
 		calculateFPS();
 			
-		if(grid_.getCurrency() > 0)
+		if( grid_.getCurrency() > 0 )
 		{
 			if( !paused_ )
 			{
@@ -348,7 +352,7 @@ command MainGame::gameLoop()
 				}
 			}
 		}
-		else//game over!!!
+		else // game over!!!
 		{
 			gameOver_ = true;
 			textRenderer_.putString( "Game over!", -0.5, 0.3, 100 );
@@ -359,6 +363,16 @@ command MainGame::gameLoop()
 		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.05, 0.85, 44 );
 		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
+
+		if( tutorial_ )
+		{
+			textRenderer_.putString( "Welcome to the Cell Cycle Tutorial!", -0.5, 0.7, 30 );
+			textRenderer_.putNumber( timer_.timeTillDone(), 1, 0.0, 0.0, 30, 0.8f );
+			if( timer_.done() )
+			{
+				textRenderer_.putString( "Done!", 0, -0.1, 30, 0.5f );
+			}
+		}
 
 		renderGame();
 

@@ -15,7 +15,7 @@ namespace T3E
 
         /**
 		*
-		* Get the font testure and compile shaders
+		* Get the font texture and compile shaders
 		*
 		*/
 		void init();
@@ -48,7 +48,7 @@ namespace T3E
         * @param [in] the number of pixels wide/tall each character is
         *
 		*/
-		void putNumber( int num, unsigned padding, float x, float y, unsigned size_pixels );
+		void putNumber( int num, unsigned padding, float x, float y, unsigned size_pixels, float alpha = 1.0f );
         
         /**
 		*
@@ -60,7 +60,7 @@ namespace T3E
         * @param [in] the number of pixels wide/tall each character is
         *
 		*/
-		void putString( std::string str, float x, float y, unsigned int size_pixels );
+		void putString( std::string str, float x, float y, unsigned int size_pixels, float alpha = 1.0f );
         
         /**
 		*
@@ -72,7 +72,7 @@ namespace T3E
         * @param [in] the number of pixels wide/tall each character is
         *
 		*/
-		void putChar( unsigned char c, float x, float y, unsigned int size_pixels );
+		void putChar( unsigned char c, float x, float y, unsigned int size_pixels, float alpha = 1.0f );
 
         /**
 		*
@@ -94,7 +94,7 @@ namespace T3E
 		GLuint pixel_shader_;
 		GLuint vbo_;
 
-		void pushVert( float x, float y, float u, float v );
+		void pushVert( float x, float y, float u, float v, float a );
 		std::vector<GLfloat> verts_;
 	};
 }
