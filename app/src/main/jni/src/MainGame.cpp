@@ -35,7 +35,7 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine)
 	initSystems();
 	
  	sprites_.push_back( new T3E::Sprite() );
-	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bvSpawnPoint.png", 0.0f, 0.0f, 1.0f, 1.0f);
+	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 4/5.0f, 2/5.0f, 1.0f/5, 1.0f/5);
  
 	T3E::Music music = audioEngine_->loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
