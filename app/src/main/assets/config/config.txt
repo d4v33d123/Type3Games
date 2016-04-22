@@ -16,8 +16,8 @@ cell_min_split_time: 500
 cell_max_split_time: 5000
 
 # Chances are percentages from 0 to 100
-chance_of_mutation: 20
-chance_of_cancer: 20
+chance_of_mutation: 2
+chance_of_cancer: 2
 cancer_death_chance: 10
 child_death_chance_increase: 10
 parent_death_chance_increase: 5
