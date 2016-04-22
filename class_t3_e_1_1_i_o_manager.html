@@ -96,13 +96,96 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ad7c949331749de5fbcf760630122800d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad7c949331749de5fbcf760630122800d"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>readBinaryToBuffer</b> (std::string filePath, std::vector&lt; unsigned char &gt; &amp;buffer)</td></tr>
+<tr class="memitem:ad7c949331749de5fbcf760630122800d"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_i_o_manager.html#ad7c949331749de5fbcf760630122800d">readBinaryToBuffer</a> (std::string filePath, std::vector&lt; unsigned char &gt; &amp;buffer)</td></tr>
 <tr class="separator:ad7c949331749de5fbcf760630122800d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa87b6572ebba34b211e9ea2f01fb7d91"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa87b6572ebba34b211e9ea2f01fb7d91"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>readTextToBuffer</b> (std::string filePath, std::vector&lt; char &gt; &amp;buffer)</td></tr>
+<tr class="memitem:aa87b6572ebba34b211e9ea2f01fb7d91"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_i_o_manager.html#aa87b6572ebba34b211e9ea2f01fb7d91">readTextToBuffer</a> (std::string filePath, std::vector&lt; char &gt; &amp;buffer)</td></tr>
 <tr class="separator:aa87b6572ebba34b211e9ea2f01fb7d91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ad7c949331749de5fbcf760630122800d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool T3E::IOManager::readBinaryToBuffer </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filePath</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; unsigned char &gt; &amp;&#160;</td>
+          <td class="paramname"><em>buffer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Reads the Binary from the file to a buffer</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>string containing the file path that is going to be accessed </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>unsigned character buffer that the binary is going to be written into </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aa87b6572ebba34b211e9ea2f01fb7d91"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool T3E::IOManager::readTextToBuffer </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filePath</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; char &gt; &amp;&#160;</td>
+          <td class="paramname"><em>buffer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Reads the text from the file to a buffer</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>string containing the file path that is going to be accessed </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>character buffer that the text is going to be written into </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Type3Engine/<a class="el" href="_i_o_manager_8h_source.html">IOManager.h</a></li>
 <li>Type3Engine/IOManager.cpp</li>

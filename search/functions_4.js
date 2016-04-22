@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['killcell',['killCell',['../class_t3_e_1_1_grid.html#a85c6e053cd6294eaf4bcbd3ed9097f1c',1,'T3E::Grid']]]
+  ['hardcodenormaltint',['hardcodeNormalTint',['../class_t3_e_1_1_cell.html#adc9f7e1574defcf0ef16c501865e71a8',1,'T3E::Cell']]],
+  ['hex',['Hex',['../class_t3_e_1_1_hex.html#a18ce6416141428c4d54c928f31bb4c04',1,'T3E::Hex']]]
 ];

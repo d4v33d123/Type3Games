@@ -99,19 +99,151 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac26cda702d7f321fd9a9a5a7c8160953"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac26cda702d7f321fd9a9a5a7c8160953"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ConfigFile</b> (std::string filename)</td></tr>
 <tr class="separator:ac26cda702d7f321fd9a9a5a7c8160953"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2583b79cb96fecc9ee205e17b4b434b5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2583b79cb96fecc9ee205e17b4b434b5"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> (std::string filename)</td></tr>
+<tr class="memitem:a2583b79cb96fecc9ee205e17b4b434b5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_config_file.html#a2583b79cb96fecc9ee205e17b4b434b5">load</a> (std::string filename)</td></tr>
 <tr class="separator:a2583b79cb96fecc9ee205e17b4b434b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a186211f6f36df41e84fb02423c8406d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a186211f6f36df41e84fb02423c8406d5"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>getFloat</b> (std::string key, float *value)</td></tr>
+<tr class="memitem:a186211f6f36df41e84fb02423c8406d5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_config_file.html#a186211f6f36df41e84fb02423c8406d5">getFloat</a> (std::string key, float *value)</td></tr>
 <tr class="separator:a186211f6f36df41e84fb02423c8406d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c38fd33045cd226046ab41191d4f5e9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c38fd33045cd226046ab41191d4f5e9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>getInt</b> (std::string key, int *value, int default_value)</td></tr>
+<tr class="memitem:a9c38fd33045cd226046ab41191d4f5e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_config_file.html#a9c38fd33045cd226046ab41191d4f5e9">getInt</a> (std::string key, int *value, int default_value)</td></tr>
 <tr class="separator:a9c38fd33045cd226046ab41191d4f5e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20587417bd3e270979e4d7474ced3541"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a20587417bd3e270979e4d7474ced3541"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>getString</b> (std::string key, std::string *value)</td></tr>
+<tr class="memitem:a20587417bd3e270979e4d7474ced3541"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_config_file.html#a20587417bd3e270979e4d7474ced3541">getString</a> (std::string key, std::string *value)</td></tr>
 <tr class="separator:a20587417bd3e270979e4d7474ced3541"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a186211f6f36df41e84fb02423c8406d5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool T3E::ConfigFile::getFloat </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Loads the config file</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>string contatining "key" for the value wanted </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>float to be set from the key </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>[out] if it succeeds then true, if it fails return false </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a9c38fd33045cd226046ab41191d4f5e9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void T3E::ConfigFile::getInt </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>default_value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Loads the config file</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>string contatining "key" for the value wanted </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>float to be set from the key </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>defualt value if the "key" leads to no value </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a20587417bd3e270979e4d7474ced3541"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool T3E::ConfigFile::getString </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string *&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Loads the config file</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>string contatining "key" for the value wanted </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>float to be set from the key </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>[out] if it succeeds then true, if it fails return false </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2583b79cb96fecc9ee205e17b4b434b5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool T3E::ConfigFile::load </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Loads the config file</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>string contatining the file path </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>[out] if loading succeeds then true, if it fails return false </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Type3Engine/<a class="el" href="_config_file_8h_source.html">ConfigFile.h</a></li>
 <li>Type3Engine/ConfigFile.cpp</li>

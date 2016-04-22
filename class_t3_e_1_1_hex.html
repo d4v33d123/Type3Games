@@ -96,9 +96,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af9cf51aade3c5221afb0a2fda2fdf215"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9cf51aade3c5221afb0a2fda2fdf215"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>init</b> (int row, int col)</td></tr>
+<tr class="memitem:a18ce6416141428c4d54c928f31bb4c04"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_hex.html#a18ce6416141428c4d54c928f31bb4c04">Hex</a> ()</td></tr>
+<tr class="separator:a18ce6416141428c4d54c928f31bb4c04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9cf51aade3c5221afb0a2fda2fdf215"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_hex.html#af9cf51aade3c5221afb0a2fda2fdf215">init</a> (int row, int col)</td></tr>
 <tr class="separator:af9cf51aade3c5221afb0a2fda2fdf215"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Getters</div></td></tr>
 <tr class="memitem:aeb4e97ffcf2c9da4ee64ba74e493526b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeb4e97ffcf2c9da4ee64ba74e493526b"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>getRow</b> () const </td></tr>
 <tr class="separator:aeb4e97ffcf2c9da4ee64ba74e493526b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -117,6 +119,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>getY</b> () const </
 <tr class="memitem:a906a7348ed6b2c872bf6b4cee574dd6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a906a7348ed6b2c872bf6b4cee574dd6d"></a>
 NodeType&#160;</td><td class="memItemRight" valign="bottom"><b>getType</b> () const </td></tr>
 <tr class="separator:a906a7348ed6b2c872bf6b4cee574dd6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Setters</div></td></tr>
 <tr class="memitem:a5b29f84a5df6f3842b5e3d7279670c39"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b29f84a5df6f3842b5e3d7279670c39"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setNode</b> (<a class="el" href="class_t3_e_1_1_node.html">Node</a> *node)</td></tr>
 <tr class="separator:a5b29f84a5df6f3842b5e3d7279670c39"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,6 +127,51 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setNode</b> (<a class
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setType</b> (NodeType type)</td></tr>
 <tr class="separator:af4ea6d2191ea63bb98d35fe514ed886f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a18ce6416141428c4d54c928f31bb4c04"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">T3E::Hex::Hex </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p><a class="el" href="class_t3_e_1_1_hex.html">Hex</a>'s are intialised to empty that is Node* == nullptr and NodeType == NodeType::EMPTY </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="af9cf51aade3c5221afb0a2fda2fdf215"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void T3E::Hex::init </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Each hex knows it's row / col and uses that to calculate it's world coordinates </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_hex_8h_source.html">Hex.h</a></li>
 <li>Hex.cpp</li>
