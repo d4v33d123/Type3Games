@@ -10,6 +10,11 @@
 	
 namespace T3E
 {
+    /**
+    *
+    * Initialise all SDL modules ( SDL_Init(SDL_INIT_EVERYTHING) ) and enable double buffering
+    *
+    */
 	extern int init();
 }
 

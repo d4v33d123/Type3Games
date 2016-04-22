@@ -17,7 +17,7 @@ command StartMenu::run(T3E::window* window, T3E::AudioEngine* audioEngine)
 }
 
 void StartMenu::initSystems()
-{	
+{	    
 	//init ortho matrix
 	//inverting top with bottom to avoid sprites being drawn upside down
 	//note that this will put origin at bottom left, while screen coords have origin at top left
@@ -26,32 +26,34 @@ void StartMenu::initSystems()
 	
 	//top right
 	playButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(7.0f/9.0f),
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/9.0f, "textures/ui2.png",
-		1/4.0f, 1.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f);
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/9.0f, "textures/ssheet0.png",
+		1.0f/14, 1.0f/4,
+		0.0f, 2.0f/4,
+		0.0f, 3/4.0f);
 	tutorialButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(5.0f/9.0f),
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/9.0f, "textures/ui2.png",
-		1/4.0f, 1.0f,
-		1/4.0f, 0.0f,
-		1/4.0f, 0.0f);
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/9.0f, "textures/ssheet0.png",
+		1.0f/14, 1.0f/4,
+		1.0f/14, 2.0f/4,
+		1.0f/14, 3/4.0f);
 		
 	creditsButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(3.0f/9.0f),
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/9.0f, "textures/ui2.png",
-		1/4.0f, 1.0f,
-		2/4.0f, 0.0f,
-		2/4.0f, 0.0f);
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/9.0f, "textures/ssheet0.png",
+		1.0f/14, 1.0f/4,
+		2.0f/14, 2.0f/4,
+		2.0f/14, 3/4.0f);
 		
 	quitButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(1.0f/9.0f),
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/9.0f, "textures/ui2.png",
-		1/4.0f, 1.0f,
-		3/4.0f, 0.0f,
-		3/4.0f, 0.0f);
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/9.0f, "textures/ssheet0.png",
+		1.0f/14, 1.0f/4,
+		3.0f/14, 2.0f/4,
+		3.0f/14, 3/4.0f);
 
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
-	loadScreenSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/loadScreen.png", 0, 0, 1.0f, 1.0f);
 	
+    textRenderer_.init();
+	textRenderer_.setScreenSize( window_->getScreenWidth(), window_->getScreenHeight() );
+    
 	//init shaders
 	initShaders();
 }
@@ -152,21 +154,28 @@ command StartMenu::processInput()
 				playButton_.unpress();
 				return command::PLAY;	
 			}
-			if(tutorialButton_.touchCollides(screenCoords))
+			else if(tutorialButton_.touchCollides(screenCoords))
 			{
 				tutorialButton_.unpress();
 				return command::TUTORIAL;	
 			}
-			if(creditsButton_.touchCollides(screenCoords))
+			else if(creditsButton_.touchCollides(screenCoords))
 			{
 				creditsButton_.unpress();
 				return command::CREDITS;	
 			}
-			if(quitButton_.touchCollides(screenCoords))
+			else if(quitButton_.touchCollides(screenCoords))
 			{
 				quitButton_.unpress();
 				return command::QUIT;
 			}
+            else
+            {
+                playButton_.unpress();
+                tutorialButton_.unpress();
+                creditsButton_.unpress();
+                quitButton_.unpress();
+            }
 			return command::NONE;
 			break;
 			
@@ -202,9 +211,9 @@ void StartMenu::renderGame()
 	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glUniform4fv(inputColour_location, 1, tint);
 	// set texture
-	texid = T3E::ResourceManager::getTexture("textures/ui2.png").unit;
-	glActiveTexture(GL_TEXTURE0 + texid);	
-	glUniform1i(sampler0_location, texid);
+	// texid = T3E::ResourceManager::getTexture("textures/ui2.png").unit;
+	// glActiveTexture(GL_TEXTURE0 + texid);	
+	// glUniform1i(sampler0_location, texid);
 	//draw sprite
 	playButton_.draw();
 	tutorialButton_.draw();
@@ -231,14 +240,17 @@ void StartMenu::renderLoadScreen()
 	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glUniform4fv(inputColour_location, 1, bgtint);
 	// set texture	
-	GLint texid = T3E::ResourceManager::getTexture("textures/loadScreen.png").unit;
-	glActiveTexture(GL_TEXTURE0 + texid);	
-	glUniform1i(sampler0_location, texid);
+	// GLint texid = T3E::ResourceManager::getTexture("textures/loadScreen.png").unit;
+	// glActiveTexture(GL_TEXTURE0 + texid);	
+	// glUniform1i(sampler0_location, texid);
 	//draw sprite
-	loadScreenSprite_.draw();
+	backgroundSprite_.draw();
 	
 	tintedSpriteProgram_.stopUse();	
 
+    textRenderer_.putString( "... Loading ...", -0.6, 0.2, 75 );
+    textRenderer_.render();
+    
 	// swap our buffers 
 	window_->swapBuffer();
 	

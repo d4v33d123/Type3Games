@@ -24,6 +24,7 @@
 //#include "Type3Engine/errors.h"
 #include "Type3Engine/AudioEngine.h"
 #include "Type3Engine/Button.h"
+#include "Type3Engine/TextRenderer.h"
 
 #include "command.h"
 #include "Cell.h"
@@ -32,7 +33,13 @@
 class StartMenu
 {
 public:
-	command run(T3E::window* window, T3E::AudioEngine* audioEngine);
+
+	/**
+	* @param [in] Window* The window to render to
+	* @param [in] AudioEngine* The audio engine to use
+	* Run handles initialisation of the state then enters the game loop
+	*/
+	command run( T3E::window* window, T3E::AudioEngine* audioEngine );
 
 private:
 	//control functions
@@ -55,7 +62,8 @@ private:
 	T3E::GLSLProgram tintedSpriteProgram_;//shader programs
 	GLint tintedSprite_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
 	glm::mat4 orthoM_; // transform matrices
-	T3E::Sprite backgroundSprite_, loadScreenSprite_;
+	T3E::Sprite backgroundSprite_;
+    T3E::TextRenderer textRenderer_;
 	
 	//AUDIO
     T3E::AudioEngine* audioEngine_;	

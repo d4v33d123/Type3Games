@@ -30,7 +30,10 @@ namespace T3E
 	splitting_(false),
 	splitRotation_(0),
 	inCreation_(true),
-	fullyArrested_(false)
+    showChange_(false),
+    showingChange_(false),
+	fullyArrested_(false),
+    stemToStem_(false)
     {
 	}
 
@@ -43,33 +46,56 @@ namespace T3E
 		switch(state)
 		{
 		case CellState::STEM:
-			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18, 18);
+			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet1.png", 6.0f/16, 0, 1.0f/16, 1.0f/16, 18, 21);
+            splitAnimation_.init(-0.64, -0.465, 1.8f, 1.8f, "textures/ssheet3.png",  1.0f/2,  1.0f/2, 1.0f/12, 1.0f/12, 34, 6);
+            stemToStemAnimation_.init(-0.64, -0.465, 1.8f, 1.8f, "textures/ssheet2.png",  1.0f/2,  0, 1.0f/12, 1.0f/12, 34, 6);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
 			alternateTint_ = glm::vec4(0.2, 0.8f, 0.2f, 1.0f);// green
 			deathChance_ = 0;
-			idleAnimation_.setSpeed(0.08);
+			idleAnimation_.setSpeed(0.11);
+            //tints
+            tint_ = normalTint_;
+            brightTint_ = normalTint_*1.5f;
+            brightAlternateTint_ = alternateTint_ * 1.5f;
 			break;
 		case CellState::NORMAL:
-			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 0, 0, 1.0f/18, 1.0f/18, 18, 18);
+			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet1.png", 0, 0, 1.0f/16, 1.0f/16, 18, 18);
+            splitAnimation_.init(-0.64, -0.465, 1.8f, 1.8f, "textures/ssheet3.png", 0, 0, 1.0f/12, 1.0f/12, 34, 6);
 			state_ = state;
 			setNormalTint(CellState::NORMAL);
 			deathChance_ = deathChance;
 			idleAnimation_.setSpeed(0.15);
+            //tints
+            tint_ = normalTint_;
+            brightTint_ = normalTint_*2.0f;
+            brightAlternateTint_ = alternateTint_ * 2.0f;
 			break;	
 		case CellState::MUTATED:
-			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 1.0f/18, 0, 1.0f/18, 1.0f/18, 18, 18);
+			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet1.png", 2.0f/16, 0, 1.0f/16, 1.0f/16, 18, 18);
+            splitAnimation_.init(-0.64, -0.465, 1.8f, 1.8f, "textures/ssheet3.png",  0,  1.0f/2, 1.0f/12, 1.0f/12, 34, 6);
+            stateChangeAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet2.png", 2.0f/12, 0, 1.0f/12, 1.0f/12, 12, 12);
 			state_ = state;
 			setNormalTint(CellState::MUTATED);
 			deathChance_ = deathChance;
 			idleAnimation_.setSpeed(0.25);
+            //tints
+            tint_ = normalTint_;
+            brightTint_ = normalTint_*2.0f;
+            brightAlternateTint_ = alternateTint_ * 2.0f;
 			break;
 		case CellState::CANCEROUS:
-			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/cellSheet.png", 2.0f/18, 0, 1.0f/18, 1.0f/18, 18, 18);
+			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet1.png", 4.0f/16, 0, 1.0f/16, 1.0f/16, 18, 18);
+            splitAnimation_.init(-0.64, -0.465, 1.8f, 1.8f, "textures/ssheet3.png",  1.0f/2,  0, 1.0f/12, 1.0f/12, 34, 6);
+            stateChangeAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet2.png", 3.0f/12, 0, 1.0f/12, 1.0f/12, 14, 12);
 			state_ = state;
 			setNormalTint(CellState::CANCEROUS);
 			deathChance_ = deathChance;
 			idleAnimation_.setSpeed(0.4);
+            //tints
+            tint_ = normalTint_;
+            brightTint_ = normalTint_*2.0f;
+            brightAlternateTint_ = alternateTint_ * 2.0f;
 			break;
 		default:
 			SDL_Log(" MISTAKES!!! Did you spawn a cell from an arrested one? no sprite is initialised so it will crash on the next glDrawArrays() call");
@@ -79,21 +105,19 @@ namespace T3E
 		//init split time and timer
 		splitTimer_ = 0;
 		newSplitTime();
-		
-		//tints
-		tint_ = normalTint_;
-		brightTint_ = normalTint_*2.0f;
-		brightAlternateTint_ = alternateTint_ * 2.0f;
-		
-		//TODO: differentiate these
-		deathAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/death.png", 0, 0, 1.0f/4, 1.0f/4, 16, 4);		
-		//0.94 wide ,1.89 high ----->0.75 wide 1.5 high? nah go by eye
-		splitAnimation_.init(-0.6, -0.5, 1.8f, 1.8f, "textures/split.png", 0, 0, 1.0f/6, 1.0f/6, 34, 6);
-		arrestAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/arrest.png", 0, 0, 1.0f/4, 1.0f/4, 8, 4);
+        
+        //note: so much stuff that's useless depending on the type of cell... and not just anim sprite sheets... could rework into multiple classes.
+		deathAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet0.png", 1.0f/2, 0, 1.0f/10, 1.0f/10, 22, 5);
+        arrestAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet0.png", 0, 0, 1.0f/8, 1.0f/8, 13, 4);
+        arrestIdleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet2.png", 0, 0, 1.0f/12, 1.0f/12, 14, 12);
+        arrestIdleAnimation_.setSpeed(0.09);
 	}
 	
 	bool Cell::update(float dTime)
 	{
+		// TODO: incorporate some of these into the cell state enum and
+		// use a switch case instead, povided we can only be in one state at a time
+
 		if(dying_)
 		{
 			dead_ = deathAnimation_.Update(dTime);
@@ -108,19 +132,46 @@ namespace T3E
 					normalTint_ = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f); // grey
 					tint_ = normalTint_;
 				}		
-			}							
-		}		
-		else if(inCreation_)//don't update if parent split animation is playing
-		{
-			//sync a split animation with the parent. when it's done we can start drawing and updating normally
-			if(splitAnimation_.Update(dTime))
-			{
-				inCreation_ = false;
 			}
-		}			
-		else if(splitting_)
+            else
+            {
+                arrestIdleAnimation_.Update(dTime);
+            }
+		}		
+		else if( inCreation_ )//don't update if parent split animation is playing
 		{
-			if(splitAnimation_.Update(dTime))
+            if(showingChange_)
+            {
+                if(stateChangeAnimation_.Update(dTime))
+                {
+                    inCreation_ = false;
+                }
+            }
+            else
+            {
+                //sync a split animation with the parent. when it's done we can start drawing and updating normally
+                if(splitAnimation_.Update(dTime))
+                {
+                    if(showChange_)                    
+                        showingChange_ = true;
+                    else
+                        inCreation_ = false;
+                }
+            }
+		}			
+		else if( splitting_ )
+		{
+            if(state_ == CellState::STEM && stemToStem_)
+            {
+                if(stemToStemAnimation_.Update(dTime))
+                {
+                    idleAnimation_.refresh();
+                    idleAnimation_.Update(0);//needRefresh_ will be set so dTime is irrelevant
+                    splitting_ = false;
+                    stemToStem_ = false;
+                }
+            }
+			else if(splitAnimation_.Update(dTime))
 			{
 				idleAnimation_.refresh();
 				idleAnimation_.Update(0);//needRefresh_ will be set so dTime is irrelevant
@@ -129,6 +180,7 @@ namespace T3E
 		}
 		else
 		{
+			// The cell is in currently idling
 			idleAnimation_.Update(dTime);
 	
 			if((splitTimer_ += dTime) >= splitTime_)
@@ -279,17 +331,31 @@ namespace T3E
 	
 	void Cell::draw()
 	{
-		//don't draw if parent split animation is playing
-		if(!inCreation_)
+		if(inCreation_)
 		{
-			if(dying_)
+			if(showingChange_)
+                stateChangeAnimation_.draw();
+		}
+        else
+        {
+            if(dying_)
 				deathAnimation_.draw();
 			else if(state_ == CellState::ARRESTED)
-				arrestAnimation_.draw();
+            {
+                if(fullyArrested_)
+                    arrestIdleAnimation_.draw();
+                else
+                    arrestAnimation_.draw();
+            }				
 			else if(splitting_)
-				splitAnimation_.draw();			
+            {
+                if(state_ == CellState::STEM && stemToStem_)
+                    stemToStemAnimation_.draw();
+                else
+                    splitAnimation_.draw();
+            }						
 			else
 				idleAnimation_.draw();	
-		}
+        }
 	}
 }

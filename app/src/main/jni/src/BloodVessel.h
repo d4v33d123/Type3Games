@@ -15,10 +15,18 @@ namespace T3E
 		//animate sprite if forming
 		void update(float dTime);
 		
-		//getters
+		/**
+		* Setters
+		*/
 		static void setRange( float range ) { range_ = range; }
+
+		/**
+		* Getters
+		*/
+		///@{
 		static float getRange() { return range_; };
 		inline AnimatedSprite* getSprite() { return &spriteSheet_; }
+		///@}
 		
 	private:
 		AnimatedSprite spriteSheet_;

@@ -42,6 +42,11 @@ public:
 	MainGame();
 	~MainGame();
 
+	/**
+	* @param [in] Window* The window to render to
+	* @param [in] AudioEngine* The audio engine to use
+	* Run handles initialisation of the state then enters the game loop
+	*/
 	command run(T3E::window* window, T3E::AudioEngine* audioEngine);
 
 private:
@@ -78,9 +83,11 @@ private:
 	bool paused_;
 	bool gameOver_;
 	
-	// [in] row to test
-	// [in] column to test
-	// [ret] true if successfully selected a cell, false otherwise
+	/**
+	* @param [in] row to test
+	* @param [in] column to test
+	* @return true if successfully selected a cell, false otherwise
+	*/
 	bool selectCell(int row, int col);
 	
     //INPUT

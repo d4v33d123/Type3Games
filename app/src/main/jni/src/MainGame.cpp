@@ -51,10 +51,6 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine)
 
 void MainGame::initSystems()
 {
-	// enable aplha blending	
-	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
-	//glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	// Clear the depth buffer to 1
 	glClearDepthf(1.0);
 
@@ -244,34 +240,34 @@ void MainGame::initSystems()
 
 	//Create buttons
 	menuButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(8.9f/10.0f),
-		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
-		1/4.0f,1/4.0f,
-		1/4.0f, 3/4.0f,
-		2/4.0f, 3/4.0f);
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
+		1.0f/10, 1.0f/10,
+		5.0f/10, 6.0f/8,
+		5.0f/10, 7.0f/8);
 	
  	bvButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(7.8f/10.0f),
-		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
-		1/4.0f,1/4.0f,
-		0, 0,
-		0, 1.0f/4);
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
+		1.0f/10, 1.0f/10,
+		6.0f/10, 6.0f/8,
+		6.0f/10, 7.0f/8);
 		
  	killButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(6.7f/10.0f),
-		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ui.png",
-		1/4.0f,1/4.0f,
-		0, 2.0f/4,
-		0, 3.0f/4);
+		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
+		1.0f/10, 1.0f/10,
+		7.0f/10, 6.0f/8,
+		7.0f/10, 7.0f/8);
 	
 	resumeButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(4.0f/7.0f),
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ui.png",
-		1/4.0f,3/4.0f,
-		2/4.0f, 0,
-		1/4.0f, 0);
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
+		1.0f/14, 1.0f/4,
+		5.0f/14, 2.0f/4,
+		5.0f/14, 3/4.0f);
 		
  	quitButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(2.0f/7.0f),
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ui.png",
-		1/4.0f,3/4.0f,
-		3/4.0f, 0,
-		1/4.0f, 0);
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
+		1.0f/14, 1.0f/4,
+		3.0f/14, 2.0f/4,
+		3.0f/14, 3/4.0f);
 	
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
@@ -889,9 +885,9 @@ void MainGame::renderGame()
 	}
 	{
 		// Render cells
-		GLuint cellTexture = T3E::ResourceManager::getTexture("textures/cellSheet.png").unit;
-		glActiveTexture( GL_TEXTURE0 + cellTexture );
-		glUniform1i( sampler0_location, cellTexture );
+		//GLuint cellTexture = T3E::ResourceManager::getTexture("textures/cellSheet.png").unit;
+		//glActiveTexture( GL_TEXTURE0 + cellTexture );
+		//glUniform1i( sampler0_location, cellTexture );
 		for(int i = 0; i < grid_.numCells(); ++i)
 		{
 			T3E::Cell* current = (T3E::Cell*)grid_.getCell(i)->getNode();

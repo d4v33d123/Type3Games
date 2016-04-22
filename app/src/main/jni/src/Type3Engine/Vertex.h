@@ -20,6 +20,11 @@ namespace T3E
 		GLfloat u;
 	};
 
+    /**
+    *
+    * Hold world position and uv texture coordinates of a vertex
+    *
+    */
 	struct Vertex
 	{
 		Position position;

@@ -37,7 +37,7 @@ far_bv_death_chance: 20
 normal_col_min_red: 64
 normal_col_max_red: 64
 normal_col_min_grn: 233
-normal_col_max_grn: 88
+normal_col_max_grn: 120
 normal_col_min_blu: 245
 normal_col_max_blu: 245
 
@@ -51,7 +51,7 @@ mutated_col_max_blu: 64
 
 # Colour range for cancerous cells
 cancer_col_min_red: 232
-cancer_col_max_red: 164
+cancer_col_max_red: 190
 cancer_col_min_grn: 95
 cancer_col_max_grn: 95
 cancer_col_min_blu: 175

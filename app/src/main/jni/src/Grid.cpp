@@ -324,9 +324,14 @@ namespace T3E
 		
 		if( cancerous )
 		{
-			// All cancer cells are given a fixed death chance because they don't give a fuck
-			// TODO: this should probably changed to some kind of formula, ask the designers...
-			death_chance = cancerDeathChance_;
+            if( distToBv <= bloodvessel_range )
+			{
+				death_chance = cancerDeathChance_;
+			}
+			else
+			{
+				death_chance = clampPercnt(cancerDeathChance_ * (distToBv - bloodvessel_range));
+			}
 		}
 		else
 		{
@@ -437,7 +442,8 @@ namespace T3E
 										neighbours[lucky]->getRow(),
 										neighbours[lucky]->getCol(),
 										CellState::STEM,
-										current->getDeathChance() ));
+										current->getDeathChance(),
+                                        false));
 
 									break;								
 								case CellState::NORMAL:
@@ -447,7 +453,8 @@ namespace T3E
 											neighbours[lucky]->getRow(),
 											neighbours[lucky]->getCol(),
 											CellState::MUTATED,
-											current->getDeathChance() ));
+											current->getDeathChance(),
+                                            true));
 									}
 									else
 									{
@@ -455,7 +462,8 @@ namespace T3E
 											neighbours[lucky]->getRow(),
 											neighbours[lucky]->getCol(),
 											CellState::NORMAL,
-											current->getDeathChance() ));
+											current->getDeathChance(),
+                                            false));
 									}
 									break;								
 								case CellState::MUTATED:
@@ -465,7 +473,8 @@ namespace T3E
 											neighbours[lucky]->getRow(),
 											neighbours[lucky]->getCol(),
 											CellState::CANCEROUS,
-											current->getDeathChance() ));
+											current->getDeathChance(),
+                                            true));
 									}
 									else
 									{
@@ -473,7 +482,8 @@ namespace T3E
 											neighbours[lucky]->getRow(),
 											neighbours[lucky]->getCol(),
 											CellState::MUTATED,
-											current->getDeathChance() ));
+											current->getDeathChance(),
+                                            false));
 									}
 									break;								
 								case CellState::CANCEROUS: // Cancerous cells always spawn more cancerous cells
@@ -481,7 +491,8 @@ namespace T3E
 										neighbours[lucky]->getRow(),
 										neighbours[lucky]->getCol(),
 										CellState::CANCEROUS,
-										current->getDeathChance() ));
+										current->getDeathChance(),
+                                        false));
 									break;								
 								default:
 									break;
@@ -514,16 +525,18 @@ namespace T3E
 		//add new cells
 		for(std::vector<birthInfo>::iterator c = newCells.begin(); c != newCells.end(); ++c)
 		{
+            Cell* stemChild;
 			// If it's parent was a stem cell, it gets the minimum death chance
 			if( c->state == CellState::STEM )
-			{
-				Cell* stemChild;
+			{				
 				newCell( c->row, c->col, CellState::NORMAL, 0, &stemChild );
 				stemChild->setDeathChance( minDeathChance_ );
 			}
 			else
 			{
-				newCell( c->row, c->col, c->state, c->parentDeathChance, nullptr );
+				newCell( c->row, c->col, c->state, c->parentDeathChance, &stemChild );
+                if(c->showChange)
+                    stemChild->showChangeOn();
 			}
 		}
 		
@@ -647,7 +660,11 @@ namespace T3E
 								//because incdeathchance also checks the increase doesn't add up
 								//to over 99 (is it still relevant to current gameplay rules?)
 								selectedCell->incDeathChance( parentDeathChanceIncrease_ );
-							return true;
+                            
+                            if(selectedCell->getState() == CellState::STEM)
+                                selectedCell->stemToStemOn();//use stem to stem animation
+							
+                            return true;
 						}									
 					}
 					else

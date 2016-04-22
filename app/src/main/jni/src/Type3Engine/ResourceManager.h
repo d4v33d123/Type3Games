@@ -9,7 +9,20 @@ namespace T3E
 	class ResourceManager
 	{
 	public:
+        /**
+		*
+		* Retrieves texture info from the texture cache
+		*
+		* @param [in] The string containing the file path to the png texture file
+		*
+		*/
 		static GLTexture getTexture(std::string texturePath);
+        
+        /**
+		*
+		* Calls the clear() method of the TextureCache member.
+		*
+		*/
 		static void clearTextures();
 	private:
 		static TextureCache textureCache_;

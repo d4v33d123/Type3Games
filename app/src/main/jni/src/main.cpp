@@ -28,6 +28,10 @@ int main(int argc, char** argv)
 	audioEngine.init();
 	menuMusic = audioEngine.loadMusic("sound/menu_music_v2.ogg");
 	menuMusic.play(-1);
+    // enable aplha blending	
+	glEnable( GL_BLEND );//should we instead use frame buffer fetch in shader?
+	//glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	
 	//play
 	command c = command::MENU;
