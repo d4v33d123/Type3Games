@@ -3,6 +3,7 @@ var searchData=
   ['readbinarytobuffer',['readBinaryToBuffer',['../class_t3_e_1_1_i_o_manager.html#ad7c949331749de5fbcf760630122800d',1,'T3E::IOManager']]],
   ['readtexttobuffer',['readTextToBuffer',['../class_t3_e_1_1_i_o_manager.html#aa87b6572ebba34b211e9ea2f01fb7d91',1,'T3E::IOManager']]],
   ['refresh',['refresh',['../class_t3_e_1_1_animated_sprite.html#a527b950c6ece8a173dec3b1b50129e5a',1,'T3E::AnimatedSprite']]],
+  ['render',['render',['../class_t3_e_1_1_text_renderer.html#ae956b145e151bb86969a4ef749c87909',1,'T3E::TextRenderer']]],
   ['resetplayvessel',['resetPlayVessel',['../class_t3_e_1_1_grid.html#a29e30f8451fbb0805cd20258efb66ab9',1,'T3E::Grid']]],
   ['resourcemanager',['ResourceManager',['../class_t3_e_1_1_resource_manager.html',1,'T3E']]],
   ['resume',['resume',['../class_t3_e_1_1_music.html#a56a99427382f278a1acae479061772bd',1,'T3E::Music']]],

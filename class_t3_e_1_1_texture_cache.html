@@ -96,13 +96,52 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8f3172b9b647447ea44c2fdff7484bc7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f3172b9b647447ea44c2fdff7484bc7"></a>
-<a class="el" href="struct_t3_e_1_1_g_l_texture.html">GLTexture</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getTexture</b> (std::string texturePath)</td></tr>
+<tr class="memitem:a8f3172b9b647447ea44c2fdff7484bc7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_t3_e_1_1_g_l_texture.html">GLTexture</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_texture_cache.html#a8f3172b9b647447ea44c2fdff7484bc7">getTexture</a> (std::string texturePath)</td></tr>
 <tr class="separator:a8f3172b9b647447ea44c2fdff7484bc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a783462f07ccc1212c40d805c4f678d95"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a783462f07ccc1212c40d805c4f678d95"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
+<tr class="memitem:a783462f07ccc1212c40d805c4f678d95"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_texture_cache.html#a783462f07ccc1212c40d805c4f678d95">clear</a> ()</td></tr>
 <tr class="separator:a783462f07ccc1212c40d805c4f678d95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a783462f07ccc1212c40d805c4f678d95"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void T3E::TextureCache::clear </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Call the <a class="el" href="class_t3_e_1_1_texture_cache.html#a783462f07ccc1212c40d805c4f678d95">clear()</a> method of the std::map member</p>
+<p>Useful since android seems to not clear memory properly when exiting the program apparently (especially static objects) </p>
+
+</div>
+</div>
+<a class="anchor" id="a8f3172b9b647447ea44c2fdff7484bc7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="struct_t3_e_1_1_g_l_texture.html">GLTexture</a> T3E::TextureCache::getTexture </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>texturePath</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get the texture info of the specified texture from the map. if the texture is not currently in the map it will be added to it.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">The</td><td>string containing the file path to the png texture file </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Type3Engine/<a class="el" href="_texture_cache_8h_source.html">TextureCache.h</a></li>
 <li>Type3Engine/TextureCache.cpp</li>

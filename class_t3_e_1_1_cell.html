@@ -163,8 +163,14 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>isInCreation</b> ()</
 float&#160;</td><td class="memItemRight" valign="bottom"><b>getSplitRotation</b> ()</td></tr>
 <tr class="separator:ac9fc88443279734fb0a3ab3189b12376"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Setters</div></td></tr>
-<tr class="memitem:aae70774e3312493952da32296796ee87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_cell.html#aae70774e3312493952da32296796ee87">setNormalTint</a> (CellState state)</td></tr>
-<tr class="memdesc:aae70774e3312493952da32296796ee87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the colour based on the given cell state.  <a href="#aae70774e3312493952da32296796ee87">More...</a><br /></td></tr>
+<tr class="memitem:ae672c10d5c346ab709da6f97cdf08a54"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_cell.html#ae672c10d5c346ab709da6f97cdf08a54">stemToStemOn</a> ()</td></tr>
+<tr class="separator:ae672c10d5c346ab709da6f97cdf08a54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad44d9d9d72ee36b94dac697132cd901b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad44d9d9d72ee36b94dac697132cd901b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>showChangeOn</b> ()</td></tr>
+<tr class="separator:ad44d9d9d72ee36b94dac697132cd901b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae70774e3312493952da32296796ee87"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae70774e3312493952da32296796ee87"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_cell.html#aae70774e3312493952da32296796ee87">setNormalTint</a> (CellState state)</td></tr>
+<tr class="memdesc:aae70774e3312493952da32296796ee87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the colour based on the given cell state. <br /></td></tr>
 <tr class="separator:aae70774e3312493952da32296796ee87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f3ed76f7e05c8f7d9bfeec6225f283c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0f3ed76f7e05c8f7d9bfeec6225f283c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_cell.html#a0f3ed76f7e05c8f7d9bfeec6225f283c">kill</a> ()</td></tr>
@@ -374,31 +380,6 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_ST</b> = 50
 
 </div>
 </div>
-<a class="anchor" id="aae70774e3312493952da32296796ee87"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void T3E::Cell::setNormalTint </td>
-          <td>(</td>
-          <td class="paramtype">CellState&#160;</td>
-          <td class="paramname"><em>state</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set the colour based on the given cell state. </p>
-<p>Takes in a CellState and sets the sprites colour to a value aproprite for that state</p>
-<p>This is what gives cells their slight colour variation even within cells of the same type </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">state</td><td>The state that this cells colour should reflect </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a class="anchor" id="a0483e8f1fa6528ac8ab818cec8d96f9e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -415,6 +396,36 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_ST</b> = 50
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">neighbour</td><td>Which of the 6 neighbours to split into play split animation rotated to towards the given neighbour </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ae672c10d5c346ab709da6f97cdf08a54"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void T3E::Cell::stemToStemOn </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Takes in a CellState and sets the sprites colour to a value aproprite for that state</p>
+<p>This is what gives cells their slight colour variation even within cells of the same type </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">state</td><td>The state that this cells colour should reflect </td></tr>
   </table>
   </dd>
 </dl>

@@ -10,6 +10,7 @@ var searchData=
   ['setposition',['setPosition',['../class_t3_e_1_1_camera.html#a71fb2c7a20014eaa9cca6d878d84169e',1,'T3E::Camera']]],
   ['setrange',['setRange',['../class_t3_e_1_1_blood_vessel.html#a170538b6a6a0d1d3de46c3c41e7e36d1',1,'T3E::BloodVessel']]],
   ['setscore',['setScore',['../class_t3_e_1_1_grid.html#adaac9028e09f37ecb276e769e84a6d1e',1,'T3E::Grid']]],
+  ['setscreensize',['setScreenSize',['../class_t3_e_1_1_text_renderer.html#a247b14c310896b03271b1b4b4405ad37',1,'T3E::TextRenderer']]],
   ['setsensitivity',['setSensitivity',['../class_t3_e_1_1_camera.html#a82ccc04f7b38b59e1bb8f658b670bdba',1,'T3E::Camera']]],
   ['setspeed',['setSpeed',['../class_t3_e_1_1_animated_sprite.html#ace0fae253dcc7eaf235653c3f50648c6',1,'T3E::AnimatedSprite']]],
   ['setstemtospawnmode',['setStemToSpawnMode',['../class_t3_e_1_1_grid.html#af75dca10e6a9365c4eb11b80272ee277',1,'T3E::Grid']]],
@@ -17,6 +18,8 @@ var searchData=
   ['setzoomrange',['setZoomRange',['../class_t3_e_1_1_camera.html#a21c39d926c587f4f793ff58844667b01',1,'T3E::Camera']]],
   ['spawncell',['spawnCell',['../class_t3_e_1_1_grid.html#a27e88dc11de83398d71096d9e8756ffb',1,'T3E::Grid']]],
   ['split',['split',['../class_t3_e_1_1_cell.html#a0483e8f1fa6528ac8ab818cec8d96f9e',1,'T3E::Cell']]],
+  ['stemtostemon',['stemToStemOn',['../class_t3_e_1_1_cell.html#ae672c10d5c346ab709da6f97cdf08a54',1,'T3E::Cell']]],
   ['stop',['stop',['../class_t3_e_1_1_music.html#a907827643ca794d6be764cf2e8d2697f',1,'T3E::Music']]],
-  ['stopuse',['stopUse',['../class_t3_e_1_1_g_l_s_l_program.html#a69fbedd65f7af27026d33b2ec4a18e03',1,'T3E::GLSLProgram']]]
+  ['stopuse',['stopUse',['../class_t3_e_1_1_g_l_s_l_program.html#a69fbedd65f7af27026d33b2ec4a18e03',1,'T3E::GLSLProgram']]],
+  ['swapbuffer',['swapBuffer',['../class_t3_e_1_1window.html#a8c958ea7785e90a8ed25f124801c5fb3',1,'T3E::window']]]
 ];
