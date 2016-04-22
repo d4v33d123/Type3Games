@@ -48,7 +48,7 @@ namespace T3E
 		case CellState::STEM:
 			idleAnimation_.init(-0.43f, -0.43f, 0.86f, 0.86f, "textures/ssheet1.png", 6.0f/16, 0, 1.0f/16, 1.0f/16, 18, 21);
             splitAnimation_.init(-0.64, -0.465, 1.8f, 1.8f, "textures/ssheet3.png",  1.0f/2,  1.0f/2, 1.0f/12, 1.0f/12, 34, 6);
-            stemToStemAnimation_.init(-0.64, -0.465, 1.8f, 1.8f, "textures/ssheet2.png",  1.0f/2,  0, 1.0f/12, 1.0f/12, 34, 6);
+            stemToStemAnimation_.init(-0.64, -0.465, 1.8f, 1.8f, "textures/ssheet2.png",  5.0f/12,  0, 1.0f/12, 1.0f/12, 34, 6);
 			state_ = state;
 			normalTint_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // white
 			alternateTint_ = glm::vec4(0.2, 0.8f, 0.2f, 1.0f);// green
