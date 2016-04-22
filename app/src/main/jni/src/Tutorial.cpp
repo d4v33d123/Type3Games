@@ -46,7 +46,7 @@ void Tutorial::initSystems()
 		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
 		1.0f/14, 1.0f/4,
 		4.0f/14, 2.0f/4,
-		4.0f/14, 3/4.0f);	
+		4.0f/14, 3/4.0f);
 	
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
@@ -124,7 +124,35 @@ command Tutorial::gameLoop()
 	
 	while((c = processInput()) == command::NONE)
 	{
-		textRenderer_.putString( "Hello world", 0, 0, 50 );
+		textRenderer_.putString(
+"\
+- Drag to move around the screen\n\
+- Pinch to zoom in and out\n\
+- In the top left is a currency and score meter\n\
+- Currency rises and falls as you do different\n\
+  actions in game, score goes up as you grow\n\
+- Stem cells can be moved and split manualy,\n\
+  over time they naturaly create healthy cells\n\
+- To Split a stem cell, hold down on it untill\n\
+  it changes colour, than tap and adjacent hex\n\
+- To create a blood vessel first tap the\n\
+  blood vessel button on the left. Then hold on\n\
+  the grid where you would like to create one.\n\
+- Once a blood vessel marker has been placed,\n\
+  move a stem cell into the centre and fill the\n\
+  edges with healthy cells to create it\n\
+- Over time healthy cells will start to mutate,\n\
+  use the kill button on the left to remove mutated\n\
+  cells before they mutate even more and stop\n\
+  responding to the kill command!\n\
+- Holding down on a healthy cell will arrest it,\n\
+  arrested cells are usefull for segregating\n\
+  dangerously mutated cells and preventing them\n\
+  from spreading too far\n\
+  \n\
+  TODO: interactive tutorial\n\
+", -0.98, 0.98, 38
+);
 
 		renderGame();
 		
@@ -201,13 +229,13 @@ void Tutorial::renderGame()
 	//RENDER BACKGROUND
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glUniform4fv(inputColour_location, 1, bgtint);
+	float white_tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	glUniform4fv(inputColour_location, 1, white_tint);
 	// set texture	
 	GLint texid = T3E::ResourceManager::getTexture("textures/background.png").unit;
 	glActiveTexture(GL_TEXTURE0 + texid);	
 	glUniform1i(sampler0_location, texid);
-	//ackgroundSprite_.draw();
+	backgroundSprite_.draw();
 	
 	drawGrid();
 
@@ -215,9 +243,8 @@ void Tutorial::renderGame()
 
 	//RENDER UI	
 	// send ortho matrix to shaders
-	glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );		
-	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glUniform4fv(inputColour_location, 1, tint);
+	glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
+	glUniform4fv(inputColour_location, 1, white_tint);
 	// set texture
 	// texid = T3E::ResourceManager::getTexture("textures/ui2.png").unit;
 	// glActiveTexture(GL_TEXTURE0 + texid);	
@@ -256,11 +283,12 @@ void Tutorial::drawGrid()
 		for(int c = 0; c < grid_.getSize(); ++c)
 		{
 			T3E::Hex* hex;
-			grid_.getHex( r, c, &hex );
+			//grid_.getHex( r, c, &hex );
+			//glm::vec4 drawData = grid_.getHexDrawInfo(r, c, cellSelected_, selectedPos_, interactionMode_);
 
 			//send matrix to shaders
-			glm::mat4 tranlation_matrix = glm::translate( glm::mat4(), glm::vec3( hex->getX(), hex->getY(), 0.0f));
-			glm::mat4 final_matrix = view_proj_martix_ * glm::mat4(1.0f);			
+			glm::mat4 tranlation_matrix = glm::translate( glm::mat4(), glm::vec3( 1.0f, 1.0f, 0.0f));
+			glm::mat4 final_matrix = view_proj_martix_ * tranlation_matrix;			
 			glUniformMatrix4fv(hex_finalM_location_, 1, GL_FALSE, glm::value_ptr(final_matrix));
 			
 			glDrawArrays(GL_LINE_STRIP, 0, 4);
