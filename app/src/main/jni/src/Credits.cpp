@@ -25,14 +25,16 @@ void Credits::initSystems()
 	orthoM_ = glm::ortho(0.0f, float( window_->getScreenWidth() ), 0.0f, float( window_->getScreenHeight() ));
 
 	backButton_.init(10.0f, 10.0f,
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ui2.png",
-		1/4.0f, 1.0f,
-		3/4.0f, 0.0f,
-		3/4.0f, 0.0f);	
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
+		1.0f/14, 1.0f/4,
+		4.0f/14, 2.0f/4,
+		4.0f/14, 3/4.0f);	
 
-		//background sprite
-	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/credits.png", 0, 0, 1.0f, 1.0f);
+	//background sprite
+	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
 	
+    textRenderer_.init();
+	textRenderer_.setScreenSize( window_->getScreenWidth(), window_->getScreenHeight() );
 	
 	//init shaders
 	initShaders();
@@ -64,6 +66,9 @@ command Credits::gameLoop()
 	while((c = processInput()) == command::NONE)
 	{
 		float startTicks = SDL_GetTicks();
+        
+        textRenderer_.putString( "Some credits", -0.5, 0.3, 100 );
+        
 		renderGame();
 		
 		float frameTicks = SDL_GetTicks() - startTicks;
@@ -153,13 +158,15 @@ void Credits::renderGame()
 	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glUniform4fv(inputColour_location, 1, tint);
 	// set texture
-	texid = T3E::ResourceManager::getTexture("textures/ui.png").unit;
-	glActiveTexture(GL_TEXTURE0 + texid);	
-	glUniform1i(sampler0_location, texid);
+	// texid = T3E::ResourceManager::getTexture("textures/ui.png").unit;
+	// glActiveTexture(GL_TEXTURE0 + texid);	
+	// glUniform1i(sampler0_location, texid);
 	//draw sprite
 	backButton_.draw();
 		
-	tintedSpriteProgram_.stopUse();	
+	tintedSpriteProgram_.stopUse();
+    
+    textRenderer_.render();
 
 	// swap our buffers 
 	window_->swapBuffer();

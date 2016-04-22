@@ -321,9 +321,10 @@ namespace T3E
 			int row, col;
 			CellState state;
 			int parentDeathChance;
+            bool showChange;
 			
-			birthInfo(int r, int c, CellState s, int dc)
-			: row(r) ,col(c), state(s), parentDeathChance(dc)
+			birthInfo(int r, int c, CellState s, int dc, bool sc)
+			: row(r) ,col(c), state(s), parentDeathChance(dc), showChange(sc)
 			{}
 		};
 		

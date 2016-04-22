@@ -26,19 +26,19 @@ namespace T3E
 		//UV COORDS ARE SWAPPED!!!
 		//bottom left
 		vertexData[0].setPosition(x_, y_);
-		vertexData[0].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_ );
+		vertexData[0].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*(animPosition_%framesPerLine_) );
 
 		//bottom right
 		vertexData[1].setPosition(x_ + width_, y_);
-		vertexData[1].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*animPosition_+ tileWidth_);
+		vertexData[1].setUV(tileX_ + tileHeight_, tileY_ + tileWidth_*(animPosition_%framesPerLine_)+ tileWidth_);
 		
 		//top left
 		vertexData[2].setPosition(x_, y_ + height_);
-		vertexData[2].setUV(tileX_ , tileY_ + tileWidth_*animPosition_);
+		vertexData[2].setUV(tileX_ , tileY_ + tileWidth_*(animPosition_%framesPerLine_));
 
 		//top right
 		vertexData[3].setPosition(x_ + width_, y_ + height_);
-		vertexData[3].setUV(tileX_, tileY_ + tileWidth_*animPosition_+ tileWidth_);
+		vertexData[3].setUV(tileX_, tileY_ + tileWidth_*(animPosition_%framesPerLine_)+ tileWidth_);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vboID_);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STREAM_DRAW);
@@ -113,7 +113,7 @@ namespace T3E
 				animPosition_++;
 				animCount_ = 0;
 				if(animPosition_ % framesPerLine_ == 0 && animPosition_ < numSprites_)
-					tileX_ += tileWidth_;
+                    tileX_ += tileWidth_;//go to next row
 			}
 		}
 		

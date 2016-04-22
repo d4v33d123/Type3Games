@@ -125,6 +125,8 @@ namespace T3E
 		///@{
 		void kill() { dying_ = true; } //play death animation
 		void setDeathChance(int dc) { deathChance_ = dc; }
+        void stemToStemOn() { stemToStem_ = true; }
+        void showChangeOn() { showChange_ = true; }
 		///@}
 		
 	private:
@@ -133,8 +135,11 @@ namespace T3E
 		AnimatedSprite idleAnimation_;
 		AnimatedSprite splitAnimation_;
 		AnimatedSprite arrestAnimation_;
-		AnimatedSprite deathAnimation_;
-
+		AnimatedSprite deathAnimation_;        
+        AnimatedSprite stemToStemAnimation_;         
+        AnimatedSprite arrestIdleAnimation_;
+        AnimatedSprite stateChangeAnimation_;
+        
 		glm::vec4 tint_; // current colour
 		glm::vec4 normalTint_; // colour when non selected
 		glm::vec4 brightTint_; // colour when selected
@@ -154,6 +159,9 @@ namespace T3E
 		bool splitting_;//split animation playing
 		bool inCreation_;//true while parent split animation is running
 		bool fullyArrested_;//true = arrest animation finished playing
+        bool stemToStem_;//a stem cell is being (manually) split into another stem cell
+        bool showChange_;//cell should play state change animation before idling
+        bool showingChange_;//currently doing ^^^
 	};
 }
 

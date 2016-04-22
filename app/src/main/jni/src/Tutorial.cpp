@@ -25,10 +25,10 @@ void Tutorial::initSystems()
 	orthoM_ = glm::ortho(0.0f, float( window_->getScreenWidth() ), 0.0f, float( window_->getScreenHeight() ));
     
 	backButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(1.0f/7.0f),
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ui2.png",
-		1/4.0f, 1.0f,
-		3/4.0f, 0.0f,
-		3/4.0f, 0.0f);	
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
+		1.0f/14, 1.0f/4,
+		4.0f/14, 2.0f/4,
+		4.0f/14, 3/4.0f);	
 	
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
@@ -141,7 +141,7 @@ void Tutorial::renderGame()
 	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glUniform4fv(inputColour_location, 1, bgtint);
 	// set texture	
-	GLint texid = T3E::ResourceManager::getTexture("textures/credits.png").unit;
+	GLint texid = T3E::ResourceManager::getTexture("textures/background.png").unit;
 	glActiveTexture(GL_TEXTURE0 + texid);	
 	glUniform1i(sampler0_location, texid);
 	//draw sprite
@@ -153,9 +153,9 @@ void Tutorial::renderGame()
 	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glUniform4fv(inputColour_location, 1, tint);
 	// set texture
-	texid = T3E::ResourceManager::getTexture("textures/ui2.png").unit;
-	glActiveTexture(GL_TEXTURE0 + texid);	
-	glUniform1i(sampler0_location, texid);
+	// texid = T3E::ResourceManager::getTexture("textures/ui2.png").unit;
+	// glActiveTexture(GL_TEXTURE0 + texid);	
+	// glUniform1i(sampler0_location, texid);
 	//draw sprite
 	backButton_.draw();
 		
