@@ -20,6 +20,11 @@ namespace T3E
         ~Grid();
 
         /**
+        * @param [in] bool True if cells can naturally split and die
+        */
+        void setGridUpdates( bool b ) { allow_cell_birth_death_ = b; }
+
+        /**
         * Get the pointer to a node at the given row / column
         *
         * @param [in] row
@@ -337,6 +342,8 @@ namespace T3E
 			{}
 		};
 		
+		bool allow_cell_birth_death_;	// When this is false cells will not be able to naturally spawn or die
+
 		// the number of points the player has
 		int high_score_;
 		int currency_;

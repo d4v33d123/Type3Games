@@ -199,7 +199,7 @@ namespace T3E
 		// Bind the shader and verts
 		glUseProgram( shader_program_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
-		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * verts_.size(), verts_.data(), GL_STREAM_DRAW );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * verts_.size(), verts_.data(), GL_DYNAMIC_DRAW );
 
     	// Sent the texture and set properties
 		glActiveTexture( GL_TEXTURE0 + bitmap_font_.unit );	

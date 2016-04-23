@@ -35,6 +35,9 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, bool t
 	window_ = window;
 	audioEngine_ = audioEngine;
 	tutorial_ = tutorial;
+	if( tutorial_ ) {
+		grid_.setGridUpdates(false);
+	}
 	
 	initSystems();
 	
@@ -361,8 +364,8 @@ command MainGame::gameLoop()
 		}
 		
 		score_ = grid_.getHighScore();
-		textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.05, 0.95, 44 );
-		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.05, 0.85, 44 );
+		textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.45, 0.95, 44 );
+		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.45, 0.85, 44 );
 		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 
@@ -373,7 +376,7 @@ command MainGame::gameLoop()
 		renderGame();
 
 		textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
-		textRenderer_.putString( "m/s", 0.9, -0.9, 32 );
+		textRenderer_.putString( "ms", 0.9, -0.9, 32 );
 
 		processInput(frameTime_);
 
@@ -1066,7 +1069,7 @@ void MainGame::calculateFPS()
 void MainGame::renderTutorial()
 {
 	if( finger_pressed_ )
-		increment_tutorial();
+		increment_tutorial();		
 
 	switch( tut_phase_ )
 	{
@@ -1084,37 +1087,40 @@ void MainGame::renderTutorial()
 		textRenderer_.putString( "- This is the pause button", -0.6, 0.4, 45 );
 	break;
 	case TutorialPhase::SHOW_SCORE:
-		textRenderer_.putString( "This number is your score", -0.6, 0.4, 45 );
+		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells", -0.8, 0.4, 45 );
 	break;
 	case TutorialPhase::SHOW_CURRENCY:
-		textRenderer_.putString( "And this is your currenncy\nKeep an eye on this!\n\nSome actions will be rewarded,\nwhile others will cost you", -0.7, 0.4, 45 );
+		textRenderer_.putString( "The bottom number is your currenncy\nKeep an eye on it!\n\nSome actions will be rewarded,\nwhile others will cost you", -0.7, 0.4, 45 );
+	break;
+	case TutorialPhase::EXPLAIN_STEMBV:
+		textRenderer_.putString( "You start the game with a single\nstem cell and blood vessel\n\nStem cells divide to produce\nhealthy cells while\nblood vessels provide energy\nto the cells around them.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::MOVE_STEM:
-		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex to move it", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::SPLIT_STEM:
-		textRenderer_.putString( "Split stem text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::PLACE_BV:
-		textRenderer_.putString( "Place blood vessel text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nMake sure to place them\nclose to your other blood vessels.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::CREATE_BV:
-		textRenderer_.putString( "Create blood vessel text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy cells\nto create a new blood vesesl.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::MUTATE_CELL:
-		textRenderer_.putString( "A cell mutated text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Sometimes healthy cells will\nspawn mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::ARREST_CELL:
-		textRenderer_.putString( "Arrest a cell text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "You can control the board by\ncreating barriers of arrested cells.\n\nTo arrest a cell hold down\non it till it changes colour.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::KILL_CELL:
-		textRenderer_.putString( "Kill a cell text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "A more effective but costly\nway to control mutated cells is to\nuse the kill button.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::CANCER_CELL:
-		textRenderer_.putString( "Split stem text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "A dangerously mutated cell appeared!\n\nYou can't kill these or arrest them,\nbut you can isolate them\nwith arrested cells.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::DONE:
-		textRenderer_.putString( "Tutorial finished text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "And that's all there is to learn.\nWe hope you enjoy Cell Cycle!", -0.6, 0.4, 45 );
 	break;
 	default:
 	break;
@@ -1128,9 +1134,15 @@ void MainGame::increment_tutorial()
 	else if( tut_phase_ == TutorialPhase::ZOOM_CAM ) tut_phase_ = TutorialPhase::SHOW_PAUSE;
 	else if( tut_phase_ == TutorialPhase::SHOW_PAUSE ) tut_phase_ = TutorialPhase::SHOW_SCORE;
 	else if( tut_phase_ == TutorialPhase::SHOW_SCORE ) tut_phase_ = TutorialPhase::SHOW_CURRENCY;
-	else if( tut_phase_ == TutorialPhase::SHOW_CURRENCY ) tut_phase_ = TutorialPhase::MOVE_STEM;
+	else if( tut_phase_ == TutorialPhase::SHOW_CURRENCY ) tut_phase_ = TutorialPhase::EXPLAIN_STEMBV;
+	else if( tut_phase_ == TutorialPhase::EXPLAIN_STEMBV ) tut_phase_ = TutorialPhase::MOVE_STEM;
 	else if( tut_phase_ == TutorialPhase::MOVE_STEM ) tut_phase_ = TutorialPhase::SPLIT_STEM;
-	else if( tut_phase_ == TutorialPhase::SPLIT_STEM ) tut_phase_ = TutorialPhase::PLACE_BV;
+	else if( tut_phase_ == TutorialPhase::SPLIT_STEM )
+	{
+		// Turn grid updates back on once we start talking about blood numBloodVessels
+		tut_phase_ = TutorialPhase::PLACE_BV;
+		grid_.setGridUpdates( true );
+	}
 	else if( tut_phase_ == TutorialPhase::PLACE_BV ) tut_phase_ = TutorialPhase::CREATE_BV;
 	else if( tut_phase_ == TutorialPhase::CREATE_BV ) tut_phase_ = TutorialPhase::MUTATE_CELL;
 	else if( tut_phase_ == TutorialPhase::MUTATE_CELL ) tut_phase_ = TutorialPhase::ARREST_CELL;

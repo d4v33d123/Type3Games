@@ -38,7 +38,7 @@
 enum class GameState { PLAY, EXIT };
 
 /// The stage the tutorial is currently in
-enum class TutorialPhase { READY, MOVE_CAM, ZOOM_CAM, SHOW_PAUSE, SHOW_SCORE, SHOW_CURRENCY,
+enum class TutorialPhase { READY, MOVE_CAM, ZOOM_CAM, SHOW_PAUSE, SHOW_SCORE, SHOW_CURRENCY, EXPLAIN_STEMBV,
 MOVE_STEM, SPLIT_STEM, PLACE_BV, CREATE_BV, MUTATE_CELL, ARREST_CELL, KILL_CELL, CANCER_CELL, DONE, NONE };
 
 class MainGame
