@@ -165,7 +165,7 @@ namespace T3E
 		{
 			// If it's a new line, move down and back
 			if( str[i] == '\n' ) {
-				y += (size_pixels / (float)height_) * -2.0f;
+				y += (size_pixels / (float)height_) * -2.05f;
 				x -= char_width * (chars_this_line + 1);
 				chars_this_line = 0;
 				continue;

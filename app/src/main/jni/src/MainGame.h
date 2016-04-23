@@ -34,8 +34,12 @@
 #include "command.h"
 #include "Type3Engine/Vertex.h"//draw grid
 
+/// The game is either playing or request quit
 enum class GameState { PLAY, EXIT };
 
+/// The stage the tutorial is currently in
+enum class TutorialPhase { READY, MOVE_CAM, ZOOM_CAM, SHOW_PAUSE, SHOW_SCORE, SHOW_CURRENCY,
+MOVE_STEM, SPLIT_STEM, PLACE_BV, CREATE_BV, MUTATE_CELL, ARREST_CELL, KILL_CELL, CANCER_CELL, DONE, NONE };
 
 class MainGame
 {
@@ -64,7 +68,8 @@ private:
 	void initShaders();
 	command gameLoop();
 	void processInput(float dTime);
-	void renderGame();
+	void renderTutorial();				///< Handles updating and drawing of the tutorial
+	void renderGame();					
 	void calculateFPS();
 	
 	//control vars
@@ -87,7 +92,9 @@ private:
 
 	// TUTORIAL
 	bool tutorial_;
+	TutorialPhase tut_phase_;
 	T3E::Timer timer_;
+	void increment_tutorial();
 	
 	/**
 	* @param [in] row to test
@@ -99,9 +106,9 @@ private:
     // INPUT
 	
 	T3E::Button bvButton_, killButton_, menuButton_, resumeButton_, quitButton_;
-	bool finger_dragged_;
-	//detect when finger is down for a certain amount of time
-	bool fingerPressed_;
+	bool finger_dragged_;	///< True when a finger is being dragged significantly
+	bool finger_down_;		///< True when a finger is down, false when finger dragged of no fingers are down
+	bool finger_pressed_;	///< True for the first frame of a finger touching the screen
 	glm::vec2 pressPos_;
 	float pressTimer_;
 	//detect cell selection

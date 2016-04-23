@@ -10,13 +10,15 @@ MainGame::MainGame():
 	PAN_SENSITIVITY(6.0f),
 	ZOOM_SENSITIVITY(6.0f),
     finger_dragged_(false),
+    finger_pressed_(false),
 	pressTimer_(0),
-	fingerPressed_(false),
+	finger_down_(false),
 	cellSelected_(false),
 	interactionMode_(InteractionMode::NORMAL),
 	paused_(false),
 	gameOver_(false),
-	tutorial_(false)
+	tutorial_(false),
+	tut_phase_(TutorialPhase::READY)
 {}
 
 MainGame::~MainGame()
@@ -364,15 +366,9 @@ command MainGame::gameLoop()
 		textRenderer_.putChar('$', -0.10, 0.86, 50);
 		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 
-		if( tutorial_ )
-		{
-			textRenderer_.putString( "Welcome to the Cell Cycle Tutorial!", -0.5, 0.7, 30 );
-			textRenderer_.putNumber( timer_.timeTillDone(), 1, 0.0, 0.0, 30, 0.8f );
-			if( timer_.done() )
-			{
-				textRenderer_.putString( "Done!", 0, -0.1, 30, 0.5f );
-			}
-		}
+		// Render the tutorial text
+		if( tutorial_ )	
+			renderTutorial();
 
 		renderGame();
 
@@ -400,23 +396,27 @@ void MainGame::processInput(float dTime)
 	glm::vec4 worldPos;
     SDL_Point rowCol;
 	glm::vec2 screenCoords;
+	finger_pressed_ = false;
 	
 	// processing our input
 	SDL_Event evnt;
 	while (SDL_PollEvent(&evnt))
 	{
+		if( evnt.type == SDL_QUIT )
+		{
+			gameState_ = GameState::EXIT;
+			continue;
+		}
+
 		if(gameOver_)//waith for touch then go to main menu
 		{
 			switch( evnt.type )
-			{
-			case SDL_QUIT:
-				gameState_ = GameState::EXIT;
-				break;
-								
+			{								
 			case SDL_FINGERDOWN:
 				++nOfFingers_;
 				
-				fingerPressed_ = true;
+				finger_pressed_ = true;
+				finger_down_ = true;
 				//record position in case we need it later
 				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
 				
@@ -440,7 +440,7 @@ void MainGame::processInput(float dTime)
 			case SDL_FINGERUP:
 				--nOfFingers_;
 				
-				fingerPressed_ = false;			
+				finger_down_ = false;			
 				
 				// Only act when the last finger is lifted,
 				if( nOfFingers_ == 0 && finger_dragged_ == false)
@@ -463,16 +463,17 @@ void MainGame::processInput(float dTime)
 				if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
 				{
 					finger_dragged_ = true;
-					fingerPressed_ = false;	
+					finger_down_ = false;				
 				}
 				
+				// Move the camera
 				if( nOfFingers_ < 2)
 				{
 					camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
 				}
 				break;
 			
-			case SDL_MULTIGESTURE: 		
+			case SDL_MULTIGESTURE:
 				// pinch zoom
 				camera_.zoom( -evnt.mgesture.dDist );
 				break;
@@ -484,11 +485,7 @@ void MainGame::processInput(float dTime)
 		else if(paused_)
 		{
 			switch( evnt.type )
-			{
-			case SDL_QUIT:
-				gameState_ = GameState::EXIT;
-				break;
-				
+			{				
 			case SDL_KEYDOWN:
 				if(evnt.key.keysym.sym == SDLK_AC_BACK) // android back key
 				{
@@ -503,7 +500,8 @@ void MainGame::processInput(float dTime)
 			case SDL_FINGERDOWN:
 				++nOfFingers_;
 				
-				fingerPressed_ = true;
+				finger_pressed_ = true;
+				finger_down_ = true;
 				//record position in case we need it later
 				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
 				
@@ -532,7 +530,7 @@ void MainGame::processInput(float dTime)
 			case SDL_FINGERUP:
 				--nOfFingers_;
 				
-				fingerPressed_ = false;			
+				finger_down_ = false;			
 				
 				// Only act when the last finger is lifted,
 				// AND the cursor was not moved
@@ -561,14 +559,10 @@ void MainGame::processInput(float dTime)
 			default: break;
 			}
 		}
-		else
+		else // We are playing normaly
 		{
 			switch( evnt.type )
-			{
-			case SDL_QUIT:
-				gameState_ = GameState::EXIT;
-				break;
-				
+			{				
 			case SDL_KEYDOWN:
 				if(evnt.key.keysym.sym == SDLK_AC_BACK) // android back key
 				{
@@ -594,7 +588,8 @@ void MainGame::processInput(float dTime)
 			case SDL_FINGERDOWN:
 				++nOfFingers_;
 				
-				fingerPressed_ = true;
+				finger_pressed_ = true;
+				finger_down_ = true;
 				//record position in case we need it later
 				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
 				
@@ -609,7 +604,7 @@ void MainGame::processInput(float dTime)
 			case SDL_FINGERUP:
 				--nOfFingers_;
 				
-				fingerPressed_ = false;			
+				finger_down_ = false;			
 				pressTimer_ = 0;
 				pressPos_ = glm::vec2(-1, -1);
 				
@@ -734,25 +729,11 @@ void MainGame::processInput(float dTime)
 				
 			case SDL_FINGERMOTION:
 				//avoid microdrag detection
-				
-				/* Testing another method of microdrag detection
-				// convert the touch to a world position
-					worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-					// convert the world pos to a grid row column
-					rowCol = world_to_grid( worldPos );
-					
-					// convert the touch to a world position
-					worldPos2 = touch_to_world( glm::vec2( evnt.tfinger.x + evnt.tfinger.dx, evnt.tfinger.y + evnt.tfinger.dy) );
-					// convert the world pos to a grid row column
-					rowCol2 = world_to_grid( worldPos );
-				
-				//SDL_Log("row1x %i, row1y %i, row2x %i, row2y %i", rowCol.x, rowCol.y ,rowCol2.x ,rowCol2.y );
-				//if(rowCol.x != rowCol2.x && rowCol.y != rowCol2.y)
-				*/
-				if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
+				// when people press down on the screen, they drag way more than just this, older players are less precise == frustration
+				if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) 
 				{
 					finger_dragged_ = true;
-					fingerPressed_ = false;	
+					finger_down_ = false;	
 				}
 				
 				// pan if only one finger is on screen; you don't want to pan during pinch motion
@@ -760,13 +741,16 @@ void MainGame::processInput(float dTime)
 				{
 					camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
 				}
-				//SDL_Log("%f               %f", evnt.tfinger.dx,evnt.tfinger.dy);
 				
 				break;
 			
-			case SDL_MULTIGESTURE: 		
+			case SDL_MULTIGESTURE:
 				// pinch zoom
 				camera_.zoom( -evnt.mgesture.dDist );
+
+				if( tut_phase_ == TutorialPhase::ZOOM_CAM )
+					tut_phase_ = TutorialPhase::READY;
+
 				break;
 				
 			default: break;
@@ -775,44 +759,38 @@ void MainGame::processInput(float dTime)
 	}
 	
 	//check for finger pressure
-	if(fingerPressed_)
+	if(finger_down_)
 	{
 		pressTimer_ += dTime;
 		//SDL_Log("%f", pressTimer_);
 		if(pressTimer_ >= 800)
 		{
 			pressTimer_ = 0;
-			fingerPressed_ = false;
+			finger_down_ = false;
 			rowCol = world_to_grid(touch_to_world(pressPos_));
-		
-			switch(interactionMode_)
+			
+			if( interactionMode_ == InteractionMode::NORMAL )
 			{
-				case InteractionMode::NORMAL:
+				//try to arrest
+				if(!grid_.arrestCell(rowCol.x, rowCol.y, &cellSelected_))
 				{
-					//try to arrest
-					if(!grid_.arrestCell(rowCol.x, rowCol.y, &cellSelected_))
-					{
-						//try to change stem cell mode
-						grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
-						cellModeChange_.play();
-					}					
-					else
-					{
-						cellArrest_.play();
-					}
-					break;
-				}
-				case InteractionMode::BVCREATION:
+					//try to change stem cell mode
+					grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
+					cellModeChange_.play();
+				}					
+				else
 				{
-					//try to set bv spawn point
-					if(grid_.setBvSpawn(rowCol.x, rowCol.y))
-					{
-						bvButton_.unpress();
-						interactionMode_ = InteractionMode::NORMAL;
-					}
-					
+					cellArrest_.play();
 				}
-				
+			}
+			else if( interactionMode_ == InteractionMode::BVCREATION )
+			{
+				//try to set bv spawn point
+				if( grid_.setBvSpawn(rowCol.x, rowCol.y) )
+				{
+					bvButton_.unpress();
+					interactionMode_ = InteractionMode::NORMAL;
+				}
 			}
 		}
 	}	
@@ -1083,6 +1061,83 @@ void MainGame::calculateFPS()
 	{
 		fps_ = 60.0f;
 	}
+}
+
+void MainGame::renderTutorial()
+{
+	if( finger_pressed_ )
+		increment_tutorial();
+
+	switch( tut_phase_ )
+	{
+	case TutorialPhase::READY:
+		textRenderer_.putString( "Hello, and welcome to\nthe CellCycle tutorial!", -0.5, 0.7, 50 );
+		textRenderer_.putString( "Tap to start", -0.2, 0.4, 40 );
+	break;
+	case TutorialPhase::MOVE_CAM:
+		textRenderer_.putString( "To move, drag with one finger", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::ZOOM_CAM:
+		textRenderer_.putString( "To zoom, pinch with two fingers", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::SHOW_PAUSE:
+		textRenderer_.putString( "- This is the pause button", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::SHOW_SCORE:
+		textRenderer_.putString( "This number is your score", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::SHOW_CURRENCY:
+		textRenderer_.putString( "And this is your currenncy\nKeep an eye on this!\n\nSome actions will be rewarded,\nwhile others will cost you", -0.7, 0.4, 45 );
+	break;
+	case TutorialPhase::MOVE_STEM:
+		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex to move it", -0.7, 0.4, 45 );
+	break;
+	case TutorialPhase::SPLIT_STEM:
+		textRenderer_.putString( "Split stem text", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::PLACE_BV:
+		textRenderer_.putString( "Place blood vessel text", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::CREATE_BV:
+		textRenderer_.putString( "Create blood vessel text", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::MUTATE_CELL:
+		textRenderer_.putString( "A cell mutated text", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::ARREST_CELL:
+		textRenderer_.putString( "Arrest a cell text", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::KILL_CELL:
+		textRenderer_.putString( "Kill a cell text", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::CANCER_CELL:
+		textRenderer_.putString( "Split stem text", -0.6, 0.4, 45 );
+	break;
+	case TutorialPhase::DONE:
+		textRenderer_.putString( "Tutorial finished text", -0.6, 0.4, 45 );
+	break;
+	default:
+	break;
+	}
+}
+
+void MainGame::increment_tutorial()
+{
+	if( tut_phase_ == TutorialPhase::READY ) tut_phase_ = TutorialPhase::MOVE_CAM;
+	else if( tut_phase_ == TutorialPhase::MOVE_CAM ) tut_phase_ = TutorialPhase::ZOOM_CAM;
+	else if( tut_phase_ == TutorialPhase::ZOOM_CAM ) tut_phase_ = TutorialPhase::SHOW_PAUSE;
+	else if( tut_phase_ == TutorialPhase::SHOW_PAUSE ) tut_phase_ = TutorialPhase::SHOW_SCORE;
+	else if( tut_phase_ == TutorialPhase::SHOW_SCORE ) tut_phase_ = TutorialPhase::SHOW_CURRENCY;
+	else if( tut_phase_ == TutorialPhase::SHOW_CURRENCY ) tut_phase_ = TutorialPhase::MOVE_STEM;
+	else if( tut_phase_ == TutorialPhase::MOVE_STEM ) tut_phase_ = TutorialPhase::SPLIT_STEM;
+	else if( tut_phase_ == TutorialPhase::SPLIT_STEM ) tut_phase_ = TutorialPhase::PLACE_BV;
+	else if( tut_phase_ == TutorialPhase::PLACE_BV ) tut_phase_ = TutorialPhase::CREATE_BV;
+	else if( tut_phase_ == TutorialPhase::CREATE_BV ) tut_phase_ = TutorialPhase::MUTATE_CELL;
+	else if( tut_phase_ == TutorialPhase::MUTATE_CELL ) tut_phase_ = TutorialPhase::ARREST_CELL;
+	else if( tut_phase_ == TutorialPhase::ARREST_CELL ) tut_phase_ = TutorialPhase::KILL_CELL;
+	else if( tut_phase_ == TutorialPhase::KILL_CELL ) tut_phase_ = TutorialPhase::CANCER_CELL;
+	else if( tut_phase_ == TutorialPhase::CANCER_CELL ) tut_phase_ = TutorialPhase::DONE;
+	else if( tut_phase_ == TutorialPhase::DONE ) tut_phase_ = TutorialPhase::NONE;
 }
 
 void MainGame::drawGrid()
