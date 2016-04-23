@@ -365,7 +365,7 @@ namespace T3E
 		return death_chance;
 	}
 	
-	bool Grid::update(float dTime, SDL_Point fingerRowCol)
+	bool Grid::update(float dTime, SDL_Point fingerRowCol, TutorialPhase& tut_phase )
 	{		
 		//TODO: use queue/list?
 		std::vector<birthInfo> newCells;
@@ -386,6 +386,9 @@ namespace T3E
 			{
 				sp = bvSpawnPoints_.erase(sp);
 				playVessel_ = true;
+
+				if( tut_phase == TutorialPhase::CREATE_BV )
+					tut_phase = TutorialPhase::MUTATE_CELL;
 			}
 			else
 				++sp;

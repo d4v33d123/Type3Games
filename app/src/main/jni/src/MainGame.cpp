@@ -336,7 +336,7 @@ command MainGame::gameLoop()
 		{
 			if( !paused_ )
 			{
-				if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
+				if( grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_)), tut_phase_) )
 					cellSelected_ = false;
 			
 				if(grid_.playVessel())
@@ -580,6 +580,9 @@ void MainGame::processInput(float dTime)
 				if(evnt.key.keysym.sym == SDLK_z)//zoom in
 				{
 					camera_.zoom(-0.05f);
+
+					if( tut_phase_ == TutorialPhase::ZOOM_CAM )
+						increment_tutorial();
 				}
 				if(evnt.key.keysym.sym == SDLK_x)//zoom out
 				{
@@ -682,13 +685,11 @@ void MainGame::processInput(float dTime)
 									//try to spawn
 									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
 									{
-										//T3E::Cell* sel = (T3E::Cell*)((grid_.getNode());
-										//try to move stem cell
-										//if(!(sel->isInCreation()))
-										//{
-											grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-										//}
+										grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
 										
+										if( tut_phase_ == TutorialPhase::MOVE_STEM ) {
+											increment_tutorial();
+										}										
 									}	
 									else
 									{
@@ -715,6 +716,9 @@ void MainGame::processInput(float dTime)
 								{
 									// play kill noise
 									cellDeath_.play();
+									
+									if( tut_phase_ == TutorialPhase::KILL_CELL )
+										increment_tutorial();
 								}
 								break;
 							}
@@ -739,6 +743,9 @@ void MainGame::processInput(float dTime)
 					finger_down_ = false;	
 				}
 				
+				if( tut_phase_ == TutorialPhase::MOVE_CAM )
+					increment_tutorial();
+
 				// pan if only one finger is on screen; you don't want to pan during pinch motion
 				if( nOfFingers_ < 2)
 				{
@@ -752,8 +759,7 @@ void MainGame::processInput(float dTime)
 				camera_.zoom( -evnt.mgesture.dDist );
 
 				if( tut_phase_ == TutorialPhase::ZOOM_CAM )
-					tut_phase_ = TutorialPhase::READY;
-
+					increment_tutorial();
 				break;
 				
 			default: break;
@@ -780,10 +786,15 @@ void MainGame::processInput(float dTime)
 					//try to change stem cell mode
 					grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
 					cellModeChange_.play();
+
+					if( tut_phase_ == TutorialPhase::SPLIT_STEM )
+						increment_tutorial();
 				}					
 				else
 				{
 					cellArrest_.play();
+					if( tut_phase_ == TutorialPhase::ARREST_CELL )
+						increment_tutorial();
 				}
 			}
 			else if( interactionMode_ == InteractionMode::BVCREATION )
@@ -793,6 +804,9 @@ void MainGame::processInput(float dTime)
 				{
 					bvButton_.unpress();
 					interactionMode_ = InteractionMode::NORMAL;
+
+					if( tut_phase_ == TutorialPhase::PLACE_BV )
+						increment_tutorial();
 				}
 			}
 		}
@@ -1068,7 +1082,19 @@ void MainGame::calculateFPS()
 
 void MainGame::renderTutorial()
 {
-	if( finger_pressed_ )
+	// Depending on the tutorial phase,
+	// sometimes the tutorial will progress with just a tap,
+	// sometimes the player has to perform a certain action
+	if( finger_pressed_ && (
+		tut_phase_ == TutorialPhase::READY ||
+		tut_phase_ == TutorialPhase::SHOW_PAUSE ||
+		tut_phase_ == TutorialPhase::SHOW_SCORE ||
+		tut_phase_ == TutorialPhase::SHOW_CURRENCY ||
+		tut_phase_ == TutorialPhase::EXPLAIN_STEMBV ||
+		tut_phase_ == TutorialPhase::MUTATE_CELL ||
+		tut_phase_ == TutorialPhase::CANCER_CELL ||
+		tut_phase_ == TutorialPhase::DONE
+		) )
 		increment_tutorial();		
 
 	switch( tut_phase_ )
@@ -1084,16 +1110,16 @@ void MainGame::renderTutorial()
 		textRenderer_.putString( "To zoom, pinch with two fingers", -0.6, 0.4, 45 );
 	break;
 	case TutorialPhase::SHOW_PAUSE:
-		textRenderer_.putString( "- This is the pause button", -0.6, 0.4, 45 );
+		textRenderer_.putString( "In the top left is the pause button.", -0.7, 0.6, 45 );
 	break;
 	case TutorialPhase::SHOW_SCORE:
-		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells", -0.8, 0.4, 45 );
+		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.7, 0.6, 45 );
 	break;
 	case TutorialPhase::SHOW_CURRENCY:
-		textRenderer_.putString( "The bottom number is your currenncy\nKeep an eye on it!\n\nSome actions will be rewarded,\nwhile others will cost you", -0.7, 0.4, 45 );
+		textRenderer_.putString( "The bottom number is your currenncy\nKeep an eye on it!\n\nSome actions will be rewarded,\nwhile others will cost you!", -0.7, 0.6, 45 );
 	break;
 	case TutorialPhase::EXPLAIN_STEMBV:
-		textRenderer_.putString( "You start the game with a single\nstem cell and blood vessel\n\nStem cells divide to produce\nhealthy cells while\nblood vessels provide energy\nto the cells around them.", -0.7, 0.4, 45 );
+		textRenderer_.putString( "You start the game with a single\nstem cell and blood vessel.\n\nStem cells divide to produce\nhealthy cells while\nblood vessels provide energy\nto the cells around them.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::MOVE_STEM:
 		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.7, 0.4, 45 );

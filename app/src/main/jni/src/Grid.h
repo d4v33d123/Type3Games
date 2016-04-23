@@ -10,6 +10,10 @@
 
 enum class InteractionMode {NORMAL, BVCREATION, KILLMODE};
 
+/// The stage the tutorial is currently in
+enum class TutorialPhase { READY, MOVE_CAM, ZOOM_CAM, SHOW_PAUSE, SHOW_SCORE, SHOW_CURRENCY, EXPLAIN_STEMBV,
+MOVE_STEM, SPLIT_STEM, PLACE_BV, CREATE_BV, MUTATE_CELL, ARREST_CELL, KILL_CELL, CANCER_CELL, DONE, NONE };
+
 //TODO: some functions are redundant or check unnecessary things
 namespace T3E
 {
@@ -131,7 +135,7 @@ namespace T3E
 		* 		 but I couldn't think of a better way to unset the cellSelected_ flag in MainGame when this happens
 		* call update methods of grid elements, spawn/kill cells according to sim rules
 		*/
-		bool update( float dTime, SDL_Point fingerRowCol );
+		bool update( float dTime, SDL_Point fingerRowCol, TutorialPhase& tut_phase );
 		
 		//TODO: use hexexist checks in getdistance and inrange ? or not since we check before anyway since it's only used internally?
 		
