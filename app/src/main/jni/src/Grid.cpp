@@ -4,7 +4,8 @@
 namespace T3E
 {
     Grid::Grid() :
-	playVessel_(false)
+	playVessel_(false),
+	allow_cell_birth_death_(true)
     {
         // Initialise all the cells ( to empty )
         for( int col = 0; col < CHUNK_WIDTH; col++ )
@@ -364,13 +365,12 @@ namespace T3E
 		return death_chance;
 	}
 	
-	bool Grid::update(float dTime, SDL_Point fingerRowCol)
-	{
-		bool selectedCellDied = false;
-		
+	bool Grid::update(float dTime, SDL_Point fingerRowCol, TutorialPhase& tut_phase )
+	{		
 		//TODO: use queue/list?
 		std::vector<birthInfo> newCells;
 		std::vector<deathInfo> deadCells;
+		bool selectedCellDied = false;
 	
 		//update bvs
 		for( std::vector<Hex*>::iterator bvs = bloodVessels_.begin(); bvs != bloodVessels_.end(); ++bvs )
@@ -380,19 +380,22 @@ namespace T3E
 		}
 		
 		//try to create blood vessels at spawn points
-		for(std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end();)
+		for( std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end(); )
 		{
 			if(growBloodVesselAt(sp->x, sp->y, &selectedCellDied))
 			{
 				sp = bvSpawnPoints_.erase(sp);
 				playVessel_ = true;
+
+				if( tut_phase == TutorialPhase::CREATE_BV )
+					tut_phase = TutorialPhase::MUTATE_CELL;
 			}
 			else
 				++sp;
 		}		
 		
 		//update cells
-		for(std::vector<Hex*>::iterator hex = cells_.begin(); hex != cells_.end(); ++hex)
+		for( std::vector<Hex*>::iterator hex = cells_.begin(); hex != cells_.end(); ++hex )
         {
 			//get the hex's node and cast it to cell
 			Cell* current = (Cell*)((*hex)->getNode());
@@ -405,7 +408,9 @@ namespace T3E
 					current->update(dTime);//do this after isDead() check so we don't skip rendering the last frame
 			}
 			//update cell, check if it's time to split
-			else if(current->update(dTime) && (! current->isSelected() ))
+
+			// Only apply changes if allow_cell_birth_death is also true
+			else if( current->update(dTime) && (! current->isSelected() ) && allow_cell_birth_death_ )
 			{
 				//roll for chance to die
 				int die = rand()%100;
@@ -517,6 +522,7 @@ namespace T3E
 				}
 			}
 		}
+
 		//remove dead cells
 		for(std::vector<deathInfo>::iterator c = deadCells.begin(); c != deadCells.end(); ++c)
 		{

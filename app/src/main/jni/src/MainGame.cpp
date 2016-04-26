@@ -35,12 +35,15 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, bool t
 	window_ = window;
 	audioEngine_ = audioEngine;
 	tutorial_ = tutorial;
+	if( tutorial_ ) {
+		grid_.setGridUpdates(false);
+	}
 	
 	initSystems();
 	
  	sprites_.push_back( new T3E::Sprite() );
 	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 4/5.0f, 2/5.0f, 1.0f/5, 1.0f/5);
- 
+    
 	T3E::Music music = audioEngine_->loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
 	
@@ -247,33 +250,39 @@ void MainGame::initSystems()
 	//Create buttons
 	menuButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(8.9f/10.0f),
 		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
-		1.0f/10, 1.0f/10,
-		5.0f/10, 6.0f/8,
-		5.0f/10, 7.0f/8);
+		0.99f/10, 1.0f/10,
+		4.99f/10, 8.0f/10,
+		4.99f/10, 9.0f/10);
 	
  	bvButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(7.8f/10.0f),
 		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
-		1.0f/10, 1.0f/10,
-		6.0f/10, 6.0f/8,
-		6.0f/10, 7.0f/8);
+		0.98f/10, 1.0f/10,
+		5.98f/10, 8.0f/10,
+		5.98f/10, 9.0f/10);
 		
  	killButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(6.7f/10.0f),
 		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
-		1.0f/10, 1.0f/10,
-		7.0f/10, 6.0f/8,
-		7.0f/10, 7.0f/8);
+		0.99f/10, 1.0f/10,
+		6.97f/10, 8.0f/10,
+		6.97/10, 9.0f/10);
 	
 	resumeButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(4.0f/7.0f),
 		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
-		1.0f/14, 1.0f/4,
-		5.0f/14, 2.0f/4,
-		5.0f/14, 3/4.0f);
+		1.0f/16, 1.0f/4,
+		2.0f/16, 2.0f/4,
+		2.0f/16, 3/4.0f);
 		
  	quitButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(2.0f/7.0f),
 		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
-		1.0f/14, 1.0f/4,
-		3.0f/14, 2.0f/4,
-		3.0f/14, 3/4.0f);
+		1.0f/16, 1.0f/4,
+		5.0f/16, 2.0f/4,
+		5.0f/16, 3/4.0f);
+        
+    scorebar_.init(window_->getScreenWidth()/100.0f + float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())*(8.43f/10.0f),
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
+		1.0f/13, 1.0f/4,
+		1.0f/2, 1.0f/2,
+		1.0f/2, 1.0f/2);
 	
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
@@ -333,7 +342,7 @@ command MainGame::gameLoop()
 		{
 			if( !paused_ )
 			{
-				if(grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_))))
+				if( grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_)), tut_phase_) )
 					cellSelected_ = false;
 			
 				if(grid_.playVessel())
@@ -361,10 +370,11 @@ command MainGame::gameLoop()
 		}
 		
 		score_ = grid_.getHighScore();
-		textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.05, 0.95, 44 );
-		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.05, 0.85, 44 );
-		textRenderer_.putChar('$', -0.10, 0.86, 50);
-		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
+        textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.65, 0.95, 44 );
+		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.9, 0.80, 44 ); 
+		
+		// textRenderer_.putChar('$', -0.10, 0.86, 50);
+		// textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 
 		// Render the tutorial text
 		if( tutorial_ )	
@@ -372,8 +382,8 @@ command MainGame::gameLoop()
 
 		renderGame();
 
-		textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
-		textRenderer_.putString( "m/s", 0.9, -0.9, 32 );
+		// textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
+		// textRenderer_.putString( "ms", 0.9, -0.9, 32 );
 
 		processInput(frameTime_);
 
@@ -581,6 +591,9 @@ void MainGame::processInput(float dTime)
 				if(evnt.key.keysym.sym == SDLK_z)//zoom in
 				{
 					camera_.zoom(-0.05f);
+
+					if( tut_phase_ == TutorialPhase::ZOOM_CAM )
+						increment_tutorial();
 				}
 				if(evnt.key.keysym.sym == SDLK_x)//zoom out
 				{
@@ -683,11 +696,12 @@ void MainGame::processInput(float dTime)
 									//try to spawn
 									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
 									{
-										//T3E::Cell* cell = (T3E::Cell*)(grid_[selectedPos_.x * CHUNK_WIDTH + selectedPos_.y].getNode());
-										//try to move stem cell
-										
+
 										grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
 										
+										if( tut_phase_ == TutorialPhase::MOVE_STEM ) {
+											increment_tutorial();
+										}										
 									}	
 									else
 									{
@@ -741,6 +755,9 @@ void MainGame::processInput(float dTime)
 								{
 									// play kill noise
 									cellDeath_.play();
+									
+									if( tut_phase_ == TutorialPhase::KILL_CELL )
+										increment_tutorial();
 								}
 								break;
 							}
@@ -765,6 +782,9 @@ void MainGame::processInput(float dTime)
 					finger_down_ = false;	
 				}
 				
+				if( tut_phase_ == TutorialPhase::MOVE_CAM )
+					increment_tutorial();
+
 				// pan if only one finger is on screen; you don't want to pan during pinch motion
 				if( nOfFingers_ < 2)
 				{
@@ -778,8 +798,7 @@ void MainGame::processInput(float dTime)
 				camera_.zoom( -evnt.mgesture.dDist );
 
 				if( tut_phase_ == TutorialPhase::ZOOM_CAM )
-					tut_phase_ = TutorialPhase::READY;
-
+					increment_tutorial();
 				break;
 				
 			default: break;
@@ -806,10 +825,15 @@ void MainGame::processInput(float dTime)
 					//try to change stem cell mode
 					grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
 					cellModeChange_.play();
+
+					if( tut_phase_ == TutorialPhase::SPLIT_STEM )
+						increment_tutorial();
 				}					
 				else
 				{
 					cellArrest_.play();
+					if( tut_phase_ == TutorialPhase::ARREST_CELL )
+						increment_tutorial();
 				}
 			}
 			else if( interactionMode_ == InteractionMode::BVCREATION )
@@ -819,6 +843,9 @@ void MainGame::processInput(float dTime)
 				{
 					bvButton_.unpress();
 					interactionMode_ = InteractionMode::NORMAL;
+
+					if( tut_phase_ == TutorialPhase::PLACE_BV )
+						increment_tutorial();
 				}
 			}
 		}
@@ -944,6 +971,8 @@ void MainGame::renderGame()
 		bvButton_.draw();
 		killButton_.draw();
 		
+        scorebar_.draw();
+        
 		//RENDER MENU IF PAUSED
 		if( paused_ )
 		{
@@ -1094,8 +1123,20 @@ void MainGame::calculateFPS()
 
 void MainGame::renderTutorial()
 {
-	if( finger_pressed_ )
-		increment_tutorial();
+	// Depending on the tutorial phase,
+	// sometimes the tutorial will progress with just a tap,
+	// sometimes the player has to perform a certain action
+	if( finger_pressed_ && (
+		tut_phase_ == TutorialPhase::READY ||
+		tut_phase_ == TutorialPhase::SHOW_PAUSE ||
+		tut_phase_ == TutorialPhase::SHOW_SCORE ||
+		tut_phase_ == TutorialPhase::SHOW_CURRENCY ||
+		tut_phase_ == TutorialPhase::EXPLAIN_STEMBV ||
+		tut_phase_ == TutorialPhase::MUTATE_CELL ||
+		tut_phase_ == TutorialPhase::CANCER_CELL ||
+		tut_phase_ == TutorialPhase::DONE
+		) )
+		increment_tutorial();		
 
 	switch( tut_phase_ )
 	{
@@ -1110,40 +1151,43 @@ void MainGame::renderTutorial()
 		textRenderer_.putString( "To zoom, pinch with two fingers", -0.6, 0.4, 45 );
 	break;
 	case TutorialPhase::SHOW_PAUSE:
-		textRenderer_.putString( "- This is the pause button", -0.6, 0.4, 45 );
+		textRenderer_.putString( "In the top left is the pause button.", -0.7, 0.6, 45 );
 	break;
 	case TutorialPhase::SHOW_SCORE:
-		textRenderer_.putString( "This number is your score", -0.6, 0.4, 45 );
+		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.7, 0.6, 45 );
 	break;
 	case TutorialPhase::SHOW_CURRENCY:
-		textRenderer_.putString( "And this is your currenncy\nKeep an eye on this!\n\nSome actions will be rewarded,\nwhile others will cost you", -0.7, 0.4, 45 );
+		textRenderer_.putString( "The bottom number is your currenncy\nKeep an eye on it!\n\nSome actions will be rewarded,\nwhile others will cost you!", -0.7, 0.6, 45 );
+	break;
+	case TutorialPhase::EXPLAIN_STEMBV:
+		textRenderer_.putString( "You start the game with a single\nstem cell and blood vessel.\n\nStem cells divide to produce\nhealthy cells while\nblood vessels provide energy\nto the cells around them.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::MOVE_STEM:
-		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex to move it", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::SPLIT_STEM:
-		textRenderer_.putString( "Split stem text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::PLACE_BV:
-		textRenderer_.putString( "Place blood vessel text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nMake sure to place them\nclose to your other blood vessels.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::CREATE_BV:
-		textRenderer_.putString( "Create blood vessel text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy cells\nto create a new blood vesesl.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::MUTATE_CELL:
-		textRenderer_.putString( "A cell mutated text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Sometimes healthy cells will\nspawn mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::ARREST_CELL:
-		textRenderer_.putString( "Arrest a cell text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "You can control the board by\ncreating barriers of arrested cells.\n\nTo arrest a cell hold down\non it till it changes colour.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::KILL_CELL:
-		textRenderer_.putString( "Kill a cell text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "A more effective but costly\nway to control mutated cells is to\nuse the kill button.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::CANCER_CELL:
-		textRenderer_.putString( "Split stem text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "A dangerously mutated cell appeared!\n\nYou can't kill these or arrest them,\nbut you can isolate them\nwith arrested cells.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::DONE:
-		textRenderer_.putString( "Tutorial finished text", -0.6, 0.4, 45 );
+		textRenderer_.putString( "And that's all there is to learn.\nWe hope you enjoy Cell Cycle!", -0.6, 0.4, 45 );
 	break;
 	default:
 	break;
@@ -1157,9 +1201,15 @@ void MainGame::increment_tutorial()
 	else if( tut_phase_ == TutorialPhase::ZOOM_CAM ) tut_phase_ = TutorialPhase::SHOW_PAUSE;
 	else if( tut_phase_ == TutorialPhase::SHOW_PAUSE ) tut_phase_ = TutorialPhase::SHOW_SCORE;
 	else if( tut_phase_ == TutorialPhase::SHOW_SCORE ) tut_phase_ = TutorialPhase::SHOW_CURRENCY;
-	else if( tut_phase_ == TutorialPhase::SHOW_CURRENCY ) tut_phase_ = TutorialPhase::MOVE_STEM;
+	else if( tut_phase_ == TutorialPhase::SHOW_CURRENCY ) tut_phase_ = TutorialPhase::EXPLAIN_STEMBV;
+	else if( tut_phase_ == TutorialPhase::EXPLAIN_STEMBV ) tut_phase_ = TutorialPhase::MOVE_STEM;
 	else if( tut_phase_ == TutorialPhase::MOVE_STEM ) tut_phase_ = TutorialPhase::SPLIT_STEM;
-	else if( tut_phase_ == TutorialPhase::SPLIT_STEM ) tut_phase_ = TutorialPhase::PLACE_BV;
+	else if( tut_phase_ == TutorialPhase::SPLIT_STEM )
+	{
+		// Turn grid updates back on once we start talking about blood numBloodVessels
+		tut_phase_ = TutorialPhase::PLACE_BV;
+		grid_.setGridUpdates( true );
+	}
 	else if( tut_phase_ == TutorialPhase::PLACE_BV ) tut_phase_ = TutorialPhase::CREATE_BV;
 	else if( tut_phase_ == TutorialPhase::CREATE_BV ) tut_phase_ = TutorialPhase::MUTATE_CELL;
 	else if( tut_phase_ == TutorialPhase::MUTATE_CELL ) tut_phase_ = TutorialPhase::ARREST_CELL;

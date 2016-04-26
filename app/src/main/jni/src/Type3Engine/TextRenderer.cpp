@@ -199,7 +199,7 @@ namespace T3E
 		// Bind the shader and verts
 		glUseProgram( shader_program_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
-		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * verts_.size(), verts_.data(), GL_STREAM_DRAW );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * verts_.size(), verts_.data(), GL_DYNAMIC_DRAW );
 
     	// Sent the texture and set properties
 		glActiveTexture( GL_TEXTURE0 + bitmap_font_.unit );	
@@ -216,7 +216,7 @@ namespace T3E
 		glEnableVertexAttribArray( 1 );
 		glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void*)(2*sizeof(GLfloat)) );
 
-		glDrawArrays( GL_TRIANGLES, 0, verts_.size() / 4 );
+		glDrawArrays( GL_TRIANGLES, 0, verts_.size() / 5 );
 
 		// Clear the array ready for next time
 		verts_.clear();

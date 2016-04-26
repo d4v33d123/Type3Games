@@ -37,10 +37,6 @@
 /// The game is either playing or request quit
 enum class GameState { PLAY, EXIT };
 
-/// The stage the tutorial is currently in
-enum class TutorialPhase { READY, MOVE_CAM, ZOOM_CAM, SHOW_PAUSE, SHOW_SCORE, SHOW_CURRENCY,
-MOVE_STEM, SPLIT_STEM, PLACE_BV, CREATE_BV, MUTATE_CELL, ARREST_CELL, KILL_CELL, CANCER_CELL, DONE, NONE };
-
 class MainGame
 {
 public:
@@ -106,6 +102,7 @@ private:
     // INPUT
 	
 	T3E::Button bvButton_, killButton_, menuButton_, resumeButton_, quitButton_;
+    T3E::Button scorebar_;
 	bool finger_dragged_;	///< True when a finger is being dragged significantly
 	bool finger_down_;		///< True when a finger is down, false when finger dragged of no fingers are down
 	bool finger_pressed_;	///< True for the first frame of a finger touching the screen
