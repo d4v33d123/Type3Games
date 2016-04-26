@@ -44,9 +44,9 @@ void Tutorial::initSystems()
 
 	backButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(1.0f/7.0f),
 		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
-		1.0f/14, 1.0f/4,
-		4.0f/14, 2.0f/4,
-		4.0f/14, 3/4.0f);
+		1.0f/16, 1.0f/4,
+		4.0f/16, 2.0f/4,
+		4.0f/16, 3/4.0f);
 	
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);

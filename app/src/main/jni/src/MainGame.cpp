@@ -43,7 +43,7 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, bool t
 	
  	sprites_.push_back( new T3E::Sprite() );
 	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 4/5.0f, 2/5.0f, 1.0f/5, 1.0f/5);
- 
+    
 	T3E::Music music = audioEngine_->loadMusic("sound/backgroundSlow.ogg");
 	music.play(-1);
 	
@@ -250,33 +250,39 @@ void MainGame::initSystems()
 	//Create buttons
 	menuButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(8.9f/10.0f),
 		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
-		1.0f/10, 1.0f/10,
-		5.0f/10, 6.0f/8,
-		5.0f/10, 7.0f/8);
+		0.99f/10, 1.0f/10,
+		4.99f/10, 8.0f/10,
+		4.99f/10, 9.0f/10);
 	
  	bvButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(7.8f/10.0f),
 		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
-		1.0f/10, 1.0f/10,
-		6.0f/10, 6.0f/8,
-		6.0f/10, 7.0f/8);
+		0.98f/10, 1.0f/10,
+		5.98f/10, 8.0f/10,
+		5.98f/10, 9.0f/10);
 		
  	killButton_.init(float(window_->getScreenWidth())/100.0f, float(window_->getScreenHeight())*(6.7f/10.0f),
 		float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())/10.0f, "textures/ssheet0.png",
-		1.0f/10, 1.0f/10,
-		7.0f/10, 6.0f/8,
-		7.0f/10, 7.0f/8);
+		0.99f/10, 1.0f/10,
+		6.97f/10, 8.0f/10,
+		6.97/10, 9.0f/10);
 	
 	resumeButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(4.0f/7.0f),
 		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
-		1.0f/14, 1.0f/4,
-		5.0f/14, 2.0f/4,
-		5.0f/14, 3/4.0f);
+		1.0f/16, 1.0f/4,
+		2.0f/16, 2.0f/4,
+		2.0f/16, 3/4.0f);
 		
  	quitButton_.init(float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())*(2.0f/7.0f),
 		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
-		1.0f/14, 1.0f/4,
-		3.0f/14, 2.0f/4,
-		3.0f/14, 3/4.0f);
+		1.0f/16, 1.0f/4,
+		5.0f/16, 2.0f/4,
+		5.0f/16, 3/4.0f);
+        
+    scorebar_.init(window_->getScreenWidth()/100.0f + float(window_->getScreenHeight())/10.0f, float(window_->getScreenHeight())*(8.43f/10.0f),
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
+		1.0f/13, 1.0f/4,
+		1.0f/2, 1.0f/2,
+		1.0f/2, 1.0f/2);
 	
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
@@ -364,10 +370,11 @@ command MainGame::gameLoop()
 		}
 		
 		score_ = grid_.getHighScore();
-		textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.45, 0.95, 44 );
-		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.45, 0.85, 44 );
-		textRenderer_.putChar('$', -0.10, 0.86, 50);
-		textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
+        textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.65, 0.95, 44 );
+		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.9, 0.80, 44 ); 
+		
+		// textRenderer_.putChar('$', -0.10, 0.86, 50);
+		// textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 
 		// Render the tutorial text
 		if( tutorial_ )	
@@ -375,8 +382,8 @@ command MainGame::gameLoop()
 
 		renderGame();
 
-		textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
-		textRenderer_.putString( "ms", 0.9, -0.9, 32 );
+		// textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
+		// textRenderer_.putString( "ms", 0.9, -0.9, 32 );
 
 		processInput(frameTime_);
 
@@ -932,6 +939,8 @@ void MainGame::renderGame()
 		bvButton_.draw();
 		killButton_.draw();
 		
+        scorebar_.draw();
+        
 		//RENDER MENU IF PAUSED
 		if( paused_ )
 		{
