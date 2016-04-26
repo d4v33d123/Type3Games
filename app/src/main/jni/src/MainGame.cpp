@@ -469,13 +469,17 @@ void MainGame::processInput(float dTime)
 				// Move the camera
 				if( nOfFingers_ < 2)
 				{
+					// decide on values for locking the camera
+					//if(camera_.getPosition().x > low value && camera_.getPosition().x < high value && camera_.getPosition().y > low value && camera_.getPosition().y < high value)
 					camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
 				}
 				break;
 			
 			case SDL_MULTIGESTURE:
 				// pinch zoom
-				camera_.zoom( -evnt.mgesture.dDist );
+				float zm;
+				zm = (-evnt.mgesture.dDist) * 5;
+				camera_.zoom( zm );
 				break;
 			
 			default:
@@ -679,12 +683,10 @@ void MainGame::processInput(float dTime)
 									//try to spawn
 									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
 									{
-										//T3E::Cell* sel = (T3E::Cell*)((grid_.getNode());
+										//T3E::Cell* cell = (T3E::Cell*)(grid_[selectedPos_.x * CHUNK_WIDTH + selectedPos_.y].getNode());
 										//try to move stem cell
-										//if(!(sel->isInCreation()))
-										//{
-											grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-										//}
+										
+										grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
 										
 									}	
 									else
@@ -692,13 +694,40 @@ void MainGame::processInput(float dTime)
 										select_.play();
 									}
 									
+									if(rowCol.x == selectedPos_.x && rowCol.y == selectedPos_.y)
+									{
 									grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-									//cellSelected_ = false;// no need since we're testing for select right after this
+									cellSelected_ = false;
+									
+									//cellSelected_ = false;
+									}
+									else
+									{
+										grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+										cellSelected_ = false;
+										//try to select a cell
+										//also, if a new cell was created, select it
+										selectCell(rowCol.x, rowCol.y);
+										//cellSelected_ = true;
+									}
+									break;
 								}
 								
-								//try to select a cell
-								//also, if a new cell was created, select it
-								selectCell(rowCol.x, rowCol.y);
+								//if(rowCol.x == selectedPos_.x && rowCol.y == selectedPos_.y)
+								//{
+									// do nothing
+									//selectedPos_.x = -10000; // an abstractly large value so there is no chance of it matching another position
+									//selectedPos_.y = -10000;
+								//}
+								//else
+								//{
+									//try to select a cell
+									//also, if a new cell was created, select it
+									
+									selectCell(rowCol.x, rowCol.y);
+									//cellSelected_ = true;
+								//}							
+								
 								break;
 							}
 							case InteractionMode::KILLMODE:

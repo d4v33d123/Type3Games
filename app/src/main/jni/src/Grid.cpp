@@ -405,7 +405,7 @@ namespace T3E
 					current->update(dTime);//do this after isDead() check so we don't skip rendering the last frame
 			}
 			//update cell, check if it's time to split
-			else if(current->update(dTime))
+			else if(current->update(dTime) && (! current->isSelected() ))
 			{
 				//roll for chance to die
 				int die = rand()%100;
@@ -719,6 +719,8 @@ namespace T3E
 				
 		if(selectedCell->getState() != CellState::STEM) return false;//not a stem cell selected, return error
 		if(selectedCell->isSplitting() || selectedCell->isInCreation()) return false;//don't move while splitting or creating!
+		if(selectedCell->isInAlternateMode())
+				return false;
 		
 		// get the neighbours of the currently selected cell
 		T3E::Hex* neighbours[6];
@@ -1006,6 +1008,8 @@ namespace T3E
 
 		if(currency_ - T3E::SCORE::SPAWNED_BLOODVESSEL() <= 0 ) return false;// not enough points
 
+		if(!(moreStems())) return false; // not enough stem cells 
+		
 		if( getNeighbours( row, col, neighbours ) )
 		{
 			// Count the number of adjacent cells
@@ -1016,7 +1020,7 @@ namespace T3E
 					if(neighbours[i]->getType() == T3E::NodeType::CELL)
 					{
 						selectedCell = (Cell*)(grid_[neighbours[i]->getRow() * CHUNK_WIDTH + neighbours[i]->getCol()].getNode());
-						if(selectedCell->isSplitting() || selectedCell->isInCreation() || selectedCell->isDying()) return false;//don't create while animating
+						if(selectedCell->isSplitting() || selectedCell->isInCreation() || selectedCell->isDying() || (selectedCell->getState() == T3E::CellState::STEM)) return false;//don't create while animating or if there is another stem cell involved
 						if(selectedCell->isSelected())//must notify or grid highlight will remain
 							selectedCellInvolved = true;
 					}
@@ -1049,6 +1053,19 @@ namespace T3E
 		if(!hexExists( row, col ))
 			return false;
 
+		for(std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end(); )
+		{
+			if(sp->x == row, sp->y == col)
+			{
+				sp = bvSpawnPoints_.erase(sp);
+				return true;
+			}
+			else
+			{
+				++sp;
+			}
+		}
+
 		//get range from the first blood vessel of the bv vector(all have same range)
 		int bvRange = ((BloodVessel*)(bloodVessels_[0]->getNode()))->getRange();
 		
@@ -1059,10 +1076,12 @@ namespace T3E
 			if(inRange((*bvs)->getRow(), (*bvs)->getCol(), row, col, bvRange))
 				return false;
 		}
+		
 		for(std::vector<glm::vec2>::iterator sp = bvSpawnPoints_.begin(); sp != bvSpawnPoints_.end(); ++sp)
 		{
 			if(inRange(sp->x, sp->y, row, col, bvRange))
 				return false;
+			
 		}	
 		
 		bvSpawnPoints_.push_back(glm::vec2(row, col));
@@ -1085,5 +1104,26 @@ namespace T3E
 			high_score_ += score;
 
 		currency_ += score;
+	}
+	
+	bool Grid::moreStems()
+	{
+		// loop through all of the cells and count to at least 2, if more than  one is found return true, if not return false
+		int numStems = 0;
+		Cell* selectedCell;
+		for(std::vector<Hex*>::iterator it = cells_.begin(); it != cells_.end(); ++it)
+		{
+			Hex* iter = (*it);
+			selectedCell = (Cell*)(grid_[iter->getRow() * CHUNK_WIDTH + iter->getCol()].getNode());
+			if(selectedCell->getState() == T3E::CellState::STEM)
+			{
+				numStems++;
+			}
+			if(numStems > 1)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

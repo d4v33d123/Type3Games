@@ -43,7 +43,7 @@ namespace T3E
 		bool touchCollides(glm::vec2 touchPos);
 		
 		/**
-		* draws the sprite
+		* draws the pressed or unpressed sprite depending on it's condition 
 		*/
 		//draw correct sprite depending if it's pressed or unpressed
 		void draw();

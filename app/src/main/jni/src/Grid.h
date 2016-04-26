@@ -366,6 +366,9 @@ namespace T3E
         // Returns true if the given row/col lies on the grid
         bool hexExists( int row, int col );
 		
+		// Returns if there is more than 1 stem cell on the grid
+		bool moreStems();
+		
 		/**
 		* When spawning a new cell, use this function to calculate the new cells death chance.
 		* Takes into account the death chance of the cells parent and it's distance from BloodVessels
