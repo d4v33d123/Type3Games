@@ -216,7 +216,7 @@ namespace T3E
 		glEnableVertexAttribArray( 1 );
 		glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void*)(2*sizeof(GLfloat)) );
 
-		glDrawArrays( GL_TRIANGLES, 0, verts_.size() / 4 );
+		glDrawArrays( GL_TRIANGLES, 0, verts_.size() / 5 );
 
 		// Clear the array ready for next time
 		verts_.clear();
