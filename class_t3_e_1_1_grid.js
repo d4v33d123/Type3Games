@@ -20,6 +20,7 @@ var class_t3_e_1_1_grid =
     [ "inRange", "class_t3_e_1_1_grid.html#a340e289c86874c05b1cfbcff3b428523", null ],
     [ "isEmpty", "class_t3_e_1_1_grid.html#aec5508d94bdc9874a45eba74d1f5bc22", null ],
     [ "killCell", "class_t3_e_1_1_grid.html#a85c6e053cd6294eaf4bcbd3ed9097f1c", null ],
+    [ "minusScore", "class_t3_e_1_1_grid.html#a75f0d3cea157290134ec9de7225594a8", null ],
     [ "moveStemCell", "class_t3_e_1_1_grid.html#ab9f26676affdce36c78b8fe23836d287", null ],
     [ "newBloodVessel", "class_t3_e_1_1_grid.html#aa700ce55929a6b0aa40e8155cd765a24", null ],
     [ "newCell", "class_t3_e_1_1_grid.html#afcf4fdfcaba9150e27426e045bd8fc7f", null ],
@@ -35,6 +36,7 @@ var class_t3_e_1_1_grid =
     [ "setChanceOfCancer", "class_t3_e_1_1_grid.html#a6ad80388f12c58a536ffb9fae2fbf560", null ],
     [ "setChanceOfMutation", "class_t3_e_1_1_grid.html#ae30bccd9d8f40dfd316ce9ec1ba8553c", null ],
     [ "setChildDeathChanceIncrease", "class_t3_e_1_1_grid.html#a6cd11c3dd3b71d0c5401806fdf79b2d6", null ],
+    [ "setCurrency", "class_t3_e_1_1_grid.html#aa2d6d211edf04d01f288a39874f5098c", null ],
     [ "setEmpty", "class_t3_e_1_1_grid.html#abb32c64b84f05c5604ccf31ab20cb102", null ],
     [ "setFarBloodvesselDeathChance", "class_t3_e_1_1_grid.html#a978fff10fa824f0af5488cb6eccb5abe", null ],
     [ "setGridUpdates", "class_t3_e_1_1_grid.html#a57af697233ddba7836621b53757fdfd8", null ],
@@ -43,7 +45,8 @@ var class_t3_e_1_1_grid =
     [ "setParentDeathChanceIncrease", "class_t3_e_1_1_grid.html#a4986d6a04802428eb73e579ea2111a38", null ],
     [ "setScore", "class_t3_e_1_1_grid.html#adaac9028e09f37ecb276e769e84a6d1e", null ],
     [ "setStemToSpawnMode", "class_t3_e_1_1_grid.html#af75dca10e6a9365c4eb11b80272ee277", null ],
+    [ "setTutorialPhase", "class_t3_e_1_1_grid.html#a7fa9a60fa010249c8ac30adb12a491c8", null ],
     [ "spawnCell", "class_t3_e_1_1_grid.html#a27e88dc11de83398d71096d9e8756ffb", null ],
     [ "unselectCell", "class_t3_e_1_1_grid.html#ac2beebc30a5cbb4c03b5cd991660b768", null ],
-    [ "update", "class_t3_e_1_1_grid.html#a46e6da461b6a1e78b7debc7f83e4e395", null ]
+    [ "update", "class_t3_e_1_1_grid.html#a39d4e3e9a595547d33b9b04e0305e878", null ]
 ];

@@ -139,8 +139,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2f483d29d598b2bff99155aad1ff2e35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef75928596c2a7519cd4ef4696be1186"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#aef75928596c2a7519cd4ef4696be1186">numBloodVessels</a> () const </td></tr>
 <tr class="separator:aef75928596c2a7519cd4ef4696be1186"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46e6da461b6a1e78b7debc7f83e4e395"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a46e6da461b6a1e78b7debc7f83e4e395">update</a> (float dTime, SDL_Point fingerRowCol, TutorialPhase &amp;tut_phase)</td></tr>
-<tr class="separator:a46e6da461b6a1e78b7debc7f83e4e395"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39d4e3e9a595547d33b9b04e0305e878"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a39d4e3e9a595547d33b9b04e0305e878">update</a> (float dTime, SDL_Point fingerRowCol)</td></tr>
+<tr class="separator:a39d4e3e9a595547d33b9b04e0305e878"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a340e289c86874c05b1cfbcff3b428523"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a340e289c86874c05b1cfbcff3b428523">inRange</a> (int rowA, int colA, int rowB, int colB, int range)</td></tr>
 <tr class="separator:a340e289c86874c05b1cfbcff3b428523"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acef5abb8d2591f9001c4c7a12c761cd5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#acef5abb8d2591f9001c4c7a12c761cd5">getDistance</a> (int rowA, int colA, int rowB, int colB)</td></tr>
@@ -175,8 +175,12 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a26f41bfccb27782160900670802ef554"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaac9028e09f37ecb276e769e84a6d1e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#adaac9028e09f37ecb276e769e84a6d1e">setScore</a> (int score)</td></tr>
 <tr class="separator:adaac9028e09f37ecb276e769e84a6d1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2d6d211edf04d01f288a39874f5098c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#aa2d6d211edf04d01f288a39874f5098c">setCurrency</a> (int cur)</td></tr>
+<tr class="separator:aa2d6d211edf04d01f288a39874f5098c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaa2cc5a6fc5689a56ee4c47c89ed3cb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#adaa2cc5a6fc5689a56ee4c47c89ed3cb">addScore</a> (int score)</td></tr>
 <tr class="separator:adaa2cc5a6fc5689a56ee4c47c89ed3cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75f0d3cea157290134ec9de7225594a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a75f0d3cea157290134ec9de7225594a8">minusScore</a> (int score)</td></tr>
+<tr class="separator:a75f0d3cea157290134ec9de7225594a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0beb649fca621793032072b16d3d1379"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a0beb649fca621793032072b16d3d1379">setBvSpawn</a> (int row, int col)</td></tr>
 <tr class="separator:a0beb649fca621793032072b16d3d1379"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af20f6ce0c62feacfee65bbfcb5fa64fc"><td class="memItemLeft" align="right" valign="top">glm::vec2&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#af20f6ce0c62feacfee65bbfcb5fa64fc">getBvSpawnCoords</a> (int i)</td></tr>
@@ -215,6 +219,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMinDeathChance</b>
 <tr class="memitem:a34bab94065f938113df03e1dda3b825c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a34bab94065f938113df03e1dda3b825c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b> (int c)</td></tr>
 <tr class="separator:a34bab94065f938113df03e1dda3b825c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fa9a60fa010249c8ac30adb12a491c8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7fa9a60fa010249c8ac30adb12a491c8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setTutorialPhase</b> (TutorialPhase *tut_phase)</td></tr>
+<tr class="separator:a7fa9a60fa010249c8ac30adb12a491c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
@@ -241,7 +248,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01107">1107</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01118">1118</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -284,7 +291,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if cell doesn't exist or is not CellState::NORMAL, true if success </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00552">552</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00557">557</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -317,7 +324,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns the input clamped in range [0,100] </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8h_source.html#l00320">320</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00332">332</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -372,7 +379,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="class_t3_e_1_1_grid.html#a145bfc363f00f504a35b967015cfc0d4">numBvSpawns()</a> </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>The world coordinates of the <a class="el" href="class_t3_e_1_1_blood_vessel.html">BloodVessel</a> spawn marker of index i </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01098">1098</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01109">1109</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -483,7 +490,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The distance, in number of hexes, between the two given hex coords </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01050">1050</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01061">1061</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -581,7 +588,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>vec3 where x and y are world coords of hex z = 0 if hex is in blood vessel range ,1 if in large range, 2 otherwise w = lerp factor for colour x and y will be -1 if hex doesnt exist(our grid is all in positive coords so that works for now) </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00808">808</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00819">819</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 <p>References <a class="el" href="_blood_vessel_8h_source.html#l00027">T3E::BloodVessel::getRange()</a>.</p>
 
@@ -767,7 +774,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if a bv was created, false otherwise try to create a blood vessel at the specified position </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00999">999</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01010">1010</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -825,7 +832,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the distance between the two hexes is less than or equal to range </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00302">302</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00307">307</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 <p>References <a class="el" href="_blood_vessel_8h_source.html#l00027">T3E::BloodVessel::getRange()</a>.</p>
 
@@ -907,9 +914,34 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if new cell is deleted, false otherwise calles when player tries to kill cell manually </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00686">686</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00691">691</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 <p>References <a class="el" href="_cell_8h_source.html#l00133">T3E::Cell::kill()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a75f0d3cea157290134ec9de7225594a8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void T3E::Grid::minusScore </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>score</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>takes negative values from both currency and score</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>to take away from the score, can be +ve or -ve </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01125">1125</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -959,7 +991,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if stem was moved false otherwise </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00718">718</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00726">726</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 <p>References <a class="el" href="_blood_vessel_8h_source.html#l00027">T3E::BloodVessel::getRange()</a>, <a class="el" href="_cell_8cpp_source.html#l00290">T3E::Cell::hardcodeNormalTint()</a>, and <a class="el" href="_cell_8h_source.html#l00135">T3E::Cell::ignoreBirthDelay()</a>.</p>
 
@@ -1005,7 +1037,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the givenrow/col lie on the board &amp; bloodVessel created, false otherwise </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00148">148</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00152">152</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -1117,7 +1149,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>The number of <a class="el" href="class_t3_e_1_1_blood_vessel.html">BloodVessel</a> spawn points on the board </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8h_source.html#l00299">299</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00310">310</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -1231,7 +1263,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if cell doesn't exist or is not CellState::NORMAL/STEM, true if success </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00581">581</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00586">586</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 <p>References <a class="el" href="_cell_8cpp_source.html#l00216">T3E::Cell::select()</a>.</p>
 
@@ -1270,7 +1302,34 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if success </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01057">1057</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01068">1068</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa2d6d211edf04d01f288a39874f5098c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void T3E::Grid::setCurrency </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>cur</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Set's only the currenty </p>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00276">276</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -1306,7 +1365,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00200">200</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00204">204</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -1401,7 +1460,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if cell doesn't exist or is not CellState::STEM, true if success sets stem cell in spawn mode </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00982">982</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00993">993</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 <p>References <a class="el" href="_cell_8cpp_source.html#l00234">T3E::Cell::toggleMode()</a>.</p>
 
@@ -1453,7 +1512,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if new cell is created, false otherwise calles when player tries to spawn cell manually </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00620">620</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00625">625</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 <p>References <a class="el" href="_cell_8cpp_source.html#l00297">T3E::Cell::split()</a>, and <a class="el" href="_cell_8h_source.html#l00130">T3E::Cell::stemToStemOn()</a>.</p>
 
@@ -1491,11 +1550,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if cell doesn't exist or is not CellState::NORMAL/STEM, true if success </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00603">603</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00608">608</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a46e6da461b6a1e78b7debc7f83e4e395"></a>
+<a class="anchor" id="a39d4e3e9a595547d33b9b04e0305e878"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1509,13 +1568,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">SDL_Point&#160;</td>
-          <td class="paramname"><em>fingerRowCol</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">TutorialPhase &amp;&#160;</td>
-          <td class="paramname"><em>tut_phase</em>&#160;</td>
+          <td class="paramname"><em>fingerRowCol</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1533,7 +1586,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if a selected cell died TODO: this return is quite unrelated to the function, but I couldn't think of a better way to unset the cellSelected_ flag in <a class="el" href="class_main_game.html">MainGame</a> when this happens call update methods of grid elements, spawn/kill cells according to sim rules </dd></dl>
 
-<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00368">368</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00373">373</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 <p>References <a class="el" href="_cell_8h_source.html#l00133">T3E::Cell::kill()</a>, <a class="el" href="_cell_8h_source.html#l00134">T3E::Cell::setDeathChance()</a>, <a class="el" href="_cell_8cpp_source.html#l00297">T3E::Cell::split()</a>, and <a class="el" href="_cell_8cpp_source.html#l00116">T3E::Cell::update()</a>.</p>
 
