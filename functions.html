@@ -4,10 +4,18 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>Type 3 Games: Class Members</title>
+<title>Class Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -22,10 +30,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Type 3 Games
-   </div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">by Type 3 Games</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -93,6 +101,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('functions.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -150,6 +172,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="class_t3_e_1_1_audio_engine.html#ac8b374536d6eb5238881f8f110d5c1c7">T3E::AudioEngine</a>
 , <a class="el" href="class_t3_e_1_1_g_l_s_l_program.html#a1fe813a29b4c9c2a40f17c9981d724b9">T3E::GLSLProgram</a>
 , <a class="el" href="class_t3_e_1_1window.html#a9acd20b3728446e4da13fa5d9da5a861">T3E::window</a>
+</li>
+<li>done()
+: <a class="el" href="class_t3_e_1_1_timer.html#acbf36f5935e207f4b512b8a443c59762">T3E::Timer</a>
 </li>
 <li>draw()
 : <a class="el" href="class_t3_e_1_1_animated_sprite.html#aeec1f4e0f3fcbb6f99d7e02d2bac17a7">T3E::AnimatedSprite</a>
@@ -355,13 +380,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="class_t3_e_1_1_button.html#afbf84519be22362422b3733fa391ebd1">T3E::Button</a>
 </li>
 <li>putChar()
-: <a class="el" href="class_t3_e_1_1_text_renderer.html#ab3aabe4f6898df1bead7df361b011c2d">T3E::TextRenderer</a>
+: <a class="el" href="class_t3_e_1_1_text_renderer.html#a295d90f9eece2395938559bea020002a">T3E::TextRenderer</a>
 </li>
 <li>putNumber()
-: <a class="el" href="class_t3_e_1_1_text_renderer.html#a9e0bd43e2390db98877ff41560eeeb8e">T3E::TextRenderer</a>
+: <a class="el" href="class_t3_e_1_1_text_renderer.html#afc0d76d6b8f974f14923be55690deb31">T3E::TextRenderer</a>
 </li>
 <li>putString()
-: <a class="el" href="class_t3_e_1_1_text_renderer.html#acf1a6349e4a5f9f063d72b82fb4165e7">T3E::TextRenderer</a>
+: <a class="el" href="class_t3_e_1_1_text_renderer.html#a5aff7cebc125c0059b8269112b8e8ada">T3E::TextRenderer</a>
 </li>
 </ul>
 
@@ -387,7 +412,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>run()
 : <a class="el" href="class_credits.html#a99fde9771dfe7c6a473004272ea83207">Credits</a>
-, <a class="el" href="class_main_game.html#ac72a12033a4b2ff12d6c7d730d14e1a1">MainGame</a>
+, <a class="el" href="class_main_game.html#aa152ab39c014665e91c42e0df5218352">MainGame</a>
 , <a class="el" href="class_start_menu.html#aae7470d7e1961752f8b9de0464d8a2c9">StartMenu</a>
 </li>
 </ul>
@@ -400,6 +425,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>selectCell()
 : <a class="el" href="class_t3_e_1_1_grid.html#adad4215c56605f9ce3f0cfe376d20ba2">T3E::Grid</a>
 </li>
+<li>set()
+: <a class="el" href="class_t3_e_1_1_timer.html#ac788792540ea21893f872e5ee9e47b45">T3E::Timer</a>
+</li>
 <li>setBvSpawn()
 : <a class="el" href="class_t3_e_1_1_grid.html#a0beb649fca621793032072b16d3d1379">T3E::Grid</a>
 </li>
@@ -408,6 +436,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>setEmpty()
 : <a class="el" href="class_t3_e_1_1_grid.html#abb32c64b84f05c5604ccf31ab20cb102">T3E::Grid</a>
+</li>
+<li>setGridUpdates()
+: <a class="el" href="class_t3_e_1_1_grid.html#a57af697233ddba7836621b53757fdfd8">T3E::Grid</a>
 </li>
 <li>setLookAt()
 : <a class="el" href="class_t3_e_1_1_camera.html#a12c181c82b6bfdc65a2dd85da8ad8b9c">T3E::Camera</a>
@@ -464,6 +495,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_t"></a>- t -</h3><ul>
+<li>timeTillDone()
+: <a class="el" href="class_t3_e_1_1_timer.html#ad2e7d296dce0fa2835fca149c7e5ae21">T3E::Timer</a>
+</li>
 <li>toggle()
 : <a class="el" href="class_t3_e_1_1_button.html#a8ff53d4448b91bd4ac45b131472afa88">T3E::Button</a>
 </li>
@@ -488,7 +522,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>update()
 : <a class="el" href="class_t3_e_1_1_cell.html#a5366a2eb5d5e5a6c96fbb3aebe4b3561">T3E::Cell</a>
-, <a class="el" href="class_t3_e_1_1_grid.html#a39d4e3e9a595547d33b9b04e0305e878">T3E::Grid</a>
+, <a class="el" href="class_t3_e_1_1_grid.html#a46e6da461b6a1e78b7debc7f83e4e395">T3E::Grid</a>
 </li>
 <li>updateSizeInfo()
 : <a class="el" href="class_t3_e_1_1window.html#a67900ed18c5387b2d8575f1284d12101">T3E::window</a>
@@ -505,11 +539,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.11
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.11 </li>
+  </ul>
+</div>
 </body>
 </html>

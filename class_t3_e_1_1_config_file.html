@@ -4,10 +4,18 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>Type 3 Games: T3E::ConfigFile Class Reference</title>
+<title>T3E::ConfigFile Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -22,10 +30,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Type 3 Games
-   </div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">by Type 3 Games</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -66,6 +74,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('class_t3_e_1_1_config_file.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -80,11 +103,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><b>T3E</b></li><li class="navelem"><a class="el" href="class_t3_e_1_1_config_file.html">ConfigFile</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
@@ -108,7 +126,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a20587417bd3e270979e4d7474ced3541"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_config_file.html#a20587417bd3e270979e4d7474ced3541">getString</a> (std::string key, std::string *value)</td></tr>
 <tr class="separator:a20587417bd3e270979e4d7474ced3541"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock">
+<p>Definition at line <a class="el" href="_config_file_8h_source.html#l00010">10</a> of file <a class="el" href="_config_file_8h_source.html">ConfigFile.h</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a186211f6f36df41e84fb02423c8406d5"></a>
 <div class="memitem">
 <div class="memproto">
@@ -141,6 +162,10 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>[out] if it succeeds then true, if it fails return false </dd></dl>
+
+<p>Definition at line <a class="el" href="_config_file_8cpp_source.html#l00072">72</a> of file <a class="el" href="_config_file_8cpp_source.html">ConfigFile.cpp</a>.</p>
+
+<p>Referenced by <a class="el" href="_main_game_8cpp_source.html#l00033">MainGame::run()</a>.</p>
 
 </div>
 </div>
@@ -183,6 +208,10 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
+<p>Definition at line <a class="el" href="_config_file_8cpp_source.html#l00086">86</a> of file <a class="el" href="_config_file_8cpp_source.html">ConfigFile.cpp</a>.</p>
+
+<p>Referenced by <a class="el" href="_main_game_8cpp_source.html#l00033">MainGame::run()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a20587417bd3e270979e4d7474ced3541"></a>
@@ -218,6 +247,8 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>[out] if it succeeds then true, if it fails return false </dd></dl>
 
+<p>Definition at line <a class="el" href="_config_file_8cpp_source.html#l00099">99</a> of file <a class="el" href="_config_file_8cpp_source.html">ConfigFile.cpp</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a2583b79cb96fecc9ee205e17b4b434b5"></a>
@@ -242,18 +273,26 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>[out] if loading succeeds then true, if it fails return false </dd></dl>
 
+<p>Definition at line <a class="el" href="_config_file_8cpp_source.html#l00020">20</a> of file <a class="el" href="_config_file_8cpp_source.html">ConfigFile.cpp</a>.</p>
+
+<p>References <a class="el" href="_i_o_manager_8cpp_source.html#l00025">T3E::IOManager::readTextToBuffer()</a>.</p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Type3Engine/<a class="el" href="_config_file_8h_source.html">ConfigFile.h</a></li>
-<li>Type3Engine/ConfigFile.cpp</li>
+<li>Type3Engine/<a class="el" href="_config_file_8cpp_source.html">ConfigFile.cpp</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.11
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>T3E</b></li><li class="navelem"><a class="el" href="class_t3_e_1_1_config_file.html">ConfigFile</a></li>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.11 </li>
+  </ul>
+</div>
 </body>
 </html>

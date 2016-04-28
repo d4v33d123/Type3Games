@@ -4,10 +4,18 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>Type 3 Games: T3E::Grid Class Reference</title>
+<title>T3E::Grid Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -22,10 +30,10 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Type 3 Games
-   </div>
-  </td>
+  <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">by Type 3 Games</div>
+    </td>
  </tr>
  </tbody>
 </table>
@@ -66,6 +74,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('class_t3_e_1_1_grid.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -80,11 +103,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><b>T3E</b></li><li class="navelem"><a class="el" href="class_t3_e_1_1_grid.html">Grid</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
@@ -97,6 +115,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a57af697233ddba7836621b53757fdfd8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a57af697233ddba7836621b53757fdfd8">setGridUpdates</a> (bool b)</td></tr>
+<tr class="separator:a57af697233ddba7836621b53757fdfd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5bd3144d67c0f37c781494008865ebb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#ad5bd3144d67c0f37c781494008865ebb">getNode</a> (int row, int col, <a class="el" href="class_t3_e_1_1_node.html">Node</a> **node)</td></tr>
 <tr class="separator:ad5bd3144d67c0f37c781494008865ebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1492e089d69c8175870e4da2417b7136"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a1492e089d69c8175870e4da2417b7136">getHex</a> (int row, int col, <a class="el" href="class_t3_e_1_1_hex.html">Hex</a> **hex)</td></tr>
@@ -119,8 +139,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2f483d29d598b2bff99155aad1ff2e35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef75928596c2a7519cd4ef4696be1186"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#aef75928596c2a7519cd4ef4696be1186">numBloodVessels</a> () const </td></tr>
 <tr class="separator:aef75928596c2a7519cd4ef4696be1186"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39d4e3e9a595547d33b9b04e0305e878"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a39d4e3e9a595547d33b9b04e0305e878">update</a> (float dTime, SDL_Point fingerRowCol)</td></tr>
-<tr class="separator:a39d4e3e9a595547d33b9b04e0305e878"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46e6da461b6a1e78b7debc7f83e4e395"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a46e6da461b6a1e78b7debc7f83e4e395">update</a> (float dTime, SDL_Point fingerRowCol, TutorialPhase &amp;tut_phase)</td></tr>
+<tr class="separator:a46e6da461b6a1e78b7debc7f83e4e395"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a340e289c86874c05b1cfbcff3b428523"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#a340e289c86874c05b1cfbcff3b428523">inRange</a> (int rowA, int colA, int rowB, int colB, int range)</td></tr>
 <tr class="separator:a340e289c86874c05b1cfbcff3b428523"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acef5abb8d2591f9001c4c7a12c761cd5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_t3_e_1_1_grid.html#acef5abb8d2591f9001c4c7a12c761cd5">getDistance</a> (int rowA, int colA, int rowB, int colB)</td></tr>
@@ -196,7 +216,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMinDeathChance</b>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b> (int c)</td></tr>
 <tr class="separator:a34bab94065f938113df03e1dda3b825c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock">
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00020">20</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="adaa2cc5a6fc5689a56ee4c47c89ed3cb"></a>
 <div class="memitem">
 <div class="memproto">
@@ -217,6 +240,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </table>
   </dd>
 </dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01107">1107</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -259,6 +284,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if cell doesn't exist or is not CellState::NORMAL, true if success </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00552">552</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a6fa6966b1806e2cc2f31c06e63c60db5"></a>
@@ -289,6 +316,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns the input clamped in range [0,100] </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00320">320</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -322,6 +351,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 <dl class="section warning"><dt>Warning</dt><dd>Does not do bunds checking! </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="class_t3_e_1_1_grid.html#aef75928596c2a7519cd4ef4696be1186">numBloodVessels()</a> </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00122">122</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="af20f6ce0c62feacfee65bbfcb5fa64fc"></a>
@@ -340,6 +371,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 <dl class="section warning"><dt>Warning</dt><dd>Does not do range checking! </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="class_t3_e_1_1_grid.html#a145bfc363f00f504a35b967015cfc0d4">numBvSpawns()</a> </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>The world coordinates of the <a class="el" href="class_t3_e_1_1_blood_vessel.html">BloodVessel</a> spawn marker of index i </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01098">1098</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -373,6 +406,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 <dl class="section warning"><dt>Warning</dt><dd>Does not do bounds checking! </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="class_t3_e_1_1_grid.html#a8f4f593263fd5aee2420ca08ca265f57">numCells()</a> </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00109">109</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a26f41bfccb27782160900670802ef554"></a>
@@ -396,6 +431,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </table>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>Returns the current currency </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00268">268</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -446,6 +483,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The distance, in number of hexes, between the two given hex coords </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01050">1050</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a1492e089d69c8175870e4da2417b7136"></a>
@@ -487,6 +526,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if given row/col lies on board, false otherwise </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00041">41</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -540,6 +581,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>vec3 where x and y are world coords of hex z = 0 if hex is in blood vessel range ,1 if in large range, 2 otherwise w = lerp factor for colour x and y will be -1 if hex doesnt exist(our grid is all in positive coords so that works for now) </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00808">808</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_blood_vessel_8h_source.html#l00027">T3E::BloodVessel::getRange()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="aea71a01a443832874d7e35370b0f64ec"></a>
@@ -563,6 +608,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </table>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>Returns the current score </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00264">264</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -606,6 +653,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if the givn row, col does not exist </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00053">53</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="ad5bd3144d67c0f37c781494008865ebb"></a>
@@ -648,6 +697,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if given row/col lies on board, false otherwise </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00029">29</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a628d4185e6e574cb52f39ffd4cbbcecc"></a>
@@ -671,6 +722,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </table>
 </div><div class="memdoc">
 <p>[ret] size of one of the grid's dimensions assuming height = width </p>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00209">209</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -713,6 +766,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if a bv was created, false otherwise try to create a blood vessel at the specified position </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00999">999</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -770,6 +825,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the distance between the two hexes is less than or equal to range </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00302">302</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_blood_vessel_8h_source.html#l00027">T3E::BloodVessel::getRange()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="aec5508d94bdc9874a45eba74d1f5bc22"></a>
@@ -812,6 +871,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns false if the hex doesn't exist, or exists and is not empty. Returns true if it exists and is empty </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00102">102</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a85c6e053cd6294eaf4bcbd3ed9097f1c"></a>
@@ -845,6 +906,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if new cell is deleted, false otherwise calles when player tries to kill cell manually </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00686">686</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_cell_8h_source.html#l00133">T3E::Cell::kill()</a>.</p>
 
 </div>
 </div>
@@ -894,6 +959,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if stem was moved false otherwise </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00718">718</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_blood_vessel_8h_source.html#l00027">T3E::BloodVessel::getRange()</a>, <a class="el" href="_cell_8cpp_source.html#l00290">T3E::Cell::hardcodeNormalTint()</a>, and <a class="el" href="_cell_8h_source.html#l00135">T3E::Cell::ignoreBirthDelay()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="aa700ce55929a6b0aa40e8155cd765a24"></a>
@@ -935,6 +1004,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the givenrow/col lie on the board &amp; bloodVessel created, false otherwise </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00148">148</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
 
 </div>
 </div>
@@ -992,6 +1063,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if given row/col lies on board &amp; cell created, false otherwise </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00092">92</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_cell_8cpp_source.html#l00044">T3E::Cell::init()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="aef75928596c2a7519cd4ef4696be1186"></a>
@@ -1015,6 +1090,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </table>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>The number of blood vessels in the internal vector Only counts each <a class="el" href="class_t3_e_1_1_blood_vessel.html">BloodVessel</a>, NOT the numbef of cells in the blood vessels </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00128">128</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -1040,6 +1117,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>The number of <a class="el" href="class_t3_e_1_1_blood_vessel.html">BloodVessel</a> spawn points on the board </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00299">299</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a8f4f593263fd5aee2420ca08ca265f57"></a>
@@ -1063,6 +1142,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </table>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>The number of cells in the internal vector This includes all cell types: healthy, cancerous, mutated ... </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00115">115</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -1088,6 +1169,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>true if to play blood vessel sound </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00254">254</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a29e30f8451fbb0805cd20258efb66ab9"></a>
@@ -1111,6 +1194,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </table>
 </div><div class="memdoc">
 <p>Resets the blood vessel sound effect </p>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00259">259</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -1145,6 +1230,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if cell doesn't exist or is not CellState::NORMAL/STEM, true if success </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00581">581</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_cell_8cpp_source.html#l00216">T3E::Cell::select()</a>.</p>
 
 </div>
 </div>
@@ -1181,6 +1270,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if success </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l01057">1057</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="abb32c64b84f05c5604ccf31ab20cb102"></a>
@@ -1215,6 +1306,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00200">200</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a57af697233ddba7836621b53757fdfd8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void T3E::Grid::setGridUpdates </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>b</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">bool</td><td>True if cells can naturally split and die </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00029">29</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="adaac9028e09f37ecb276e769e84a6d1e"></a>
@@ -1239,6 +1364,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </table>
 </div><div class="memdoc">
 <p>Sets the score and currency simultaniously </p>
+
+<p>Definition at line <a class="el" href="_grid_8h_source.html#l00272">272</a> of file <a class="el" href="_grid_8h_source.html">Grid.h</a>.</p>
 
 </div>
 </div>
@@ -1273,6 +1400,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if cell doesn't exist or is not CellState::STEM, true if success sets stem cell in spawn mode </dd></dl>
+
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00982">982</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_cell_8cpp_source.html#l00234">T3E::Cell::toggleMode()</a>.</p>
 
 </div>
 </div>
@@ -1322,6 +1453,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if new cell is created, false otherwise calles when player tries to spawn cell manually </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00620">620</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_cell_8cpp_source.html#l00297">T3E::Cell::split()</a>, and <a class="el" href="_cell_8h_source.html#l00130">T3E::Cell::stemToStemOn()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="ac2beebc30a5cbb4c03b5cd991660b768"></a>
@@ -1356,9 +1491,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>false if cell doesn't exist or is not CellState::NORMAL/STEM, true if success </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00603">603</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
 </div>
 </div>
-<a class="anchor" id="a39d4e3e9a595547d33b9b04e0305e878"></a>
+<a class="anchor" id="a46e6da461b6a1e78b7debc7f83e4e395"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1372,7 +1509,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">SDL_Point&#160;</td>
-          <td class="paramname"><em>fingerRowCol</em>&#160;</td>
+          <td class="paramname"><em>fingerRowCol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TutorialPhase &amp;&#160;</td>
+          <td class="paramname"><em>tut_phase</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1390,18 +1533,26 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setMaxDeathChance</b>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if a selected cell died TODO: this return is quite unrelated to the function, but I couldn't think of a better way to unset the cellSelected_ flag in <a class="el" href="class_main_game.html">MainGame</a> when this happens call update methods of grid elements, spawn/kill cells according to sim rules </dd></dl>
 
+<p>Definition at line <a class="el" href="_grid_8cpp_source.html#l00368">368</a> of file <a class="el" href="_grid_8cpp_source.html">Grid.cpp</a>.</p>
+
+<p>References <a class="el" href="_cell_8h_source.html#l00133">T3E::Cell::kill()</a>, <a class="el" href="_cell_8h_source.html#l00134">T3E::Cell::setDeathChance()</a>, <a class="el" href="_cell_8cpp_source.html#l00297">T3E::Cell::split()</a>, and <a class="el" href="_cell_8cpp_source.html#l00116">T3E::Cell::update()</a>.</p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_grid_8h_source.html">Grid.h</a></li>
-<li>Grid.cpp</li>
+<li><a class="el" href="_grid_8cpp_source.html">Grid.cpp</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.11
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>T3E</b></li><li class="navelem"><a class="el" href="class_t3_e_1_1_grid.html">Grid</a></li>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.11 </li>
+  </ul>
+</div>
 </body>
 </html>
