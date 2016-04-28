@@ -742,7 +742,7 @@ void MainGame::processInput(float dTime)
 									if( tut_phase_ == TutorialPhase::KILL_CELL )
 										increment_tutorial();									
 								}
-								
+
 								break;
 							}
 							case InteractionMode::BVCREATION:
@@ -968,6 +968,7 @@ void MainGame::renderGame()
 			//Game over!!!
 			//final score: 00000
 			quitButton_.draw();
+			grid_.setCurrency( 0 );
 		}
 	}
 

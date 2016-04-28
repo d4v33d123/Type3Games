@@ -271,7 +271,11 @@ namespace T3E
 		*/
 		inline void setScore( int score ) { currency_ = high_score_ = score; }
 		/**
-		* Adds positive values to both currency and score, subtracts -vs values from currency
+		* Set's only the currenty
+		*/
+		inline void setCurrency( int cur ) { currency_ = cur; }
+		/**
+		* Adds positive vales to both currency and score, subtracts -vs values from currency
 		*
 		* @param value to add to the score, can be +ve or -ve
 		*/
