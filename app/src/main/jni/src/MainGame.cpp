@@ -72,6 +72,9 @@ void MainGame::initSystems()
 	// note that this will put origin at bottom left, while screen coords have origin at top left
 	orthoM_ = glm::ortho(0.0f, float( window_->getScreenWidth() ), 0.0f, float( window_->getScreenHeight() ));
 	
+	// Pass a pointer to the tutorial control
+	grid_.setTutorialPhase( &tut_phase_ );
+
 	// Grab parameters from the config file
 	T3E::ConfigFile configFile("config/config.txt");
 
@@ -342,7 +345,7 @@ command MainGame::gameLoop()
 		{
 			if( !paused_ )
 			{
-				if( grid_.update(frameTime_, world_to_grid(touch_to_world(pressPos_)), tut_phase_) )
+				if( grid_.update( frameTime_, world_to_grid(touch_to_world(pressPos_)) ) )
 					cellSelected_ = false;
 			
 				if(grid_.playVessel())
@@ -372,19 +375,12 @@ command MainGame::gameLoop()
 		score_ = grid_.getHighScore();
         textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.65, 0.94, 44 );
 		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.9, 0.79, 44 );
-		
-		// textRenderer_.putChar('$', -0.10, 0.86, 50);
-		// textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
 
 		// Render the tutorial text
 		if( tutorial_ )	
 			renderTutorial();
 
 		renderGame();
-
-		// Draw the amount of time taken to do the frame
-		// textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
-		// textRenderer_.putString( "ms", 0.9, -0.9, 32 );
 
 		processInput(frameTime_);
 
@@ -698,11 +694,14 @@ void MainGame::processInput(float dTime)
 									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
 									{
 
-										grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y);
-										
-										if( tut_phase_ == TutorialPhase::MOVE_STEM ) {
-											increment_tutorial();
-										}										
+										if( grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y) )
+										{
+											// If the stem cell moved successfully
+											if( tut_phase_ == TutorialPhase::MOVE_STEM ) {
+												increment_tutorial();
+											}
+										}
+																				
 									}	
 									else
 									{
@@ -727,39 +726,23 @@ void MainGame::processInput(float dTime)
 									}
 									break;
 								}
-								
-								//if(rowCol.x == selectedPos_.x && rowCol.y == selectedPos_.y)
-								//{
-									// do nothing
-									//selectedPos_.x = -10000; // an abstractly large value so there is no chance of it matching another position
-									//selectedPos_.y = -10000;
-								//}
-								//else
-								//{
-									//try to select a cell
-									//also, if a new cell was created, select it
-									
-									selectCell(rowCol.x, rowCol.y);
-									//cellSelected_ = true;
-								//}							
+								//try to select a cell
+								//also, if a new cell was created, select it		
+								selectCell(rowCol.x, rowCol.y);
 								
 								break;
 							}
 							case InteractionMode::KILLMODE:
 							{
-								if(!grid_.killCell(rowCol.x, rowCol.y))
-								{
-									// play error noise
-									
-								}
-								else
+								if( grid_.killCell(rowCol.x, rowCol.y) )
 								{
 									// play kill noise
 									cellDeath_.play();
 									
 									if( tut_phase_ == TutorialPhase::KILL_CELL )
-										increment_tutorial();
+										increment_tutorial();									
 								}
+								
 								break;
 							}
 							case InteractionMode::BVCREATION:
@@ -826,11 +809,6 @@ void MainGame::processInput(float dTime)
 					//try to change stem cell mode
 					if(grid_.setStemToSpawnMode(rowCol.x, rowCol.y))
 						cellModeChange_.play();
-					
-					
-
-					if( tut_phase_ == TutorialPhase::SPLIT_STEM )
-						increment_tutorial();
 				}					
 				else
 				{
@@ -1187,13 +1165,19 @@ void MainGame::renderTutorial()
 		textRenderer_.putString( "A more effective but costly\nway to control mutated cells is to\nuse the kill button.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::CANCER_CELL:
-		textRenderer_.putString( "A dangerously mutated cell appeared!\n\nYou can't kill these or arrest them,\nbut you can isolate them\nwith arrested cells.", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Purple cells are dangerously mutated!\n\nYou can't kill these or arrest them,\nbut you can isolate them\nwith arrested cells.", -0.7, 0.4, 45 );
 	break;
 	case TutorialPhase::DONE:
 		textRenderer_.putString( "And that's all there is to learn.\nWe hope you enjoy Cell Cycle!", -0.6, 0.4, 45 );
 	break;
 	default:
 	break;
+	}
+
+	// Turn on the grid once we start checking for blood vessels
+	if( tut_phase_ == TutorialPhase::PLACE_BV )
+	{
+		grid_.setGridUpdates( true );
 	}
 }
 
@@ -1207,12 +1191,7 @@ void MainGame::increment_tutorial()
 	else if( tut_phase_ == TutorialPhase::SHOW_CURRENCY ) tut_phase_ = TutorialPhase::EXPLAIN_STEMBV;
 	else if( tut_phase_ == TutorialPhase::EXPLAIN_STEMBV ) tut_phase_ = TutorialPhase::MOVE_STEM;
 	else if( tut_phase_ == TutorialPhase::MOVE_STEM ) tut_phase_ = TutorialPhase::SPLIT_STEM;
-	else if( tut_phase_ == TutorialPhase::SPLIT_STEM )
-	{
-		// Turn grid updates back on once we start talking about blood numBloodVessels
-		tut_phase_ = TutorialPhase::PLACE_BV;
-		grid_.setGridUpdates( true );
-	}
+	else if( tut_phase_ == TutorialPhase::SPLIT_STEM ) { tut_phase_ = TutorialPhase::PLACE_BV; }
 	else if( tut_phase_ == TutorialPhase::PLACE_BV ) tut_phase_ = TutorialPhase::CREATE_BV;
 	else if( tut_phase_ == TutorialPhase::CREATE_BV ) tut_phase_ = TutorialPhase::MUTATE_CELL;
 	else if( tut_phase_ == TutorialPhase::MUTATE_CELL ) tut_phase_ = TutorialPhase::ARREST_CELL;
@@ -1220,6 +1199,7 @@ void MainGame::increment_tutorial()
 	else if( tut_phase_ == TutorialPhase::KILL_CELL ) tut_phase_ = TutorialPhase::CANCER_CELL;
 	else if( tut_phase_ == TutorialPhase::CANCER_CELL ) tut_phase_ = TutorialPhase::DONE;
 	else if( tut_phase_ == TutorialPhase::DONE ) tut_phase_ = TutorialPhase::NONE;
+
 }
 
 void MainGame::drawGrid()

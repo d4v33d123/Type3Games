@@ -127,6 +127,10 @@ namespace T3E
         {
         	case CellState::STEM:
         		addScore( T3E::SCORE::SPAWNED_STEM_CELL() );
+
+				// Assume it failed to move because it was a stem cell and split instead
+				if( (*tut_phase_) == TutorialPhase::SPLIT_STEM )
+					(*tut_phase_) = TutorialPhase::PLACE_BV;
         	break;
         	case CellState::NORMAL:
         		addScore( T3E::SCORE::SPAWNED_HEALTHY_CELL() );
@@ -217,6 +221,7 @@ namespace T3E
                 }
             }
 
+            // COMMENTED OUT, ONLY DO THESE WHEN KILLING A CELL
             // Update the players score based on the type of cell removed
 	        switch( ((Cell*)nodeToDelete)->getState() )
 	        {
@@ -224,16 +229,16 @@ namespace T3E
 	        		//score_ += T3E::SCORE::KILLED_STEM_CELL();
 	        	break;
 	        	case CellState::NORMAL:
-	        		addScore( T3E::SCORE::KILLED_HEALTHY_CELL() );
+	        		//addScore( T3E::SCORE::KILLED_HEALTHY_CELL() );
 	        	break;
 	        	case CellState::MUTATED:
-	        		addScore( T3E::SCORE::KILLED_MUTATED_CELL() );
+	        		//addScore( T3E::SCORE::KILLED_MUTATED_CELL() );
 	        	break;
 	        	case CellState::CANCEROUS:
 	        		addScore( T3E::SCORE::KILLED_CANCER_CELL() );
 	        	break;
 	        	case CellState::ARRESTED:
-	        		addScore( T3E::SCORE::KILLED_ARRESTED_CELL() );
+	        		//addScore( T3E::SCORE::KILLED_ARRESTED_CELL() );
 	        	break;
 	        	default:
 	        		// No points for you
@@ -300,7 +305,7 @@ namespace T3E
     }
 	
 	bool Grid::inRange(int rowA, int colA ,int rowB, int colB, int range)
-	{		
+	{
 		//calculate the squared distance (avoid sqrt operation)
 		// TODO: Doesn't range also need to be squared?!
 		int dSquared = (std::abs(colA - colB) + std::abs(rowA - rowB) + std::abs((-colA-rowA) - (-colB-rowB))) / 2;
@@ -365,8 +370,8 @@ namespace T3E
 		return death_chance;
 	}
 	
-	bool Grid::update(float dTime, SDL_Point fingerRowCol, TutorialPhase& tut_phase )
-	{		
+	bool Grid::update(float dTime, SDL_Point fingerRowCol )
+	{
 		//TODO: use queue/list?
 		std::vector<birthInfo> newCells;
 		std::vector<deathInfo> deadCells;
@@ -387,8 +392,8 @@ namespace T3E
 				sp = bvSpawnPoints_.erase(sp);
 				playVessel_ = true;
 
-				if( tut_phase == TutorialPhase::CREATE_BV )
-					tut_phase = TutorialPhase::MUTATE_CELL;
+				if( (*tut_phase_) == TutorialPhase::CREATE_BV )
+					(*tut_phase_) = TutorialPhase::MUTATE_CELL;
 			}
 			else
 				++sp;
@@ -683,7 +688,7 @@ namespace T3E
 		return false;
 	}
 	
-	bool Grid::killCell(int row, int col)
+	bool Grid::killCell( int row, int col )
 	{
 		 // If the hex does not lie on the board or is not a cell, return error
         if( (!hexExists( row, col )) || (grid_[row * CHUNK_WIDTH + col].getType() != NodeType::CELL))
@@ -696,16 +701,19 @@ namespace T3E
 		//different costs for normal and mutated cells
 		if( cell->getState() == CellState::NORMAL && currency_ - T3E::SCORE::KILLED_HEALTHY_CELL() >= 0 )
 		{
+	        addScore( T3E::SCORE::KILLED_HEALTHY_CELL() );
 			cell->kill();
 			return true;
 		}
 		else if( cell->getState() == CellState::MUTATED && currency_ - T3E::SCORE::KILLED_MUTATED_CELL() >= 0 )
 		{
+	        addScore( T3E::SCORE::KILLED_MUTATED_CELL() );
 			cell->kill();
 			return true;
 		}
 		else if( cell->getState() == CellState::ARRESTED && currency_ - T3E::SCORE::KILLED_ARRESTED_CELL() >= 0 )
 		{
+	        addScore( T3E::SCORE::KILLED_ARRESTED_CELL() );
 			cell->kill();
 			return true;
 		}

@@ -39,7 +39,6 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c \
 	BloodVessel.cpp \
 	Cell.cpp \
 	StartMenu.cpp \
-	Tutorial.cpp \
 	Credits.cpp \
 	MainGame.cpp \
 	main.cpp \

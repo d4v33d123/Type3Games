@@ -135,7 +135,7 @@ namespace T3E
 		* 		 but I couldn't think of a better way to unset the cellSelected_ flag in MainGame when this happens
 		* call update methods of grid elements, spawn/kill cells according to sim rules
 		*/
-		bool update( float dTime, SDL_Point fingerRowCol, TutorialPhase& tut_phase );
+		bool update( float dTime, SDL_Point fingerRowCol );
 		
 		//TODO: use hexexist checks in getdistance and inrange ? or not since we check before anyway since it's only used internally?
 		
@@ -318,6 +318,7 @@ namespace T3E
 		void setChildDeathChanceIncrease( int c ) 	{ childDeathChanceIncrease_ = clampPercnt( c ); }
 		void setMinDeathChance( int c ) 			{ minDeathChance_ = clampPercnt( c ); }
 		void setMaxDeathChance( int c ) 			{ maxDeathChance_ = clampPercnt( c ); }
+		void setTutorialPhase( TutorialPhase* tut_phase ) { tut_phase_ = tut_phase; }
 		///@}
 
 		/**
@@ -402,6 +403,8 @@ namespace T3E
 		
 		// whether or not to play the blood vessel sound effect
 		bool playVessel_;
+
+		TutorialPhase* tut_phase_;
     };
 }
 

@@ -1,0 +1,666 @@
+* commit 8bc1cfcd879d31ca07880e76c169e09677fb79d7
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     improved number drawing & placement, fixes #15
+|  
+* commit 298c8ccdec595a0bcf8a5c866aea9511914004cb
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     readded the number 8 to font file
+|    
+*   commit 30f830a8b10ab44788f0f89b7ee1b66afa666749
+|\  Merge: 90676aa 30c147a
+| | Author: David Robertson <David Robertson>
+| | 
+| |     Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit 30c147af31d4462b2061fb9840c64d6c00ee2c56
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     fixed arrest anim, menu and ui buttons, + scorebar
+| |   
+| * commit 1f9306b7d189e94fcde2d3e0cce784f4f82f72ba
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     fixed flickering text bug
+| |   
+| * commit 27df188263c2c213be541a64f5e6e3c54b908437
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     event driven tutorial text, not great but it's there
+| |   
+| * commit 129fb94f6816c88f478d3a6fe6d26c88a9864832
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     first draft tutorial text, attempted fix font.png
+| |   
+* | commit 90676aa60a24c5253c55bc0d11efe80d54499ffa
+|/  Author: David Robertson <David Robertson>
+|   
+|       gameplay tweaks and camera control
+|  
+* commit bdf462272024451509a9cfe34a6a9acc6073a76b
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     touch driven tutorial text framework
+|  
+* commit 56399f87ebf32b9ea6eddc6ae4bbdfcbe18fde81
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     text render supports transparency, timer class, tutorial merged with main
+|  
+* commit e856688a33e3baf13d2ee097ac21271d0c0e0697
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     crappy text tutorial info
+|  
+* commit 4a9b34ffbec9184a02d3e035cfc0a177326f23f6
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     more commenting
+|    
+*   commit 68c1173a782481314f0ab6f06069a813593cbaaa
+|\  Merge: ff1c910 c4393b1
+| | Author: Robro <Robro>
+| | 
+| |     Merge branch 'android' of https://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit c4393b18b901d47c7d34318a4414d289f62edc4d
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Fixed stem-stem anim, removed redundant bv png
+| |     
+* |   commit ff1c91001ce4a87e2c251c8fed8bd95de2aa9856
+|\ \  Merge: f42c4c4 ea9d082
+| |/  Author: Robro <Robro>
+| |   
+| |       erge branch 'android' of https://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit ea9d0825690e46d25e6bd1b37775dcb0caf2dd13
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Updated Documentation
+| |   
+| * commit d691058e329cbca7b757a46b3ccd690c370ff629
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Lots of stuff, see details below
+| |   
+| * commit 12f15d0c25f802eb1f06b5b85b9ebeff25645675
+| | Author: Cyphre117 uni <1302495@abertay.ac.uk>
+| | 
+| |     documenting public functions
+| |     
+* |   commit f42c4c402182dd5a11a03b57d3bdc515f5c2fabf
+|\ \  Merge: 55218c6 0840240
+| |/  Author: Robro <Robro>
+| |   
+| |       Merge branch 'android' of https://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit 08402406e193fecc9478a9110826422631d50c87
+| | Author: David Robertson <David Robertson>
+| | 
+| |     fixed my mistake
+| |     
+* |   commit 55218c69f3ff4184803ebe6220c6809b8b8d9dd4
+|\ \  Merge: 451d338 4ed4174
+| |/  Author: Robro <Robro>
+| |   
+| |       sounds
+| |     
+| *   commit 4ed41746a0dccd3478d34dd70b4c2217c75e2285
+| |\  Merge: 38d045b 04fb7dd
+| | | Author: David Robertson <David Robertson>
+| | | 
+| | |     Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| | |    
+| * | commit 38d045b084c5603fa48cd9d5658aa72619e48eda
+| | | Author: David Robertson <David Robertson>
+| | | 
+| | |     added documentation
+| | |      
+| * |   commit 803bf7de5bb0d3c407633d3b1fd6fbebb10412b0
+| |\ \  Merge: 6533c19 9198fc2
+| | | | Author: David Robertson <David Robertson>
+| | | | 
+| | | |     Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| | | |     
+| * | | commit 6533c194405ef450b34b051a02a339ca852cee7d
+| | | | Author: David Robertson <David Robertson>
+| | | | 
+| | | |     merge
+| | | |       
+| * | |   commit 8a3f1d14c7b1878cabc7e5892da0599c813aa410
+| |\ \ \  Merge: 3bc925e cc04383
+| | | | | Author: David Robertson <David Robertson>
+| | | | | 
+| | | | |     Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| | | | |      
+| * | | | commit 3bc925e22785031ffef40d02704044ecad0aa200
+| | | | | Author: David Robertson <David Robertson>
+| | | | | 
+| | | | |     merge
+| | | | |      
+* | | | | commit 451d338b490cc23b00d6c604108585e9ea6b1bb8
+| |_|_|/  Author: Robro <Robro>
+|/| | |   
+| | | |       replaced celldivide sound
+| | | |     
+* | | | commit 04fb7dd713391a53d9b7a62f59136034281ef6f5
+| | | | Author: Davide <d.passaniti@gmail.com>
+| | | | 
+| | | |     Temporary fix for audio bug
+| | | |     
+* | | | commit 17858bfd1ced9f0839495f2bb6ac9a99c90573c1
+| | | | Author: Davide <d.passaniti@gmail.com>
+| | | | 
+| | | |     Game over at currency=0,end screen, dual landscape
+| | | |     
+* | | | commit 872a04dbe535091c7f6b4c39b11c07fd1071ce94
+| |_|/  Author: Davide <d.passaniti@gmail.com>
+|/| |   
+| | |       Fixed occasional crash on death of a selected cell
+| | |    
+* | | commit 9198fc2691c1077bfd012748bf0681c44fc4ab7f
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     added documentation comments to grid
+| | |    
+* | | commit 926021e94b539d366a1acba61c343caca7751fab
+| | | Author: Davide <d.passaniti@gmail.com>
+| | | 
+| | |     Fixed GLTexture::numTextures not resetting to 0
+| | |    
+* | | commit ac6169d2edea80f9110bfb27f9b55a692acc55c5
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     stoped currency decreasing when paused
+| | |    
+* | | commit b5067ea8a9d373cda5049e31d7a07874f5f82899
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     sprites are now GL_TRIANGLE_STRIP, sends less data to gpu
+| | |    
+* | | commit d5badf485a7474a1b980845ce931b3bd94befe34
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     print ms per frame
+| | |    
+* | | commit d0a38e2410d1ee4a7615def84a1a43652c7b4c77
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     general cleanup, reoved lots of unbind calls
+| | |    
+* | | commit 2ae3cc5f8647aae8d6697ff3242f01bafb8f13eb
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     removed redundant draw code
+| | |    
+* | | commit 5515f9dc0deab35d3a31b3f269c0c131baa1e4e1
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     removed colour from vertex
+| | |    
+* | | commit f8d11c42351d0857c60c957ecec9fb6b714f4647
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     theoretical performance improvements, GL_STREAM_DRAW and less binding maybe
+| | |    
+* | | commit 28cb4e60ed94452fab68240e4ca1ac88f9667018
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     cleaned up texture usage
+| | |    
+* | | commit cdd744914dc2695d46524fca6d73b68269abf08a
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     patched up the font renderer, currency and score
+| | |    
+* | | commit e85e853dc9f0539933a5338e717c42cd12712e96
+| | | Author: Davide <d.passaniti@gmail.com>
+| | | 
+| | |     Multiscene menu system, FIXED CRASH ON EXIT YEHAAA
+| | |    
+* | | commit ce0dd2b02a1b26a7e573635aec24080224ad69f1
+| | | Author: Davide <d.passaniti@gmail.com>
+| | | 
+| | |     Major and minor bug fixes! details below
+| | |    
+* | | commit 86b27f1c633a9d5d720374bcd53b501104ad80e0
+| | | Author: Davide <d.passaniti@gmail.com>
+| | | 
+| | |     Fixed bv creation not checking for cells splitting
+| | |    
+* | | commit c8eb9a3d00cd2dc10949815eeb25e3e048a486d2
+| | | Author: Davide <d.passaniti@gmail.com>
+| | | 
+| | |     Arrest animation
+| | |    
+* | | commit d218390a32153fa3c3c70603c30acd286cab0248
+| |/  Author: Davide <d.passaniti@gmail.com>
+|/|   
+| |       Split animations, AnimatedSprite fix
+| |     
+* |   commit cc04383d1abdc743e614c4744bbf5a2ee7493402
+|\ \  Merge: 2452c83 64baf56
+| | | Author: Davide <d.passaniti@gmail.com>
+| | | 
+| | |     Merge branch 'android' of https://github.com/d4v33d123/Type3Games
+| | |    
+| * | commit 64baf56a0923c4fcaf1837b496f58376843db12d
+| | | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | | 
+| | |     score now change on the number of cancers alive per second
+| | |    
+| * | commit fbc23b049bef321534d74a7e4b87b05e0d0995b9
+| |/  Author: Thomas Hope <hope.thomasj@gmail.com>
+| |   
+| |       reduced line overdraw when drawing grid
+| |   
+* | commit 2452c8361d031978932a1464d970a0585e8077d6
+|/  Author: Davide <d.passaniti@gmail.com>
+|   
+|       Pause menu, fixed sprite uvs (still xy inverted)
+|  
+* commit c94f2655ac80232f7f11552fcedbf54c887a9ee0
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     greatly improed grid rendering efficency, added transparency
+|  
+* commit 664a98470582fdaf5b0d40277f1863eff71a8651
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     death animation
+|  
+* commit ffa5d92b18050df0411cf8131748fb046fec43b6
+| Author: David Robertson <David Robertson>
+| 
+|     fixed the bug with animations not playing hopefully
+|    
+*   commit d4748e8d2c36c6b7d7aed65355b6d86cd37284c0
+|\  Merge: 81ccb7c f806b19
+| | Author: David Robertson <David Robertson>
+| | 
+| |     Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit f806b1919179efc2cdd4c9a2937a77da33396f1a
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     possible fix to files not loading from config.txt bug, someone else will have to test
+| |   
+| * commit 4aa260a69de92af5601f2f55a68156be873e9988
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     fixed bug when printing numbers ending in 10
+| |   
+| * commit a3a6208e992071c4d16b35e2496906c7dd3c07c6
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     text renderer works with -ve numbers
+| |   
+| * commit d3c913661f85a4f834aa9e0ee531c7a9b4bf6cbb
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Bv animation, anim sprite supports multilines
+| |   
+| * commit 70f4ef216f7a57ad86b93d134d99b0e08741b048
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Multisprite buttons, fixed highlight and score bug
+| |   
+* | commit 81ccb7c78bf2cb142bec56768049260453fe0027
+| | Author: David Robertson <David Robertson>
+| | 
+| |     added moving stem cell through normal cells
+| |     
+* |   commit e81f48a3f8451a95a5fd4712d6aa5f8d9188950f
+|\ \  Merge: 3b9753e ac3b820
+| |/  Author: David Robertson <David Robertson>
+| |   
+| |       Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit ac3b820cff151d26de99cd38a8e2cad4e1b7e2b4
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     text renderer draws numbers, score is on screen
+| |   
+| * commit a21ed2ac3e80dc1d7424dc78e0b915b0aa7fcc2f
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     text renders chars string newlines
+| |   
+| * commit 32b0cb1dc963be65d605a0e7df0dbc8264d77c19
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     was trying to load textures before SDL was inited
+| |   
+| * commit 176d5615f11c29b078334723e6095308341a1119
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     working on text renderer, currently not texturing
+| |   
+| * commit d99d0884255b0f6a62753f6881b1a6a4960d9450
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     text renderer draws triangle, great success
+| |   
+| * commit baa4c1ef2f969019e59e8589919da1df57287cfe
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Removed filename loading from config file
+| |   
+* | commit 3b9753e69fd914dad2f8427170c84afe9a84ddb6
+| | Author: David Robertson <David Robertson>
+| | 
+| |     merge
+| |     
+* |   commit 4c8f746fa26dbd5365f91d229b9dea084fc1a167
+|\ \  Merge: 7c6669b 3e88399
+| |/  Author: David Robertson <David Robertson>
+| |   
+| |       Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit 3e88399e37575f135faac7f2360658c679c9d808
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     converted all float chances to ints
+| |   
+| * commit 35b9728ab7fe2e4214cf0d060500861bed47ee66
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     reworked death chance calculation formula
+| |   
+| * commit 131ccd0900615b661240d59b92099c6f2f884400
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     adding death / mutation chances to config.txt in pogress
+| |   
+| * commit 893c9923b9ca9aa53d7c679f154787eb05a8109c
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     hooked up points to config.txt, also switched to GL_LINE_LOOP posibly breaking everything
+| |   
+| * commit d3a50ee25bb9677be239844c9553a82cc52eed59
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     linked cell colours to config file
+| |   
+* | commit 7c6669b0263f1e598ad4b3e64f7d497075c86c7f
+|/  Author: David Robertson <David Robertson>
+|   
+|       merge
+|  
+* commit 841f705e8764f584118382440c62374d97a30f54
+| Author: David Robertson <David Robertson>
+| 
+|     forgot to remove sdl_log use
+|  
+* commit e992e38e9bec7367f2b892e01ef861c01cd6025b
+| Author: David Robertson <David Robertson>
+| 
+|     finished highlights, added interation mode
+|  
+* commit 38a9de0e98d05ff616ea5c064074150809caa91f
+| Author: David Robertson <David Robertson>
+| 
+|     added kill button and bv sound
+|    
+*   commit 6c8c00c53868c2d2391364c5b12c62de7c359e08
+|\  Merge: 5a9851e 1917f39
+| | Author: David Robertson <David Robertson>
+| | 
+| |     Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit 1917f39efd2909abf4f4365e4615002efc6c41bf
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Background, line width, renamed cell shader
+| |   
+| * commit 664f060eadc922fb0700d783a074af992dbf0b56
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Fixed cancer dying bug, spawn mode stem is green
+| |   
+| * commit 1e46ae714f38e10c907a51d4339cac1eede5bc00
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Type3Alpha: now with next gen srand technology!!!
+| |   
+| * commit d8e71ec1bef1a51d4d372e5b9c489ee56919f894
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Randomised cell colours, can place spawn on cells
+| |   
+| * commit 279e273adea781e67ced7da506f583ea3bd6eedb
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     New bv mechanic, button class and qol improvements
+| |   
+| * commit b8e34de5904f46829a05c31595704eadc648c4c6
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Finished base energy system
+| |   
+* | commit 5a9851e190e2a72c6b7545614172ddbad11d0e86
+|/  Author: David Robertson <David Robertson>
+|   
+|       added highlight, kill cell, sound effects
+|  
+* commit 10c2b0ed111c826b89bfac82f8ea9b8887ba98dd
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     added config file, hooked to camera position
+|  
+* commit be87f6fda812783683b91212e494837e03102bc0
+| Author: David Robertson <David Robertson>
+| 
+|     commented some areas
+|  
+* commit f5ac92649cd5acd697343dee8dfb19596e31bc08
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     Energy system v0.1, improved hex shader
+|    
+*   commit d8377615ef4689e2cad871a1d65b6ae8b60eab1d
+|\  Merge: d3ff823 9381eb2
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Merge branch 'android' of https://github.com/d4v33d123/Type3Games
+| |   
+| * commit 9381eb237868df4c1e1dd32eb9018a1f2c298212
+| | Author: Thomas <Cyphre117@users.noreply.github.com>
+| | 
+| |     Added link to documentation
+| |   
+* | commit d3ff8238374bc4a111df7c40c171cb977b1dcfdf
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     good build - pre energy tests
+| |   
+* | commit dd804dce9da2395de548fa1bbe7fd0071923cf70
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     was excited for previous commit and forgot to uncomment some gameplay stuff - bloodvessels hard restrict game area
+| |   
+* | commit c263ddb77291b6dd94a99604cad51f4bc22b79cb
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Fixed that crash related with arresting cells
+| |   
+* | commit 591c3f94ac34f29da554e22e80551d704def5c36
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Bvs restrict area, cancer anim
+| |   
+* | commit c2ce4247f4d39b5e7ed28bb5e8638cce5282ae03
+|/  Author: Davide <d.passaniti@gmail.com>
+|   
+|       Added stem cell spawn mode
+|  
+* commit 8577dfc41c4519262e0eb9caa15115e7c74f6195
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     Drawing grid, improved gameplay, bug fixing
+|  
+* commit 1392d96940a8ba1da19113419db3888ebbc8adb0
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     that xml file again
+|  
+* commit aee75fd40e7f14fa078aa0a96a23f93ed369f34f
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     Added sound engine and animation
+|  
+* commit d841f734cafb65c21f25c3c8f5955c95bb69d3d5
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     fixed touch drag stuf, hid cursor
+|  
+* commit d14c6edcbe09e40bb17af591d9a28dcd89337e27
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     Added simulation, cell arresting, manual creation
+|  
+* commit caacd08edc7566dcdda692b54f269e457b1da97b
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     blood vessels spawn when touching rings of cells
+|  
+* commit 3dcb3d48b32819cce764b0657586fa0cae7bbe21
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     calling setEmpty on a blood vessel edge or core deletes the entire blood vessl
+|  
+* commit 94950e899090685c16ec53c05a22da6c447cc7c4
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     Blood vessels can be added
+|  
+* commit 047bcfa26f7ca59edc1f84f0447c05287666c9a8
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     implemented newBloodVessel, untested. need to update setEmpty!
+|  
+* commit 9cf7f9337f76b82f96e8f092f9b9e8298cb1b375
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     cells can only spawn beside other cells
+|  
+* commit 57a2cc927a1014fe28de693f47248242c2f13b4c
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     hex's remvoe themselvs from vectors with setEmpty()
+|  
+* commit 93be2af0fc25be439c819d252afce256d2d40e9e
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     touches add cells, drags do not
+|  
+* commit fa78c7ba13dce2dad1a7c7220d7da8fd842b4358
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     Cells spawning on touch up
+|  
+* commit 7065a54785028590489d300515677242efe24c1f
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     fogrot .iml files again
+|  
+* commit e6fc0df99c06dd6588da4566b308c9e12535c7ee
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     started refactoring, building new grid
+|  
+* commit cc78669c08616337aaf2faae4400afcf23af628d
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     resolved vcs conflict
+|    
+*   commit c7dd284295928c7e259bacbc8b16085c7c5bdfcc
+|\  Merge: 6d1dcd3 0e0b95e
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     merge conflicts
+| |   
+| * commit 0e0b95e5f643cbb3acb7b1f79b3d2ac8576543d2
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     fogot to commit .imls before
+| |   
+* | commit 6d1dcd38ad6ee407d698d47c445e99cfdaebb6a3
+|/  Author: Davide <d.passaniti@gmail.com>
+|   
+|       Fixed world to hex coordinate conversion
+|  
+* commit f547680ada8ffef2ee42c2939773813d91bb08db
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     added conversion funcitons
+|  
+* commit 01457c398eb80de1da10dd245b3621f7bf69afe9
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     Added blood vessels, refactored grid/hex/cell
+|  
+* commit 05685aca9e8af7254ec74082be3b41c2a78e2f17
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     Tidied up code, fixed minor bugs/inconsistencies
+|  
+* commit 8bac74af52dd790ee2907c9f8ce36d42d44e2906
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     Jan meet demo. code put together quickly overnight!
+|  
+* commit 6b252055042744190c9eebf4df650c3ac0e82567
+| Author: Davide <d.passaniti@gmail.com>
+| 
+|     Updated framework with David's changes
+|    
+*   commit 6b0a20768ac692a77644e51f4bcc7f5b7749751a
+|\  Merge: 99ffb80 262aa8e
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Merge branch 'android' of https://github.com/d4v33d123/Type3Games
+| |   
+| * commit 262aa8ecb15455af0a05e39be2251767722859d8
+| | Author: unknown <1300278@MC10641.uad.ac.uk>
+| | 
+| |     Modified readme.md, just testing the guide is good
+| |   
+* | commit 99ffb801b850896072ab85b94968ab7088cb31f5
+|/  Author: Davide <d.passaniti@gmail.com>
+|   
+|       Added zoom with z/x keys for emulator
+|    
+*   commit 30c7f0a36e6b77ca4c7ec3126bf91a573bcb0724
+|\  Merge: 0260391 99714ff
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     Merge branch 'android' of https://github.com/d4v33d123/Type3Games
+| |   
+| * commit 99714ff1845dee9b1c631fe4f32e8a8e5754d6e4
+| | Author: dpassaniti <d.passaniti@gmail.com>
+| | 
+| |     Create README.md
+| |   
+* | commit 0260391d019d8e312e50006c0eb01fb9d5123e40
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     fixed build path in BUILD_NATIVE_CODE.bat to match repo structure
+| |   
+* | commit 8db962ddccbf35017aca4d46536eb7f05cf75952
+| | Author: Davide <d.passaniti@gmail.com>
+| | 
+| |     removed files comitted before .gitignore was added
+| |   
+* | commit edf3704f3ce9cfd65b4573ef6bd7297361eee5fc
+|/  Author: Davide <d.passaniti@gmail.com>
+|   
+|       added .gitignore, BUILD_NATIVE_CODE.bat and gradle.properties
+|  
+* commit 73383be8d9fd6cbf9ca67237b670a0f4e8c1070c
+  Author: Davide <d.passaniti@gmail.com>
+  
+      added all files
