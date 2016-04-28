@@ -370,8 +370,8 @@ command MainGame::gameLoop()
 		}
 		
 		score_ = grid_.getHighScore();
-        textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.65, 0.95, 44 );
-		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.9, 0.80, 44 ); 
+        textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.65, 0.94, 44 );
+		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.9, 0.79, 44 );
 		
 		// textRenderer_.putChar('$', -0.10, 0.86, 50);
 		// textRenderer_.putString( "T3E Alpha", -1, -0.9, 30 );
@@ -382,6 +382,7 @@ command MainGame::gameLoop()
 
 		renderGame();
 
+		// Draw the amount of time taken to do the frame
 		// textRenderer_.putNumber( ticks - old_ticks, 4, 0.8, -0.9, 32 );
 		// textRenderer_.putString( "ms", 0.9, -0.9, 32 );
 

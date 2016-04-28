@@ -140,8 +140,8 @@ namespace T3E
 			num *= -1;
 		}
 
-		while( std::pow(10, num_digits) < num ) num_digits++;
-		while( --padding > num_digits ) num_str += ' ';
+		while( std::pow(10, num_digits) <= num ) num_digits++;
+		while( padding-- > num_digits ) num_str += ' ';
 
 		int prev_digit = 0;
 		while( num_digits-- > 0 )
