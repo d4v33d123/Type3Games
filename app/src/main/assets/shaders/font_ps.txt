@@ -8,6 +8,7 @@ uniform sampler2D font_bitmap;
 
 void main()
 {
-  vec4 tex = texture2D( font_bitmap, fTexCoord.xy );
+ 	vec4 tex = texture2D( font_bitmap, fTexCoord.xy );
+
 	gl_FragColor = vec4( tex.rgb, tex.a * fTexCoord.z);
 }

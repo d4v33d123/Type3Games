@@ -62,16 +62,16 @@ initial_score: 100
 
 cancer_per_second: -1
 
-spawned_healthy_cell:   10
+spawned_healthy_cell:   5
 spawned_mutated_cell:   5
 spawned_cancer_cell:    -1
 spawned_bloodvessel:    100
 spawned_stem_cell:      1
-arrested_cell:          50
+arrested_cell:          -50
 
-killed_healthy_cell:    -5
-killed_mutated_cell:    -5
+killed_healthy_cell:    -100
+killed_mutated_cell:    -125
 killed_cancer_cell:     10
 killed_bloodvessel:     -100
 killed_stem_cell:       -50
-killed_arrested_cell:   -10
+killed_arrested_cell:   -125

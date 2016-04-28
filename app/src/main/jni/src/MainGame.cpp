@@ -1123,53 +1123,53 @@ void MainGame::renderTutorial()
 	switch( tut_phase_ )
 	{
 	case TutorialPhase::READY:
-		textRenderer_.putString( "Hello, and welcome to\nthe CellCycle tutorial!", -0.5, 0.7, 50 );
-		textRenderer_.putString( "Tap to start", -0.2, 0.4, 40 );
+		textRenderer_.putString( "Welcome to the\nCell Cycle tutorial.\n\nHere you will learn\nhow to play the game.", -0.5, 0.6, 50 );
+		textRenderer_.putString( "Tap to begin", -0.3, 0.1, 44 );
 	break;
 	case TutorialPhase::MOVE_CAM:
-		textRenderer_.putString( "To move, drag with one finger", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Swipe the screen to\nscoll the camera.", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::ZOOM_CAM:
-		textRenderer_.putString( "To zoom, pinch with two fingers", -0.6, 0.4, 45 );
+		textRenderer_.putString( "Use a pinch gesture\nto zoom in and out.", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::SHOW_PAUSE:
-		textRenderer_.putString( "In the top left is the pause button.", -0.7, 0.6, 45 );
+		textRenderer_.putString( "The button in the top left\npauses the game.", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::SHOW_SCORE:
-		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.7, 0.6, 45 );
+		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::SHOW_CURRENCY:
-		textRenderer_.putString( "The bottom number is your currenncy\nKeep an eye on it!\n\nSome actions will be rewarded,\nwhile others will cost you!", -0.7, 0.6, 45 );
+		textRenderer_.putString( "The bottom number is your currenncy,\nkeep an eye on it!\n\nSome actions earn you points\nand currency,while others\nwill cost you.\n\nIf your currency hits 0 it is\ngame over!", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::EXPLAIN_STEMBV:
-		textRenderer_.putString( "You start the game with a single\nstem cell and blood vessel.\n\nStem cells divide to produce\nhealthy cells while\nblood vessels provide energy\nto the cells around them.", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Here you see a blood vessel\nand a stem cell.\n\nStem cells produce healthy cells while\nblood vessels provide energy\nto the cells around them.", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::MOVE_STEM:
-		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::SPLIT_STEM:
-		textRenderer_.putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::PLACE_BV:
-		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nMake sure to place them\nclose to your other blood vessels.", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong place\npress the blood vessel button\nagain and hold to remvoe it", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::CREATE_BV:
-		textRenderer_.putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy cells\nto create a new blood vesesl.", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy cells\nto create a new blood vesesl.", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::MUTATE_CELL:
-		textRenderer_.putString( "Sometimes healthy cells will\nspawn mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Sometimes healthy cells will\nspawn orange mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::ARREST_CELL:
-		textRenderer_.putString( "You can control the board by\ncreating barriers of arrested cells.\n\nTo arrest a cell hold down\non it till it changes colour.", -0.7, 0.4, 45 );
+		textRenderer_.putString( "You can control the board by\ncreating barriers of arrested cells.\n\nTo arrest a cell hold down\non a healthy cell till\nit changes colour.", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::KILL_CELL:
-		textRenderer_.putString( "A more effective but costly\nway to control mutated cells is to\nuse the kill button.", -0.7, 0.4, 45 );
+		textRenderer_.putString( "A more effective but costly\nway to control mutated cells is to\nuse the kill button, Give it a try.\n\n(The lowest button on the left)", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::CANCER_CELL:
-		textRenderer_.putString( "Purple cells are dangerously mutated!\n\nYou can't kill these or arrest them,\nbut you can isolate them\nwith arrested cells.", -0.7, 0.4, 45 );
+		textRenderer_.putString( "Purple cells are dangerously mutated!\n\nYou cant kill these or arrest them,\nbut you can isolate them\nwith arrested cells.", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::DONE:
-		textRenderer_.putString( "And that's all there is to learn.\nWe hope you enjoy Cell Cycle!", -0.6, 0.4, 45 );
+		textRenderer_.putString( "And thats all there is to learn.\n\nWe hope you enjoy Cell Cycle!", -0.8, 0.4, 45 );
 	break;
 	default:
 	break;
