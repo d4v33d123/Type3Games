@@ -699,19 +699,19 @@ namespace T3E
 		if(cell->isSplitting() || cell->isInCreation() || cell->isDying()) return false;
 		
 		//different costs for normal and mutated cells
-		if( cell->getState() == CellState::NORMAL && currency_ - T3E::SCORE::KILLED_HEALTHY_CELL() >= 0 )
+		if( cell->getState() == CellState::NORMAL && currency_ + T3E::SCORE::KILLED_HEALTHY_CELL() > 0 )
 		{
 	        addScore( T3E::SCORE::KILLED_HEALTHY_CELL() );
 			cell->kill();
 			return true;
 		}
-		else if( cell->getState() == CellState::MUTATED && currency_ - T3E::SCORE::KILLED_MUTATED_CELL() >= 0 )
+		else if( cell->getState() == CellState::MUTATED && currency_ + T3E::SCORE::KILLED_MUTATED_CELL() > 0 )
 		{
 	        addScore( T3E::SCORE::KILLED_MUTATED_CELL() );
 			cell->kill();
 			return true;
 		}
-		else if( cell->getState() == CellState::ARRESTED && currency_ - T3E::SCORE::KILLED_ARRESTED_CELL() >= 0 )
+		else if( cell->getState() == CellState::ARRESTED && currency_ + T3E::SCORE::KILLED_ARRESTED_CELL() > 0 )
 		{
 	        addScore( T3E::SCORE::KILLED_ARRESTED_CELL() );
 			cell->kill();
