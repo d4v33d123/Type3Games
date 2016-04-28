@@ -823,8 +823,10 @@ void MainGame::processInput(float dTime)
 				if(!grid_.arrestCell(rowCol.x, rowCol.y, &cellSelected_))
 				{
 					//try to change stem cell mode
-					grid_.setStemToSpawnMode(rowCol.x, rowCol.y);	
-					cellModeChange_.play();
+					if(grid_.setStemToSpawnMode(rowCol.x, rowCol.y))
+						cellModeChange_.play();
+					
+					
 
 					if( tut_phase_ == TutorialPhase::SPLIT_STEM )
 						increment_tutorial();

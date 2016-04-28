@@ -271,11 +271,18 @@ namespace T3E
 		*/
 		inline void setScore( int score ) { currency_ = high_score_ = score; }
 		/**
-		* Adds positive vales to both currency and score, subtracts -vs values from currency
+		* Adds positive values to both currency and score, subtracts -vs values from currency
 		*
 		* @param value to add to the score, can be +ve or -ve
 		*/
 		void addScore( int score );
+		
+		/**
+		* takes negative values from both currency and score
+		*
+		* @param value to take away from the score, can be +ve or -ve
+		*/
+		void minusScore( int score );
 
 		/**
 		* try to create a blood vessel spawn point at the specified position
