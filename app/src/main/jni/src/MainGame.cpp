@@ -345,7 +345,7 @@ command MainGame::gameLoop()
 		{
 			if( !paused_ )
 			{
-				if( grid_.update( frameTime_, world_to_grid(touch_to_world(pressPos_)) ) )
+				if( grid_.update( frameTime_, world_to_grid( finger_position_world_ ) ) )
 					cellSelected_ = false;
 			
 				if(grid_.playVessel())
@@ -400,163 +400,124 @@ command MainGame::gameLoop()
 
 void MainGame::processInput(float dTime)
 {
-	glm::vec4 worldPos;
-    SDL_Point rowCol;
 	glm::vec2 screenCoords;
 	finger_pressed_ = false;
+	finger_lifted_ = false;
 	
 	// processing our input
-	SDL_Event evnt;
-	while (SDL_PollEvent(&evnt))
+	SDL_Event event;
+	while( SDL_PollEvent( &event ) )
 	{
-		if( evnt.type == SDL_QUIT )
+		if( event.type == SDL_QUIT )
 		{
 			gameState_ = GameState::EXIT;
 			continue;
 		}
 
-		if(gameOver_)//waith for touch then go to main menu
+		// Generic event handeling
+		switch( event.type )
 		{
-			switch( evnt.type )
-			{								
+		case SDL_FINGERDOWN:
+			nOfFingers_++;
+			finger_down_ = true;
+			finger_pressed_ = true;
+
+			update_finger_position( event.tfinger.x, event.tfinger.y );
+		break;
+		case SDL_FINGERUP:
+			nOfFingers_--;
+			finger_down_ = false;
+			finger_lifted_ = true;
+
+			update_finger_position( event.tfinger.x, event.tfinger.y );
+		break;
+		default:
+		break;
+		}
+
+		if( gameOver_ ) // waith for touch then go to main menu
+		{
+			switch( event.type )
+			{	
 			case SDL_FINGERDOWN:
-				++nOfFingers_;
-				
-				finger_pressed_ = true;
-				finger_down_ = true;
-				//record position in case we need it later
-				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
-				
-				// Convert the touch position to a world position
-				worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-							
-				// Draw cursor for debug purposes
-				cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-				
 				//Check for button presses
-				//get touch pos in screen coordinates for UI interaction
-				//invert y to match our ortho projection (origin at bottom left for ease of life)
-				screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
-				if(quitButton_.touchCollides(screenCoords))
-				{
-					quitButton_.press();
-				}
-					
+				if( quitButton_.touchCollides( finger_position_pixels_ ) ) quitButton_.press();
+
 				break;
-				
 			case SDL_FINGERUP:
-				--nOfFingers_;
-				
-				finger_down_ = false;			
-				
 				// Only act when the last finger is lifted,
-				if( nOfFingers_ == 0 && finger_dragged_ == false)
+				if( nOfFingers_ == 0 && finger_dragged_ == false )
 				{
-					//Check for button presses
-					//get touch pos in screen coordinates for UI interaction
-					//invert y to match our ortho projection (origin at bottom left for ease of life)
-					screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
-					if(quitButton_.touchCollides(screenCoords))
+					//Check for button presses				
+					if( quitButton_.touchCollides( finger_position_pixels_ ) )
 						gameState_ = GameState::EXIT;
-					
+
 					quitButton_.unpress();
 				}
-								
+
 				// Reset the type of touch if the last finger was released
 				if( nOfFingers_ == 0 ) finger_dragged_ = false;
+
 				break;
-					
 			case SDL_FINGERMOTION:
-				if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
+				if( std::abs(event.tfinger.dx) > 0.0175 || std::abs(event.tfinger.dy) > 0.0175 ) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
 				{
 					finger_dragged_ = true;
-					finger_down_ = false;				
+					finger_down_ = false;
 				}
 				
 				// Move the camera
-				if( nOfFingers_ < 2)
+				if( nOfFingers_ < 2 )
 				{
 					// decide on values for locking the camera
-					//if(camera_.getPosition().x > low value && camera_.getPosition().x < high value && camera_.getPosition().y > low value && camera_.getPosition().y < high value)
-					camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
+					camera_.moveDelta( glm::vec3(-event.tfinger.dx, event.tfinger.dy, 0.0f) );
 				}
-				break;
-			
+
+				break;			
 			case SDL_MULTIGESTURE:
 				// pinch zoom
 				float zm;
-				zm = (-evnt.mgesture.dDist) * 5;
+				zm = (-event.mgesture.dDist) * 5;
 				camera_.zoom( zm );
-				break;
-			
-			default:
-				break;
+				
+				break;			
+			default: break;
 			}
 		}
-		else if(paused_)
+		else if( paused_ )
 		{
-			switch( evnt.type )
+			switch( event.type )
 			{				
 			case SDL_KEYDOWN:
-				if(evnt.key.keysym.sym == SDLK_AC_BACK) // android back key
+				if(event.key.keysym.sym == SDLK_AC_BACK) // android back key
 				{
 					paused_ = !paused_;
-					if(paused_)
-							menuButton_.press();
-						else
-							menuButton_.unpress();
+					if( paused_ )
+						menuButton_.press();
+					else
+						menuButton_.unpress();
 				}				
-				break;
-				
+				break;				
 			case SDL_FINGERDOWN:
-				++nOfFingers_;
-				
-				finger_pressed_ = true;
-				finger_down_ = true;
-				//record position in case we need it later
-				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
-				
-				// Convert the touch position to a world position
-				worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-							
-				// Draw cursor for debug purposes
-				cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-				
 				//Check for button presses
-				//get touch pos in screen coordinates for UI interaction
-				//invert y to match our ortho projection (origin at bottom left for ease of life)
-				screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
-				if(resumeButton_.touchCollides(screenCoords))
-				{
-					resumeButton_.press();
-				}
-
-				if(quitButton_.touchCollides(screenCoords))
-				{
-					quitButton_.press();
-				}
+				if( resumeButton_.touchCollides( finger_position_pixels_ ) ) resumeButton_.press();
+				if( quitButton_.touchCollides( finger_position_pixels_ ) ) quitButton_.press();
 					
-				break;
-				
+				break;				
 			case SDL_FINGERUP:
-				--nOfFingers_;
-				
-				finger_down_ = false;			
-				
 				// Only act when the last finger is lifted,
 				// AND the cursor was not moved
 				if( nOfFingers_ == 0)
 				{
 					//Check for button presses
-					//get touch pos in screen coordinates for UI interaction
-					//invert y to match our ortho projection (origin at bottom left for ease of life)
-					screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
-					if(resumeButton_.touchCollides(screenCoords) || menuButton_.touchCollides(screenCoords))
+					screenCoords = glm::vec2(event.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - event.tfinger.y * float(window_->getScreenHeight()));
+
+					if( resumeButton_.touchCollides( finger_position_pixels_ ) || menuButton_.touchCollides( finger_position_pixels_ ) )
 					{
 						menuButton_.unpress();
 						paused_ = false;
 					}
-					else if(quitButton_.touchCollides(screenCoords))
+					else if( quitButton_.touchCollides( finger_position_pixels_ ) )
 						gameState_ = GameState::EXIT;
 					
 					resumeButton_.unpress();
@@ -565,17 +526,17 @@ void MainGame::processInput(float dTime)
 								
 				// Reset the type of touch if the last finger was released
 				if( nOfFingers_ == 0 ) finger_dragged_ = false;
-				break;
-				
+
+				break;				
 			default: break;
 			}
 		}
 		else // We are playing normaly
 		{
-			switch( evnt.type )
+			switch( event.type )
 			{				
 			case SDL_KEYDOWN:
-				if(evnt.key.keysym.sym == SDLK_AC_BACK) // android back key
+				if(event.key.keysym.sym == SDLK_AC_BACK) // android back key
 				{
 					paused_ = !paused_;
 					if(paused_)
@@ -585,57 +546,28 @@ void MainGame::processInput(float dTime)
 				}
 				
 				// EMULATOR ZOOM
-				if(evnt.key.keysym.sym == SDLK_z)//zoom in
+				if(event.key.keysym.sym == SDLK_z)//zoom in
 				{
 					camera_.zoom(-0.05f);
 
 					if( tut_phase_ == TutorialPhase::ZOOM_CAM )
 						increment_tutorial();
 				}
-				if(evnt.key.keysym.sym == SDLK_x)//zoom out
+				if(event.key.keysym.sym == SDLK_x)//zoom out
 				{
 					camera_.zoom(0.05f);
 				}
 				
 				break;
-				
-			case SDL_FINGERDOWN:
-				++nOfFingers_;
-				
-				finger_pressed_ = true;
-				finger_down_ = true;
-				//record position in case we need it later
-				pressPos_ = glm::vec2(evnt.tfinger.x, evnt.tfinger.y);
-				
-				// Convert the touch position to a world position
-				worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-							
-				// Draw cursor for debug purposes
-				cursor_pos_ = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-								
-				break;
-				
 			case SDL_FINGERUP:
-				--nOfFingers_;
-				
-				finger_down_ = false;			
 				pressTimer_ = 0;
-				pressPos_ = glm::vec2(-1, -1);
 				
 				// Only act when the last finger is lifted,
 				// AND the cursor was not moved
 				if( nOfFingers_ == 0 && finger_dragged_ == false )
 				{
-					// convert the touch to a world position
-					worldPos = touch_to_world( glm::vec2( evnt.tfinger.x, evnt.tfinger.y ) );
-					// convert the world pos to a grid row column
-					rowCol = world_to_grid( worldPos );
-
-					//Check for button presses
-					//get touch pos in screen coordinates for UI interaction
-					//invert y to match our ortho projection (origin at bottom left for ease of life)
-					glm::vec2 screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));					
-					if(bvButton_.touchCollides(screenCoords))
+					//Check for button presses				
+					if(bvButton_.touchCollides( finger_position_pixels_ ))
 					{
 						//toggle blood vessel creation mode
 						if(interactionMode_ == InteractionMode::BVCREATION)
@@ -654,7 +586,7 @@ void MainGame::processInput(float dTime)
 						grid_.unselectCell(selectedPos_.x, selectedPos_.y);
 						cellSelected_ = false;	
 					}
-					else if(killButton_.touchCollides(screenCoords))
+					else if(killButton_.touchCollides( finger_position_pixels_ ))
 					{
 						//toggle blood vessel creation mode
 						if(interactionMode_ == InteractionMode::KILLMODE)
@@ -673,7 +605,7 @@ void MainGame::processInput(float dTime)
 						grid_.unselectCell(selectedPos_.x, selectedPos_.y);
 						cellSelected_ = false;	
 					}
-					else if(menuButton_.touchCollides(screenCoords))
+					else if(menuButton_.touchCollides( finger_position_pixels_ ))
 					{
 						paused_ = !paused_;
 						if(paused_)
@@ -691,10 +623,10 @@ void MainGame::processInput(float dTime)
 								if(cellSelected_)
 								{								
 									//try to spawn
-									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y))
+									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, finger_position_row_col_.x, finger_position_row_col_.y))
 									{
 
-										if( grid_.moveStemCell(selectedPos_.x, selectedPos_.y, rowCol.x, rowCol.y) )
+										if( grid_.moveStemCell(selectedPos_.x, selectedPos_.y, finger_position_row_col_.x, finger_position_row_col_.y) )
 										{
 											// If the stem cell moved successfully
 											if( tut_phase_ == TutorialPhase::MOVE_STEM ) {
@@ -708,12 +640,10 @@ void MainGame::processInput(float dTime)
 										select_.play();
 									}
 									
-									if(rowCol.x == selectedPos_.x && rowCol.y == selectedPos_.y)
+									if(finger_position_row_col_.x == selectedPos_.x && finger_position_row_col_.y == selectedPos_.y)
 									{
 									grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
 									cellSelected_ = false;
-									
-									//cellSelected_ = false;
 									}
 									else
 									{
@@ -721,20 +651,20 @@ void MainGame::processInput(float dTime)
 										cellSelected_ = false;
 										//try to select a cell
 										//also, if a new cell was created, select it
-										selectCell(rowCol.x, rowCol.y);
+										selectCell(finger_position_row_col_.x, finger_position_row_col_.y);
 										//cellSelected_ = true;
 									}
 									break;
 								}
 								//try to select a cell
 								//also, if a new cell was created, select it		
-								selectCell(rowCol.x, rowCol.y);
+								selectCell(finger_position_row_col_.x, finger_position_row_col_.y);
 								
 								break;
 							}
 							case InteractionMode::KILLMODE:
 							{
-								if( grid_.killCell(rowCol.x, rowCol.y) )
+								if( grid_.killCell(finger_position_row_col_.x, finger_position_row_col_.y) )
 								{
 									// play kill noise
 									cellDeath_.play();
@@ -755,12 +685,12 @@ void MainGame::processInput(float dTime)
 								
 				// Reset the type of touch if the last finger was released
 				if( nOfFingers_ == 0 ) finger_dragged_ = false;
-				break;
-				
+
+				break;				
 			case SDL_FINGERMOTION:
 				//avoid microdrag detection
 				// when people press down on the screen, they drag way more than just this, older players are less precise == frustration
-				if(std::abs(evnt.tfinger.dx) > 0.0175 || std::abs(evnt.tfinger.dy) > 0.0175) 
+				if(std::abs(event.tfinger.dx) > 0.0175 || std::abs(event.tfinger.dy) > 0.0175) 
 				{
 					finger_dragged_ = true;
 					finger_down_ = false;	
@@ -770,21 +700,20 @@ void MainGame::processInput(float dTime)
 					increment_tutorial();
 
 				// pan if only one finger is on screen; you don't want to pan during pinch motion
-				if( nOfFingers_ < 2)
+				if( nOfFingers_ < 2 )
 				{
-					camera_.moveDelta( glm::vec3(-evnt.tfinger.dx, evnt.tfinger.dy, 0.0f) );
+					camera_.moveDelta( glm::vec3(-event.tfinger.dx, event.tfinger.dy, 0.0f) );
 				}
 				
-				break;
-			
+				break;			
 			case SDL_MULTIGESTURE:
 				// pinch zoom
-				camera_.zoom( -evnt.mgesture.dDist );
+				camera_.zoom( -event.mgesture.dDist );
 
 				if( tut_phase_ == TutorialPhase::ZOOM_CAM )
 					increment_tutorial();
-				break;
-				
+
+				break;				
 			default: break;
 			}
 		}
@@ -794,20 +723,18 @@ void MainGame::processInput(float dTime)
 	if(finger_down_)
 	{
 		pressTimer_ += dTime;
-		//SDL_Log("%f", pressTimer_);
 		if(pressTimer_ >= 800)
 		{
 			pressTimer_ = 0;
-			finger_down_ = false;
-			rowCol = world_to_grid(touch_to_world(pressPos_));
+			finger_down_ = false; // TODO: is it neccesary to unset this? feels hacky
 			
 			if( interactionMode_ == InteractionMode::NORMAL )
 			{
 				//try to arrest
-				if(!grid_.arrestCell(rowCol.x, rowCol.y, &cellSelected_))
+				if(!grid_.arrestCell(finger_position_row_col_.x, finger_position_row_col_.y, &cellSelected_))
 				{
 					//try to change stem cell mode
-					if(grid_.setStemToSpawnMode(rowCol.x, rowCol.y))
+					if(grid_.setStemToSpawnMode(finger_position_row_col_.x, finger_position_row_col_.y))
 						cellModeChange_.play();
 				}					
 				else
@@ -820,7 +747,7 @@ void MainGame::processInput(float dTime)
 			else if( interactionMode_ == InteractionMode::BVCREATION )
 			{
 				//try to set bv spawn point
-				if( grid_.setBvSpawn(rowCol.x, rowCol.y) )
+				if( grid_.setBvSpawn(finger_position_row_col_.x, finger_position_row_col_.y) )
 				{
 					bvButton_.unpress();
 					interactionMode_ = InteractionMode::NORMAL;
@@ -978,7 +905,22 @@ void MainGame::renderGame()
 	window_->swapBuffer();
 }
 
-glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
+void MainGame::update_finger_position( float x, float y )
+{
+	// Position of the finger on screen in normalized coords, from (0,1)
+	finger_position_sdl_ = glm::vec2( x, y );
+
+	// Convert the positon of the finger on the touch screen to world coords
+	finger_position_world_ = touch_to_world( finger_position_sdl_ );
+
+	// Get the position of the touch in screen pixels
+	finger_position_pixels_ = touch_to_pixels( finger_position_sdl_ );
+
+	// Find the closest row and column of the touch position
+	finger_position_row_col_ = world_to_grid( finger_position_world_ );
+}
+
+glm::vec2 MainGame::touch_to_world( glm::vec2 touch_coord )
 {
     glm::vec4 result( touch_coord.x, touch_coord.y, 0.0f, 1.0f );
 
@@ -1000,10 +942,18 @@ glm::vec4 MainGame::touch_to_world( glm::vec2 touch_coord )
     result.x = camera_.getPosition().x + ( result.x - camera_.getPosition().x ) * result.w * camera_.getPosition().z;
     result.y = camera_.getPosition().y + ( result.y - camera_.getPosition().y ) * result.w * camera_.getPosition().z;
 
-    return result;
+    return glm::vec2( result.x, result.y );
 }
 
-SDL_Point MainGame::world_to_grid( glm::vec4 world_coord )
+SDL_Point MainGame::touch_to_pixels( glm::vec2 touch_coord )
+{
+	SDL_Point result;
+	result.x = std::floor( touch_coord.x * window_->getScreenWidth() );
+	result.y = std::floor( window_->getScreenHeight() - touch_coord.y * window_->getScreenHeight() );
+	return result;
+}
+
+SDL_Point MainGame::world_to_grid( glm::vec2 world_coord )
 {
 	float fracCol, fracRow, fracZ;//fractional coordinates
 	int col, row, z;//final coordinates
@@ -1042,7 +992,7 @@ SDL_Point MainGame::world_to_grid( glm::vec4 world_coord )
 bool MainGame::selectCell(int row, int col)
 {
 	//if the coordinates contain a cell
-	if(grid_.selectCell(row, col))
+	if( grid_.selectCell(row, col) )
 	{
 		cellSelected_ = true;
 		selectedPos_ = glm::vec2(row, col);
@@ -1151,7 +1101,7 @@ void MainGame::renderTutorial()
 		textRenderer_.putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.8, 0.6, 45 );
 	break;
 	case TutorialPhase::PLACE_BV:
-		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong place\npress the blood vessel button\nagain and hold to remvoe it", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong place\npress the blood vessel button\nagain and hold to remvoe it", -0.8, 0.6, 35 );
 	break;
 	case TutorialPhase::CREATE_BV:
 		textRenderer_.putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy cells\nto create a new blood vesesl.", -0.8, 0.6, 45 );

@@ -512,7 +512,7 @@ namespace T3E
 					}	
 				}
 				//if the cell died
-				else
+				else // TODO: find a more robust way of unselecting the cell if it died
 				{
 					//make sure the player is not hovering the finger on this cell
 					if(fingerRowCol.x != (*hex)->getRow() || fingerRowCol.y != (*hex)->getCol())

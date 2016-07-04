@@ -96,7 +96,7 @@ command Credits::gameLoop()
 
 command Credits::processInput()
 {
-	glm::vec2 screenCoords;
+	SDL_Point screenCoords;
 	
 	// processing our input
 	SDL_Event evnt;
@@ -111,8 +111,8 @@ command Credits::processInput()
 		case SDL_FINGERDOWN:
 			//get touch pos in screen coordinates for UI interaction
 			//invert y to match our ortho projection (origin at bottom left for ease of life)
-			screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()),
-				float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));
+			screenCoords.x = evnt.tfinger.x * float(window_->getScreenWidth());
+			screenCoords.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
 				
 			if(backButton_.touchCollides(screenCoords))
 			{
@@ -124,8 +124,8 @@ command Credits::processInput()
 		case SDL_FINGERUP:
 			//get touch pos in screen coordinates for UI interaction
 			//invert y to match our ortho projection (origin at bottom left for ease of life)
-			screenCoords = glm::vec2(evnt.tfinger.x * float(window_->getScreenWidth()),
-				float(window_->getScreenHeight()) - evnt.tfinger.y * float(window_->getScreenHeight()));
+			screenCoords.x = evnt.tfinger.x * float(window_->getScreenWidth());
+			screenCoords.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
 				
 			if(backButton_.touchCollides(screenCoords))
 			{

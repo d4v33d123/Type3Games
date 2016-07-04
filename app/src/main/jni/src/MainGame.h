@@ -55,9 +55,6 @@ private:
 	//camera sensitivity
 	const int PAN_SENSITIVITY;
 	const int ZOOM_SENSITIVITY;
-	// Debug Cursor
-    glm::vec4 cursor_pos_;
-	//glm::vec4 cursor_pos_on_fup_;
 
 	//control functions
 	void initSystems();
@@ -100,17 +97,24 @@ private:
 	bool selectCell(int row, int col);
 	
     // INPUT
-	
 	T3E::Button bvButton_, killButton_, menuButton_, resumeButton_, quitButton_;
     T3E::Button scorebar_;
+	
 	bool finger_dragged_;	///< True when a finger is being dragged significantly
 	bool finger_down_;		///< True when a finger is down, false when finger dragged of no fingers are down
 	bool finger_pressed_;	///< True for the first frame of a finger touching the screen
-	glm::vec2 pressPos_;
+	bool finger_lifted_;	///< True for the first frame of a finger being lifted off the screen
+	glm::vec2 finger_position_sdl_;		///< SDL coordinates, normalised from (0, 1)
+	glm::vec2 finger_position_world_;	///< OpenGL world coords
+	SDL_Point finger_position_pixels_;	///< The pixel position of the touch
+	SDL_Point finger_position_row_col_;	///< The row (x) and column (y) of the finger on the grid
+
 	float pressTimer_;
+
 	//detect cell selection
 	glm::vec2 selectedPos_;
 	bool cellSelected_;
+
 	//interaction mode
 	bool bvCreationMode_;
 	
@@ -131,11 +135,15 @@ private:
 	T3E::SoundEffect cellModeChange_;
 	T3E::SoundEffect select_;
 
+	void update_finger_position( float x, float y);
+
 	// Conversion Functions
-    // Returns a vec4 where x and y are the touch world positions, z is 0.0f, w is a number
-    glm::vec4 touch_to_world( glm::vec2 touch_coord );
+    // Returns a vec2 where x and y are the touch world positions
+    glm::vec2 touch_to_world( glm::vec2 touch_coord );
+    // Returns the pixel position of the touch
+    SDL_Point touch_to_pixels( glm::vec2 touch_coord );
     // Returns an SDL_Point where x represents the row and y represents the column
-    SDL_Point world_to_grid( glm::vec4 world_coord );
+    SDL_Point world_to_grid( glm::vec2 world_coord );
 	
 	//Draw hex grid 	
 	T3E::GLSLProgram hexProgram_;

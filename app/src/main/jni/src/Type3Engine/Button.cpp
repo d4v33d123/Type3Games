@@ -12,7 +12,7 @@ namespace T3E
 		pressedSprite_.init(posX, posY, width, height, texturePath, pressedX, pressedY, tileWidth, tileHeight);
 	}
 	
-	bool Button::touchCollides(glm::vec2 touchPos)
+	bool Button::touchCollides( SDL_Point touchPos)
 	{				
 		float left = unpressedSprite_.getPos().x;
 		float right = unpressedSprite_.getPos().x + unpressedSprite_.getWidth();

@@ -40,30 +40,29 @@ namespace T3E
 		//[in] touch position in screen coords
 		//[ret] true if touch coords lie inside button sprite
 		// test is made on unpressedSprite_
-		bool touchCollides(glm::vec2 touchPos);
+		bool touchCollides( SDL_Point touchPos );
 		
 		/**
 		* draws the pressed or unpressed sprite depending on it's condition 
 		*/
 		//draw correct sprite depending if it's pressed or unpressed
-		void draw();
-		
+		void draw();		
 		
 		//Setters
 		/**
 		* sets the button as being pressed
 		*/
-		void press(){isPressed_ = true;};
+		void press() { isPressed_ = true; }
 		
 		/**
 		* sets the button as not being pressed
 		*/
-		void unpress(){isPressed_ = false;};
+		void unpress() { isPressed_ = false; }
 		
 		/**
 		* toggles whether or not the button has been pressed or not
 		*/
-		void toggle(){isPressed_ = !isPressed_;};
+		void toggle() { isPressed_ = !isPressed_; }
 		
 		//getters
 		/**
@@ -71,7 +70,7 @@ namespace T3E
 		*
 		* @return [out] the true or false value of if the button has been pressed or not
 		*/
-		bool isPressed(){return isPressed_;};
+		bool isPressed() { return isPressed_; }
 		
 		/**
 		* Gets the texture unit of the pressed sprite 
