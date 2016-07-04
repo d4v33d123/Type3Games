@@ -104,10 +104,11 @@ private:
 	bool finger_down_;		///< True when a finger is down, false when finger dragged of no fingers are down
 	bool finger_pressed_;	///< True for the first frame of a finger touching the screen
 	bool finger_lifted_;	///< True for the first frame of a finger being lifted off the screen
-	glm::vec2 finger_position_sdl_;		///< SDL coordinates, normalised from (0, 1)
-	glm::vec2 finger_position_world_;	///< OpenGL world coords
-	SDL_Point finger_position_pixels_;	///< The pixel position of the touch
-	SDL_Point finger_position_row_col_;	///< The row (x) and column (y) of the finger on the grid
+	glm::vec2 finger_position_sdl_;			///< SDL coordinates, normalised from (0, 1)
+	glm::vec2 finger_position_world_;		///< OpenGL world coords
+	SDL_Point finger_position_pixels_;		///< The pixel position of the touch
+	SDL_Point finger_position_row_col_;		///< The row (x) and column (y) of the finger on the grid
+	glm::vec2 finger_down_position_sdl_;	///< Where the finger was put down on the screen
 
 	float pressTimer_;
 

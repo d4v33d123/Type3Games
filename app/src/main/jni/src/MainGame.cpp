@@ -42,10 +42,10 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, bool t
 	initSystems();
 	
  	sprites_.push_back( new T3E::Sprite() );
-	sprites_.back()->init(-1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 4/5.0f, 2/5.0f, 1.0f/5, 1.0f/5);
+	sprites_.back()->init( -1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 4/5.0f, 2/5.0f, 1.0f/5, 1.0f/5 );
     
 	T3E::Music music = audioEngine_->loadMusic("sound/backgroundSlow.ogg");
-	music.play(-1);
+	music.play( -1 );
 	
 	bloodV_ = audioEngine_->loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
 	cellDeath_ = audioEngine_->loadSoundEffect("sound/Player_CellDeath.ogg");
@@ -423,6 +423,9 @@ void MainGame::processInput(float dTime)
 			finger_pressed_ = true;
 
 			update_finger_position( event.tfinger.x, event.tfinger.y );
+
+			// Store where the finger was placed on the sceen
+			finger_down_position_sdl_ = finger_position_sdl_;
 		break;
 		case SDL_FINGERUP:
 			nOfFingers_--;
@@ -430,12 +433,32 @@ void MainGame::processInput(float dTime)
 			finger_lifted_ = true;
 
 			update_finger_position( event.tfinger.x, event.tfinger.y );
+
+			// When the last finger is lifted, reset the drag
+			if( nOfFingers_ == 0 ) finger_dragged_ = false;
+		break;
+		case SDL_FINGERMOTION:
+
+			
+
+			// Only register the finger as dragged if it moves over a certain distance from where it was placed
+			if(    std::abs(event.tfinger.x - finger_down_position_sdl_.x) > 0.01f
+				|| std::abs(event.tfinger.y - finger_down_position_sdl_.y) > 0.01f )
+			{
+				finger_dragged_ = true;
+			}
+
+			// Move the camera with a one finger drag
+			if( nOfFingers_ < 2 && finger_dragged_ )
+			{
+				camera_.moveDelta( glm::vec3( -event.tfinger.dx, event.tfinger.dy, 0.0f) );
+			}
 		break;
 		default:
 		break;
 		}
 
-		if( gameOver_ ) // waith for touch then go to main menu
+		if( gameOver_ ) // wait for touch then go to main menu
 		{
 			switch( event.type )
 			{	
@@ -455,12 +478,9 @@ void MainGame::processInput(float dTime)
 					quitButton_.unpress();
 				}
 
-				// Reset the type of touch if the last finger was released
-				if( nOfFingers_ == 0 ) finger_dragged_ = false;
-
 				break;
 			case SDL_FINGERMOTION:
-				if( std::abs(event.tfinger.dx) > 0.0175 || std::abs(event.tfinger.dy) > 0.0175 ) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
+				/*if( std::abs(event.tfinger.dx) > 0.0175 || std::abs(event.tfinger.dy) > 0.0175 ) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
 				{
 					finger_dragged_ = true;
 					finger_down_ = false;
@@ -471,7 +491,7 @@ void MainGame::processInput(float dTime)
 				{
 					// decide on values for locking the camera
 					camera_.moveDelta( glm::vec3(-event.tfinger.dx, event.tfinger.dy, 0.0f) );
-				}
+				}*/
 
 				break;			
 			case SDL_MULTIGESTURE:
@@ -523,9 +543,6 @@ void MainGame::processInput(float dTime)
 					resumeButton_.unpress();
 					quitButton_.unpress();
 				}
-								
-				// Reset the type of touch if the last finger was released
-				if( nOfFingers_ == 0 ) finger_dragged_ = false;
 
 				break;				
 			default: break;
@@ -682,28 +699,25 @@ void MainGame::processInput(float dTime)
 						}	
 					}
 				}
-								
-				// Reset the type of touch if the last finger was released
-				if( nOfFingers_ == 0 ) finger_dragged_ = false;
 
 				break;				
 			case SDL_FINGERMOTION:
 				//avoid microdrag detection
 				// when people press down on the screen, they drag way more than just this, older players are less precise == frustration
-				if(std::abs(event.tfinger.dx) > 0.0175 || std::abs(event.tfinger.dy) > 0.0175) 
+				/*if(std::abs(event.tfinger.dx) > 0.0175 || std::abs(event.tfinger.dy) > 0.0175) 
 				{
 					finger_dragged_ = true;
 					finger_down_ = false;	
-				}
+				}*/
 				
 				if( tut_phase_ == TutorialPhase::MOVE_CAM )
 					increment_tutorial();
 
 				// pan if only one finger is on screen; you don't want to pan during pinch motion
-				if( nOfFingers_ < 2 )
+				/*if( nOfFingers_ < 2 )
 				{
 					camera_.moveDelta( glm::vec3(-event.tfinger.dx, event.tfinger.dy, 0.0f) );
-				}
+				}*/
 				
 				break;			
 			case SDL_MULTIGESTURE:
@@ -720,7 +734,7 @@ void MainGame::processInput(float dTime)
 	}
 	
 	//check for finger pressure
-	if(finger_down_)
+	if( finger_down_ && !finger_dragged_ )
 	{
 		pressTimer_ += dTime;
 		if(pressTimer_ >= 800)
