@@ -47,11 +47,11 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, bool t
 	T3E::Music music = audioEngine_->loadMusic("sound/backgroundSlow.ogg");
 	music.play( -1 );
 	
-	bloodV_ = audioEngine_->loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
-	cellDeath_ = audioEngine_->loadSoundEffect("sound/Player_CellDeath.ogg");
-	cellArrest_ = audioEngine_->loadSoundEffect("sound/Player_CellArrest.ogg");
-	cellModeChange_ = audioEngine_->loadSoundEffect("sound/Player_CellModeChange.ogg");
-	select_ = audioEngine_->loadSoundEffect("sound/Player_Select.ogg");
+	blood_vessel_sound_ = audioEngine_->loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
+	cell_death_sound_ = audioEngine_->loadSoundEffect("sound/Player_CellDeath.ogg");
+	cell_arrest_sound_ = audioEngine_->loadSoundEffect("sound/Player_CellArrest.ogg");
+	cell_mode_change_sound_ = audioEngine_->loadSoundEffect("sound/Player_CellModeChange.ogg");
+	select_sound_ = audioEngine_->loadSoundEffect("sound/Player_Select.ogg");
 	
 	return gameLoop();
 }
@@ -350,7 +350,7 @@ command MainGame::gameLoop()
 			
 				if(grid_.playVessel())
 				{
-					bloodV_.play();
+					blood_vessel_sound_.play();
 					grid_.resetPlayVessel();
 				}
 			
@@ -619,7 +619,7 @@ void MainGame::processInput( float dTime )
 						}	
 						else
 						{
-							select_.play();
+							select_sound_.play();
 						}
 						
 						if( finger_position_row_col_.x == selectedPos_.x && finger_position_row_col_.y == selectedPos_.y )
@@ -647,7 +647,7 @@ void MainGame::processInput( float dTime )
 					if( grid_.killCell(finger_position_row_col_.x, finger_position_row_col_.y) )
 					{
 						// play kill noise
-						cellDeath_.play();
+						cell_death_sound_.play();
 						
 						if( tut_phase_ == TutorialPhase::KILL_CELL )
 							increment_tutorial();									
@@ -667,7 +667,7 @@ void MainGame::processInput( float dTime )
 		if(pressTimer_ >= 800)
 		{
 			pressTimer_ = 0;
-			finger_down_ = false; // TODO: is it neccesary to unset this? feels hacky
+			finger_down_ = false;
 			
 			if( interactionMode_ == InteractionMode::NORMAL )
 			{
@@ -676,11 +676,11 @@ void MainGame::processInput( float dTime )
 				{
 					//try to change stem cell mode
 					if(grid_.setStemToSpawnMode(finger_position_row_col_.x, finger_position_row_col_.y))
-						cellModeChange_.play();
+						cell_mode_change_sound_.play();
 				}					
 				else
 				{
-					cellArrest_.play();
+					cell_arrest_sound_.play();
 					if( tut_phase_ == TutorialPhase::ARREST_CELL )
 						increment_tutorial();
 				}
@@ -713,7 +713,7 @@ void MainGame::renderGame()
 	// We can precalculate this because it's the same for each call or render game
 	glm::mat4 projectionView = projectionM_ * viewM_;
 	
-	// render background
+	/* render background */
 	tintedSpriteProgram_.use();
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
@@ -721,11 +721,8 @@ void MainGame::renderGame()
 	// set texture	
 	glActiveTexture( GL_TEXTURE0 + backgroundSprite_.getTexUnit() );	
 	glUniform1i( sampler0_location, backgroundSprite_.getTexUnit() );
-
-	//draw sprite
+	// draw the background image, then the hex grid on top
 	backgroundSprite_.draw();
-	
-	// RENDER THE HEX GRID
 	drawGrid();		
 	
 	tintedSpriteProgram_.use();
@@ -751,8 +748,7 @@ void MainGame::renderGame()
 	        //use texture 1
 			current->getSprite()->draw();
 		}
-	}
-	
+	}	
 	// Render position checkers of bv spawn points
 	{
 		glActiveTexture( GL_TEXTURE0 + sprites_[0]->getTexUnit() );
@@ -806,43 +802,40 @@ void MainGame::renderGame()
 		}
 	}
 	
-	//RENDER UI
+	/* Render User Interface */
+
+	// send ortho matrix to shaders
+	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
+	glUniform4fv( inputColour_location, 1, white );
+
+	// All the button textures are in one texture so we only have to do this once
+	glActiveTexture( GL_TEXTURE0 + menuButton_.getTexUnit() );
+	glUniform1i( sampler0_location, menuButton_.getTexUnit() );
+
+	menuButton_.draw();
+	bvButton_.draw();
+	killButton_.draw();	
+    scorebar_.draw();
+	T3E::Sprite::resetBoundTextureUnit();
+
+	// Render the tex before the menus so the menus appear on top
+	textRenderer_.render();
+    
+	// Render menus
+	if( paused_ )
 	{
-		// send ortho matrix to shaders
-		glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-		glUniform4fv( inputColour_location, 1, white );
-
-		// All the button textures are in one texture so we only have to do this once
-		glActiveTexture( GL_TEXTURE0 + menuButton_.getTexUnit() );
-		glUniform1i( sampler0_location, menuButton_.getTexUnit() );
-
-		menuButton_.draw();
-		bvButton_.draw();
-		killButton_.draw();
-		
-        scorebar_.draw();
-        
-		//RENDER MENU IF PAUSED
-		if( paused_ )
-		{
-			//draw sprite
-			resumeButton_.draw();
-			quitButton_.draw();
-		}
-		
-		if(gameOver_)
-		{
-			//render message
-			//Game over!!!
-			//final score: 00000
-			quitButton_.draw();
-			grid_.setCurrency( 0 );
-		}
+		tintedSpriteProgram_.use();
+		resumeButton_.draw();
+		quitButton_.draw();
+	}		
+	else if( gameOver_ )
+	{
+		tintedSpriteProgram_.use();
+		quitButton_.draw();
+		grid_.setCurrency( 0 );
 	}
 
-	textRenderer_.render();
-
-	// swap our buffers 
+	// swap our buffers, display the frame
 	window_->swapBuffer();
 }
 

@@ -130,11 +130,11 @@ private:
 	
 	// AUDIO
     T3E::AudioEngine* audioEngine_;
-	T3E::SoundEffect bloodV_;
-	T3E::SoundEffect cellDeath_;
-	T3E::SoundEffect cellArrest_;
-	T3E::SoundEffect cellModeChange_;
-	T3E::SoundEffect select_;
+	T3E::SoundEffect blood_vessel_sound_;
+	T3E::SoundEffect cell_death_sound_;
+	T3E::SoundEffect cell_arrest_sound_;
+	T3E::SoundEffect cell_mode_change_sound_;
+	T3E::SoundEffect select_sound_;
 
 	void update_finger_position( float x, float y);
 

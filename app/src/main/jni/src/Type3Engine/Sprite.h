@@ -55,6 +55,8 @@ namespace T3E
 		GLuint getTexUnit() { return texture_.unit; }
         //@}
 		
+		static void resetBoundTextureUnit() { boundTextureUnit_ = -1; }
+
 	protected:
 		float x_, y_, width_, height_, tileWidth_, tileHeight_, tileX_, tileY_;		
 		GLuint vboID_;
