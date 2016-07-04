@@ -28,18 +28,18 @@ namespace T3E
 		vertex_shader_ = glCreateShader( GL_VERTEX_SHADER );
 		if( vertex_shader_ == 0 )
 		{
-			fatalError("Could not create font vertex shader");
+			fatalError( "Could not create font vertex shader" );
 		}
 		pixel_shader_ = glCreateShader( GL_FRAGMENT_SHADER );
 		if( pixel_shader_ == 0 )
 		{
-			fatalError("Could not create font pixel shader");
+			fatalError( "Could not create font pixel shader" );
 		}
 
 		// Compile the vertex shader
 		{
 			std::vector<char> source;
-			if( !IOManager::readTextToBuffer( "shaders/font_vs.txt", source ) ) fatalError("Failed to open font vertex shader");
+			if( !IOManager::readTextToBuffer( "shaders/font_vs.txt", source ) ) fatalError( "Failed to open font vertex shader" );
 
 			const char* sourcePtr = source.data();
 			glShaderSource( vertex_shader_, 1, &sourcePtr, NULL );
@@ -130,7 +130,7 @@ namespace T3E
 		glUniform1i( texture_sampler_, bitmap_font_.unit );
 	}
 
-	void TextRenderer::putNumber( int num, unsigned padding, float x, float y, unsigned size_pixels, float alpha )
+	void TextRenderer::putNumber( int num, unsigned padding, float x, float y, float char_size, float alpha )
 	{
 		int num_digits = 1;
 		std::string num_str;
@@ -153,39 +153,45 @@ namespace T3E
 			prev_digit = digit * 10;
 		}
 
-		putString( num_str, x, y, size_pixels, alpha );
+		putString( num_str, x, y, char_size, alpha );
 	}
 
-	void TextRenderer::putString( std::string str, float x, float y, unsigned int size_pixels, float alpha )
+	void TextRenderer::putString( std::string str, float x, float y, float char_size, float alpha )
 	{
-		float char_width = (size_pixels / (float)width_) * 2.0f;
+		//float char_width = (size_pixels / (float)width_) * 2.0f;
 		int chars_this_line = 0;
+		float line_height = 1.2f;
+		float char_spacing = 0.9f;
 
 		for( size_t i = 0; i < str.size(); ++i )
 		{
 			// If it's a new line, move down and back
 			if( str[i] == '\n' ) {
-				y += (size_pixels / (float)height_) * -2.20f;
-				x -= char_width * (chars_this_line + 1);
+				//y += (size_pixels / (float)height_) * -2.20f;
+				y -= char_size * line_height;
+				x -= char_size * (chars_this_line + 1) * char_spacing;
 				chars_this_line = 0;
 				continue;
 			}
 
-			putChar( str[i], x + char_width * i, y, size_pixels, alpha );
+			putChar( str[i], x + char_size * i * char_spacing, y, char_size, alpha );
 			chars_this_line++;
 		}
 	}
 
-	void TextRenderer::putChar( unsigned char c, float x, float y, unsigned int size_pixels, float alpha )
+	void TextRenderer::putChar( unsigned char c, float x, float y, float char_size, float alpha )
 	{			
 		static float tex_width = 1.0f / 16.0f;
 		static float tex_height = 1.0f / 16.0f;
 		float tex_x = (c % 16) * tex_width;
 		float tex_y = (c / 16) * tex_height;
 
-		float width = (size_pixels / (float)width_) * 2.0f;
-		float height = (size_pixels / (float)height_) * -2.0f;
+		//float width = (size_pixels / (float)width_) * 2.0f;
+		//float height = (size_pixels / (float)height_) * -2.0f;
+		float width = char_size;
+		float height = -char_size;
 
+		// TODO: update x and y
 		pushVert( x, 			y, 			tex_x, 				tex_y, 				alpha );
 		pushVert( x, 			y + height, tex_x, 				tex_y + tex_height, alpha );
 		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height, alpha );
@@ -202,7 +208,7 @@ namespace T3E
 		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * verts_.size(), verts_.data(), GL_DYNAMIC_DRAW );
 
     	// Sent the texture and set properties
-		glActiveTexture( GL_TEXTURE0 + bitmap_font_.unit );	
+		glActiveTexture( GL_TEXTURE0 + bitmap_font_.unit );
     	glBindTexture( GL_TEXTURE_2D, bitmap_font_.unit );
 
 	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );

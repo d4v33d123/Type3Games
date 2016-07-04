@@ -45,10 +45,10 @@ namespace T3E
 		* @param [in] the amount of space to write the number into
         * @param [in] x coordinate of the top left corner of the text. -1 -1 is the bottom left of the screen, 1 1 is the top right
         * @param [in] y coordinate of the top left corner of the text. -1 -1 is the bottom left of the screen, 1 1 is the top right
-        * @param [in] the number of pixels wide/tall each character is
+        * @param [in] the size of a character in OpenGL NDC (-1,1)
         *
 		*/
-		void putNumber( int num, unsigned padding, float x, float y, unsigned size_pixels, float alpha = 1.0f );
+		void putNumber( int num, unsigned padding, float x, float y, float char_size, float alpha = 1.0f );
         
         /**
 		*
@@ -57,10 +57,10 @@ namespace T3E
         * @param [in] the string to be rendered
         * @param [in] x coordinate of the top left corner of the text. -1 -1 is the bottom left of the screen, 1 1 is the top right
         * @param [in] y coordinate of the top left corner of the text. -1 -1 is the bottom left of the screen, 1 1 is the top right
-        * @param [in] the number of pixels wide/tall each character is
+        * @param [in] the size of a character in OpenGL NDC (-1,1)
         *
 		*/
-		void putString( std::string str, float x, float y, unsigned int size_pixels, float alpha = 1.0f );
+		void putString( std::string str, float x, float y, float char_size, float alpha = 1.0f );
         
         /**
 		*
@@ -69,10 +69,10 @@ namespace T3E
         * @param [in] the char to be rendered
         * @param [in] x coordinate of the top left corner of the text. -1 -1 is the bottom left of the screen, 1 1 is the top right
         * @param [in] y coordinate of the top left corner of the text. -1 -1 is the bottom left of the screen, 1 1 is the top right
-        * @param [in] the number of pixels wide/tall each character is
+        * @param [in] the size of a character in OpenGL NDC (-1,1)
         *
 		*/
-		void putChar( unsigned char c, float x, float y, unsigned int size_pixels, float alpha = 1.0f );
+		void putChar( unsigned char c, float x, float y, float char_size, float alpha = 1.0f );
 
         /**
 		*

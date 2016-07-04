@@ -369,12 +369,12 @@ command MainGame::gameLoop()
 		else // game over!!!
 		{
 			gameOver_ = true;
-			textRenderer_.putString( "Game over!", -0.5, 0.3, 100 );
+			textRenderer_.putString( "Game over!", -0.5, 0.3, 0.1f );
 		}
 		
 		score_ = grid_.getHighScore();
-        textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.65, 0.94, 44 );
-		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.9, 0.79, 44 );
+        textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.74, 0.93, 0.06f );
+		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.99, 0.785, 0.06f );
 
 		// Render the tutorial text
 		if( tutorial_ )	
@@ -1073,53 +1073,53 @@ void MainGame::renderTutorial()
 	switch( tut_phase_ )
 	{
 	case TutorialPhase::READY:
-		textRenderer_.putString( "Welcome to the\nCell Cycle tutorial.\n\nHere you will learn\nhow to play the game.", -0.5, 0.6, 50 );
-		textRenderer_.putString( "Tap to begin", -0.3, 0.1, 44 );
+		textRenderer_.putString( "Welcome to the\nCell Cycle tutorial.\n\nHere you will learn\nhow to play the game.", -0.8, 0.6, 0.07f );
+		textRenderer_.putString( "Tap to begin", -0.4, 0.1, 44 );
 	break;
 	case TutorialPhase::MOVE_CAM:
-		textRenderer_.putString( "Swipe the screen to\nscoll the camera.", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Swipe the screen to\nscoll the camera.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::ZOOM_CAM:
-		textRenderer_.putString( "Use a pinch gesture\nto zoom in and out.", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Use a pinch gesture\nto zoom in and out.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::SHOW_PAUSE:
-		textRenderer_.putString( "The button in the top left\npauses the game.", -0.8, 0.6, 45 );
+		textRenderer_.putString( "The button in the top left\npauses the game.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::SHOW_SCORE:
-		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.8, 0.6, 45 );
+		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::SHOW_CURRENCY:
-		textRenderer_.putString( "The bottom number is your currenncy,\nkeep an eye on it!\n\nSome actions earn you points\nand currency,while others\nwill cost you.\n\nIf your currency hits 0 it is\ngame over!", -0.8, 0.6, 45 );
+		textRenderer_.putString( "The bottom number is your currenncy,\nkeep an eye on it!\n\nSome actions earn you points\nand currency,while others\nwill cost you.\n\nIf your currency hits 0 it is\ngame over!", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::EXPLAIN_STEMBV:
-		textRenderer_.putString( "Here you see a blood vessel\nand a stem cell.\n\nStem cells produce healthy cells while\nblood vessels provide energy\nto the cells around them.", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Here you see a blood vessel\nand a stem cell.\n\nStem cells produce healthy cells while\nblood vessels provide energy\nto the cells around them.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::MOVE_STEM:
-		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::SPLIT_STEM:
-		textRenderer_.putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::PLACE_BV:
-		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong place\npress the blood vessel button\nagain and hold to remvoe it", -0.8, 0.6, 35 );
+		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong place\npress the blood vessel button\nagain and hold to remvoe it", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::CREATE_BV:
-		textRenderer_.putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy cells\nto create a new blood vesesl.", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy\ncells to create a new\nblood vesesl.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::MUTATE_CELL:
-		textRenderer_.putString( "Sometimes healthy cells will\nspawn orange mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Sometimes healthy cells will\nspawn orange mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::ARREST_CELL:
-		textRenderer_.putString( "You can control the board by\ncreating barriers of arrested cells.\n\nTo arrest a cell hold down\non a healthy cell till\nit changes colour.", -0.8, 0.6, 45 );
+		textRenderer_.putString( "You can control the board by\ncreating barriers of arrested cells.\n\nTo arrest a cell hold down\non a healthy cell till\nit changes colour.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::KILL_CELL:
-		textRenderer_.putString( "A more effective but costly\nway to control mutated cells is to\nuse the kill button, Give it a try.\n\n(The lowest button on the left)", -0.8, 0.6, 45 );
+		textRenderer_.putString( "A more effective but costly\nway to control mutated cells is to\nuse the kill button, Give it a try.\n\n(The lowest button on the left)", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::CANCER_CELL:
-		textRenderer_.putString( "Purple cells are dangerously mutated!\n\nYou cant kill these or arrest them,\nbut you can isolate them\nwith arrested cells.", -0.8, 0.6, 45 );
+		textRenderer_.putString( "Purple cells are dangerously mutated!\n\nYou cant kill these or arrest them,\nbut you can isolate them\nwith arrested cells.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::DONE:
-		textRenderer_.putString( "And thats all there is to learn.\n\nWe hope you enjoy Cell Cycle!", -0.8, 0.4, 45 );
+		textRenderer_.putString( "And thats all there is to learn.\n\nWe hope you enjoy Cell Cycle!", -0.8, 0.4, 0.06f );
 	break;
 	default:
 	break;
