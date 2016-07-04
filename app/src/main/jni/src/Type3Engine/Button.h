@@ -33,19 +33,16 @@ namespace T3E
 			
 		/**
 		* checks to see if the button has been pressed by the player
+		* test is made on the unpressed sprite
 		*
-		* @param [in] touch position in screen coordinates
+		* @param [in] touch position on the screen in pixels
 		* @return [out] return true if the coordinates lie inside the sprite, false if they do not
 		*/
-		//[in] touch position in screen coords
-		//[ret] true if touch coords lie inside button sprite
-		// test is made on unpressedSprite_
 		bool touchCollides( SDL_Point touchPos );
 		
 		/**
 		* draws the pressed or unpressed sprite depending on it's condition 
 		*/
-		//draw correct sprite depending if it's pressed or unpressed
 		void draw();		
 		
 		//Setters

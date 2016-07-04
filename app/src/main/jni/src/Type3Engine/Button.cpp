@@ -29,9 +29,13 @@ namespace T3E
 	
 	void Button::draw()
 	{
-		if(isPressed_)
+		if( isPressed_ )
+		{
 			pressedSprite_.draw();
+		}
 		else
+		{
 			unpressedSprite_.draw();
+		}
 	}
 }

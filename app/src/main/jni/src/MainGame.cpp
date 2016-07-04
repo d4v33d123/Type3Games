@@ -311,9 +311,9 @@ void MainGame::initShaders()
 	tintedSpriteProgram_.linkShaders();
 
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	cell_finalM_location = tintedSpriteProgram_.getUniformLocation("finalM");
-	sampler0_location = tintedSpriteProgram_.getUniformLocation("sampler0");
-	inputColour_location = tintedSpriteProgram_.getUniformLocation("inputColour");
+	cell_finalM_location	= tintedSpriteProgram_.getUniformLocation("finalM");
+	sampler0_location		= tintedSpriteProgram_.getUniformLocation("sampler0");
+	inputColour_location	= tintedSpriteProgram_.getUniformLocation("inputColour");
 	
 	// HEX SHADER This shader draws the grid
 	hexProgram_.compileShaders("shaders/hex_vs.txt", "shaders/hex_ps.txt");
@@ -321,10 +321,20 @@ void MainGame::initShaders()
 	hexProgram_.linkShaders();
 
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	range_location = hexProgram_.getUniformLocation("range");
-	lerp_weight_location = hexProgram_.getUniformLocation("weight");
-	avaliable_for_highlight = hexProgram_.getUniformLocation("Avaliable");
-	hex_finalM_location = hexProgram_.getUniformLocation("finalM");
+	range_location			= hexProgram_.getUniformLocation("range");
+	lerp_weight_location	= hexProgram_.getUniformLocation("weight");
+	avaliable_for_highlight	= hexProgram_.getUniformLocation("Avaliable");
+	hex_finalM_location		= hexProgram_.getUniformLocation("finalM");
+
+	/* UI Shader: draws buttons and other ui elements (excluding text) */
+	uiProgram_.compileShaders("shaders/ui_vs.txt", "shaders/ui_ps.txt");
+	uiProgram_.addAttribute("aPosition");
+	uiProgram_.addAttribute("aTexCoord");
+	uiProgram_.linkShaders();
+
+	// query uniform locations
+	ui_finalM_location_	= uiProgram_.getUniformLocation("finalM");
+	ui_sampler_location_ = uiProgram_.getUniformLocation("sampler0");
 }
 
 command MainGame::gameLoop()
@@ -706,6 +716,7 @@ void MainGame::renderGame()
 	// clear both buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	static const float white[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	static const float black[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	
 	// update matrices
 	viewM_ = glm::lookAt(camera_.getPosition(), camera_.getLookAt(), camera_.getUp());
@@ -803,20 +814,19 @@ void MainGame::renderGame()
 	}
 	
 	/* Render User Interface */
+	uiProgram_.use();
 
 	// send ortho matrix to shaders
-	glUniformMatrix4fv( cell_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
-	glUniform4fv( inputColour_location, 1, white );
+	glUniformMatrix4fv( ui_finalM_location_, 1, GL_FALSE, glm::value_ptr(orthoM_) );
 
 	// All the button textures are in one texture so we only have to do this once
 	glActiveTexture( GL_TEXTURE0 + menuButton_.getTexUnit() );
-	glUniform1i( sampler0_location, menuButton_.getTexUnit() );
+	glUniform1i( ui_sampler_location_, menuButton_.getTexUnit() );
 
 	menuButton_.draw();
 	bvButton_.draw();
 	killButton_.draw();	
     scorebar_.draw();
-	T3E::Sprite::resetBoundTextureUnit();
 
 	// Render the tex before the menus so the menus appear on top
 	textRenderer_.render();
@@ -824,13 +834,13 @@ void MainGame::renderGame()
 	// Render menus
 	if( paused_ )
 	{
-		tintedSpriteProgram_.use();
+		uiProgram_.use();
 		resumeButton_.draw();
 		quitButton_.draw();
 	}		
 	else if( gameOver_ )
 	{
-		tintedSpriteProgram_.use();
+		uiProgram_.use();
 		quitButton_.draw();
 		grid_.setCurrency( 0 );
 	}

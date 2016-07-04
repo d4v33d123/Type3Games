@@ -1,0 +1,20 @@
+// Vertex Shader
+
+// Input constants
+uniform mat4 finalM;
+
+// Input variables
+attribute vec4 aPosition;
+attribute vec2 aTexCoord;
+
+// Output variables
+varying vec2 vTexCoord;
+
+void main()
+{
+	//transform position with world view and projection matrices
+	gl_Position = finalM * aPosition;
+
+	//pass on unchanged tex coord
+    vTexCoord = aTexCoord;
+}

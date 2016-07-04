@@ -1,0 +1,22 @@
+// Pixel Shader
+
+// Set default precision to mediump since highp is not
+// supported on all devices in the fragment stage
+precision mediump float;
+
+// Input constants
+uniform sampler2D sampler0;
+
+// Input variables
+varying vec2 vTexCoord;
+
+void main()
+{
+	// Sample texture
+	vec4 c = texture2D( sampler0, vTexCoord );
+
+	if( c.a < 1.0f && c.a > 0.0f )
+		c *= vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	
+	gl_FragColor = c;
+}

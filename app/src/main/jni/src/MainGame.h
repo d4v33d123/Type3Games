@@ -97,6 +97,8 @@ private:
 	bool selectCell(int row, int col);
 	
     // INPUT
+    T3E::GLSLProgram uiProgram_;
+    GLint ui_sampler_location_, ui_finalM_location_;
 	T3E::Button bvButton_, killButton_, menuButton_, resumeButton_, quitButton_;
     T3E::Button scorebar_;
 	
