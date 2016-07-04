@@ -1,12 +1,43 @@
-* commit 8bc1cfcd879d31ca07880e76c169e09677fb79d7
+* commit 7cf35b465b7d32790ed1741d4ad2e63b6825eb1d
 | Author: Thomas Hope <hope.thomasj@gmail.com>
 | 
-|     improved number drawing & placement, fixes #15
+|     players cant accidentaly loose by killing too many cells
 |  
-* commit 298c8ccdec595a0bcf8a5c866aea9511914004cb
+* commit 7c19fa500473e7b87fc60b388eeb4274b2c33a07
 | Author: Thomas Hope <hope.thomasj@gmail.com>
 | 
-|     readded the number 8 to font file
+|     neatened up tutorial text
+|  
+* commit 90b205a48411be02cf50cb50e0e81c46c0777804
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     clamped currency to 0 on game over screen
+|  
+* commit 386b714a06e7ff87ce585f2397bfb6b782ce5bb8
+| Author: Thomas Hope <hope.thomasj@gmail.com>
+| 
+|     only loose points for manually killed cells
+|    
+*   commit 027db399594bd061f29a4572bb9e00d4749417d6
+|\  Merge: d03d43c 8bc1cfc
+| | Author: David Robertson <David Robertson>
+| | 
+| |     Merge branch 'android' of http://github.com/d4v33d123/Type3Games into android
+| |   
+| * commit 8bc1cfcd879d31ca07880e76c169e09677fb79d7
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     improved number drawing & placement, fixes #15
+| |   
+| * commit 298c8ccdec595a0bcf8a5c866aea9511914004cb
+| | Author: Thomas Hope <hope.thomasj@gmail.com>
+| | 
+| |     readded the number 8 to font file
+| |   
+* | commit d03d43c63a4df09b7b043164620881155707175a
+|/  Author: David Robertson <David Robertson>
+|   
+|       fixed some bugs
 |    
 *   commit 30f830a8b10ab44788f0f89b7ee1b66afa666749
 |\  Merge: 90676aa 30c147a

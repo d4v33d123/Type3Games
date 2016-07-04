@@ -8,7 +8,7 @@ MainGame::MainGame():
 	maxFPS_(60.0f),
 	nOfFingers_(0),
 	PAN_SENSITIVITY(6.0f),
-	ZOOM_SENSITIVITY(6.0f),
+	ZOOM_SENSITIVITY(4.0f),
     finger_dragged_(false),
     finger_pressed_(false),
 	pressTimer_(0),
@@ -398,7 +398,7 @@ command MainGame::gameLoop()
 	return command::MENU;
 }
 
-void MainGame::processInput(float dTime)
+void MainGame::processInput( float dTime )
 {
 	glm::vec2 screenCoords;
 	finger_pressed_ = false;
@@ -429,6 +429,7 @@ void MainGame::processInput(float dTime)
 		break;
 		case SDL_FINGERUP:
 			nOfFingers_--;
+			pressTimer_ = 0;
 			finger_down_ = false;
 			finger_lifted_ = true;
 
@@ -439,7 +440,7 @@ void MainGame::processInput(float dTime)
 		break;
 		case SDL_FINGERMOTION:
 
-			
+			update_finger_position( event.tfinger.x, event.tfinger.y );
 
 			// Only register the finger as dragged if it moves over a certain distance from where it was placed
 			if(    std::abs(event.tfinger.x - finger_down_position_sdl_.x) > 0.01f
@@ -449,292 +450,218 @@ void MainGame::processInput(float dTime)
 			}
 
 			// Move the camera with a one finger drag
-			if( nOfFingers_ < 2 && finger_dragged_ )
+			if( nOfFingers_ < 2 && finger_dragged_ && !paused_ )
 			{
 				camera_.moveDelta( glm::vec3( -event.tfinger.dx, event.tfinger.dy, 0.0f) );
+				
+				// Wait for the player to drag the camera before advancing the tutorial
+				if( tut_phase_ == TutorialPhase::MOVE_CAM )
+					increment_tutorial();
 			}
 		break;
-		default:
+		case SDL_MULTIGESTURE:
+			if( !paused_ )
+			{
+				// pinch gesture to zoom
+				camera_.zoom( -event.mgesture.dDist * ZOOM_SENSITIVITY );
+			}
 		break;
-		}
+		case SDL_KEYDOWN:
+			// Toggle pause with the android back key
+			if( event.key.keysym.sym == SDLK_AC_BACK )
+			{
+				paused_ = !paused_;
+				paused_? menuButton_.press() : menuButton_.unpress();
+			}	
 
-		if( gameOver_ ) // wait for touch then go to main menu
-		{
-			switch( event.type )
-			{	
-			case SDL_FINGERDOWN:
-				//Check for button presses
-				if( quitButton_.touchCollides( finger_position_pixels_ ) ) quitButton_.press();
-
-				break;
-			case SDL_FINGERUP:
-				// Only act when the last finger is lifted,
-				if( nOfFingers_ == 0 && finger_dragged_ == false )
+			if( !paused_ )
+			{
+				// emulate zoom with z and x keys when running in emulator
+				// Zoom in with z
+				if( event.key.keysym.sym == SDLK_z )
 				{
-					//Check for button presses				
-					if( quitButton_.touchCollides( finger_position_pixels_ ) )
-						gameState_ = GameState::EXIT;
-
-					quitButton_.unpress();
-				}
-
-				break;
-			case SDL_FINGERMOTION:
-				/*if( std::abs(event.tfinger.dx) > 0.0175 || std::abs(event.tfinger.dy) > 0.0175 ) // when people press down on the screen, they drag way more than just this, older players are less precise == frustration
-				{
-					finger_dragged_ = true;
-					finger_down_ = false;
-				}
-				
-				// Move the camera
-				if( nOfFingers_ < 2 )
-				{
-					// decide on values for locking the camera
-					camera_.moveDelta( glm::vec3(-event.tfinger.dx, event.tfinger.dy, 0.0f) );
-				}*/
-
-				break;			
-			case SDL_MULTIGESTURE:
-				// pinch zoom
-				float zm;
-				zm = (-event.mgesture.dDist) * 5;
-				camera_.zoom( zm );
-				
-				break;			
-			default: break;
-			}
-		}
-		else if( paused_ )
-		{
-			switch( event.type )
-			{				
-			case SDL_KEYDOWN:
-				if(event.key.keysym.sym == SDLK_AC_BACK) // android back key
-				{
-					paused_ = !paused_;
-					if( paused_ )
-						menuButton_.press();
-					else
-						menuButton_.unpress();
-				}				
-				break;				
-			case SDL_FINGERDOWN:
-				//Check for button presses
-				if( resumeButton_.touchCollides( finger_position_pixels_ ) ) resumeButton_.press();
-				if( quitButton_.touchCollides( finger_position_pixels_ ) ) quitButton_.press();
-					
-				break;				
-			case SDL_FINGERUP:
-				// Only act when the last finger is lifted,
-				// AND the cursor was not moved
-				if( nOfFingers_ == 0)
-				{
-					//Check for button presses
-					screenCoords = glm::vec2(event.tfinger.x * float(window_->getScreenWidth()), float(window_->getScreenHeight()) - event.tfinger.y * float(window_->getScreenHeight()));
-
-					if( resumeButton_.touchCollides( finger_position_pixels_ ) || menuButton_.touchCollides( finger_position_pixels_ ) )
-					{
-						menuButton_.unpress();
-						paused_ = false;
-					}
-					else if( quitButton_.touchCollides( finger_position_pixels_ ) )
-						gameState_ = GameState::EXIT;
-					
-					resumeButton_.unpress();
-					quitButton_.unpress();
-				}
-
-				break;				
-			default: break;
-			}
-		}
-		else // We are playing normaly
-		{
-			switch( event.type )
-			{				
-			case SDL_KEYDOWN:
-				if(event.key.keysym.sym == SDLK_AC_BACK) // android back key
-				{
-					paused_ = !paused_;
-					if(paused_)
-							menuButton_.press();
-						else
-							menuButton_.unpress();
-				}
-				
-				// EMULATOR ZOOM
-				if(event.key.keysym.sym == SDLK_z)//zoom in
-				{
-					camera_.zoom(-0.05f);
+					camera_.zoom(-0.1f);
 
 					if( tut_phase_ == TutorialPhase::ZOOM_CAM )
 						increment_tutorial();
 				}
-				if(event.key.keysym.sym == SDLK_x)//zoom out
-				{
-					camera_.zoom(0.05f);
-				}
-				
-				break;
-			case SDL_FINGERUP:
-				pressTimer_ = 0;
-				
-				// Only act when the last finger is lifted,
-				// AND the cursor was not moved
-				if( nOfFingers_ == 0 && finger_dragged_ == false )
-				{
-					//Check for button presses				
-					if(bvButton_.touchCollides( finger_position_pixels_ ))
-					{
-						//toggle blood vessel creation mode
-						if(interactionMode_ == InteractionMode::BVCREATION)
-						{
-							interactionMode_ = InteractionMode::NORMAL;
-							bvButton_.unpress();
-						}
-						else
-						{
-							interactionMode_ = InteractionMode::BVCREATION;
-							bvButton_.press();
-							killButton_.unpress();
-						}
-						
-						//unselect cell
-						grid_.unselectCell(selectedPos_.x, selectedPos_.y);
-						cellSelected_ = false;	
-					}
-					else if(killButton_.touchCollides( finger_position_pixels_ ))
-					{
-						//toggle blood vessel creation mode
-						if(interactionMode_ == InteractionMode::KILLMODE)
-						{
-							interactionMode_ = InteractionMode::NORMAL;
-							killButton_.unpress();
-						}
-						else
-						{
-							interactionMode_ = InteractionMode::KILLMODE;
-							killButton_.press();
-							bvButton_.unpress();
-						}
-						
-						//unselect cell
-						grid_.unselectCell(selectedPos_.x, selectedPos_.y);
-						cellSelected_ = false;	
-					}
-					else if(menuButton_.touchCollides( finger_position_pixels_ ))
-					{
-						paused_ = !paused_;
-						if(paused_)
-							menuButton_.press();
-						else
-							menuButton_.unpress();
-					}
-					else
-					{
-						switch(interactionMode_)
-						{
-							case InteractionMode::NORMAL:
-							{
-								//if a cell was selected
-								if(cellSelected_)
-								{								
-									//try to spawn
-									if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, finger_position_row_col_.x, finger_position_row_col_.y))
-									{
 
-										if( grid_.moveStemCell(selectedPos_.x, selectedPos_.y, finger_position_row_col_.x, finger_position_row_col_.y) )
-										{
-											// If the stem cell moved successfully
-											if( tut_phase_ == TutorialPhase::MOVE_STEM ) {
-												increment_tutorial();
-											}
-										}
-																				
-									}	
-									else
-									{
-										select_.play();
-									}
-									
-									if(finger_position_row_col_.x == selectedPos_.x && finger_position_row_col_.y == selectedPos_.y)
-									{
-									grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-									cellSelected_ = false;
-									}
-									else
-									{
-										grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
-										cellSelected_ = false;
-										//try to select a cell
-										//also, if a new cell was created, select it
-										selectCell(finger_position_row_col_.x, finger_position_row_col_.y);
-										//cellSelected_ = true;
-									}
-									break;
-								}
-								//try to select a cell
-								//also, if a new cell was created, select it		
-								selectCell(finger_position_row_col_.x, finger_position_row_col_.y);
-								
-								break;
-							}
-							case InteractionMode::KILLMODE:
-							{
-								if( grid_.killCell(finger_position_row_col_.x, finger_position_row_col_.y) )
-								{
-									// play kill noise
-									cellDeath_.play();
-									
-									if( tut_phase_ == TutorialPhase::KILL_CELL )
-										increment_tutorial();									
-								}
+				// Zoom out with x
+				if(event.key.keysym.sym == SDLK_x ) camera_.zoom(0.1f);
 
-								break;
-							}
-							case InteractionMode::BVCREATION:
-							{
-								break;
-							}
-						}	
-					}
-				}
-
-				break;				
-			case SDL_FINGERMOTION:
-				//avoid microdrag detection
-				// when people press down on the screen, they drag way more than just this, older players are less precise == frustration
-				/*if(std::abs(event.tfinger.dx) > 0.0175 || std::abs(event.tfinger.dy) > 0.0175) 
-				{
-					finger_dragged_ = true;
-					finger_down_ = false;	
-				}*/
-				
-				if( tut_phase_ == TutorialPhase::MOVE_CAM )
-					increment_tutorial();
-
-				// pan if only one finger is on screen; you don't want to pan during pinch motion
-				/*if( nOfFingers_ < 2 )
-				{
-					camera_.moveDelta( glm::vec3(-event.tfinger.dx, event.tfinger.dy, 0.0f) );
-				}*/
-				
-				break;			
-			case SDL_MULTIGESTURE:
-				// pinch zoom
-				camera_.zoom( -event.mgesture.dDist );
-
-				if( tut_phase_ == TutorialPhase::ZOOM_CAM )
-					increment_tutorial();
-
-				break;				
-			default: break;
+				if( tut_phase_ == TutorialPhase::ZOOM_CAM )	increment_tutorial();
 			}
+		break;
+		default: break;
 		}
 	}
 	
+	if( gameOver_ )
+	{
+		if( finger_down_ )
+		{
+			if( quitButton_.touchCollides( finger_position_pixels_ ) ) quitButton_.press();
+			else quitButton_.unpress();
+		}
+		else if( finger_lifted_ && nOfFingers_ == 0)
+		{
+			if( quitButton_.touchCollides( finger_position_pixels_ ) )
+				gameState_ = GameState::EXIT;
+
+			quitButton_.unpress();
+		}
+	}
+	else if( paused_ )
+	{
+		if( finger_down_ )
+		{
+			// Display a button as pressed if the finger is over it
+			if( resumeButton_.touchCollides( finger_position_pixels_ ) ) resumeButton_.press();
+			else resumeButton_.unpress();
+
+			if( quitButton_.touchCollides( finger_position_pixels_ ) ) quitButton_.press();
+			else quitButton_.unpress();
+		}
+		else if( finger_lifted_ && nOfFingers_ == 0 )
+		{
+			// Only activate the button if the finger was lifted while over it
+			if( resumeButton_.touchCollides( finger_position_pixels_ )
+				|| menuButton_.touchCollides( finger_position_pixels_ ) )
+			{
+				resumeButton_.unpress();
+				menuButton_.unpress();
+				paused_ = false;
+			}
+			else if( quitButton_.touchCollides( finger_position_pixels_ ) )
+			{
+				gameState_ = GameState::EXIT;
+				quitButton_.unpress();
+			}
+		}
+	}
+	else // We are playing normally
+	{
+		if( finger_down_ )
+		{
+			// press the buttons if the user is hovering over them, but don't activate them untill they release
+			if( interactionMode_ == InteractionMode::NORMAL )
+				menuButton_.touchCollides( finger_position_pixels_ )? menuButton_.press() : menuButton_.unpress();
+			if( interactionMode_ != InteractionMode::BVCREATION )
+				bvButton_.touchCollides( finger_position_pixels_ )? bvButton_.press() : bvButton_.unpress();
+			if( interactionMode_ != InteractionMode::KILLMODE )
+				killButton_.touchCollides( finger_position_pixels_ )? killButton_.press() : killButton_.unpress();
+		}
+
+		if( finger_lifted_ )
+		{
+			// Check if the blood vessel button has been pressed
+			if( bvButton_.touchCollides( finger_position_pixels_) )
+			{
+				if( interactionMode_ == InteractionMode::BVCREATION )
+				{
+					interactionMode_ = InteractionMode::NORMAL;
+					bvButton_.unpress();
+				}
+				else
+				{
+					interactionMode_ = InteractionMode::BVCREATION;
+					bvButton_.press();
+					killButton_.unpress();
+				}
+
+				// Unselect cell
+				grid_.unselectCell( selectedPos_.x, selectedPos_.y );
+				cellSelected_ = false;
+			}
+			// Check if the kill cell button has been pressed
+			else if( killButton_.touchCollides( finger_position_pixels_ ) )
+			{
+				if( interactionMode_ == InteractionMode::KILLMODE )
+				{
+					interactionMode_ = InteractionMode::NORMAL;
+					killButton_.unpress();
+				}
+				else
+				{
+					interactionMode_ = InteractionMode::KILLMODE;
+					killButton_.press();
+					bvButton_.unpress();
+				}
+				
+				// Unselect cell
+				grid_.unselectCell( selectedPos_.x, selectedPos_.y );
+				cellSelected_ = false;	
+			}
+			// Check if the pause menu button has been pressed
+			else if( menuButton_.touchCollides( finger_position_pixels_ ) )
+			{
+				paused_ = !paused_;
+				paused_ ? menuButton_.press() : menuButton_.unpress();
+			}
+			else
+			{
+				switch( interactionMode_ )
+				{
+				case InteractionMode::NORMAL:
+					if( cellSelected_ )
+					{								
+						//try to spawn
+						if(!grid_.spawnCell(selectedPos_.x, selectedPos_.y, finger_position_row_col_.x, finger_position_row_col_.y))
+						{
+
+							if( grid_.moveStemCell(selectedPos_.x, selectedPos_.y, finger_position_row_col_.x, finger_position_row_col_.y) )
+							{
+								// If the stem cell moved successfully
+								if( tut_phase_ == TutorialPhase::MOVE_STEM ) {
+									increment_tutorial();
+								}
+							}																			
+						}	
+						else
+						{
+							select_.play();
+						}
+						
+						if( finger_position_row_col_.x == selectedPos_.x && finger_position_row_col_.y == selectedPos_.y )
+						{
+							grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+							cellSelected_ = false;
+						}
+						else
+						{
+							grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+							cellSelected_ = false;
+							//try to select a cell
+							//also, if a new cell was created, select it
+							selectCell( finger_position_row_col_.x, finger_position_row_col_.y );
+							//cellSelected_ = true;
+						}
+						break;
+					}
+					// try to select a cell
+					// also, if a new cell was created, select it		
+					selectCell( finger_position_row_col_.x, finger_position_row_col_.y );
+
+				break;
+				case InteractionMode::KILLMODE:
+					if( grid_.killCell(finger_position_row_col_.x, finger_position_row_col_.y) )
+					{
+						// play kill noise
+						cellDeath_.play();
+						
+						if( tut_phase_ == TutorialPhase::KILL_CELL )
+							increment_tutorial();									
+					}
+				break;
+				case InteractionMode::BVCREATION: break;
+				default: break;
+				}	
+			}
+		}
+	}
+
 	//check for finger pressure
-	if( finger_down_ && !finger_dragged_ )
+	if( finger_down_ && !finger_dragged_  && !paused_)
 	{
 		pressTimer_ += dTime;
 		if(pressTimer_ >= 800)
