@@ -15,8 +15,8 @@ void main()
 	// Sample texture
 	vec4 c = texture2D( sampler0, vTexCoord );
 
-	if( c.a < 1.0f && c.a > 0.0f )
-		c *= vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	if( c.a < 1.0 && c.a > 0.0 )
+		c *= vec4(0.0, 0.0, 0.0, 1.0f;
 	
 	gl_FragColor = c;
 }
