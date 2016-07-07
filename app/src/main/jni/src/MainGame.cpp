@@ -44,30 +44,28 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, bool t
  	sprites_.push_back( new T3E::Sprite() );
 	sprites_.back()->init( -1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 4/5.0f, 2/5.0f, 1.0f/5, 1.0f/5 );
     
-	T3E::Music music = audioEngine_->loadMusic("sound/backgroundSlow.ogg");
+	T3E::Music music		= audioEngine_->loadMusic("sound/backgroundSlow.ogg");
 	music.play( -1 );
 	
-	blood_vessel_sound_ = audioEngine_->loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
-	cell_death_sound_ = audioEngine_->loadSoundEffect("sound/Player_CellDeath.ogg");
-	cell_arrest_sound_ = audioEngine_->loadSoundEffect("sound/Player_CellArrest.ogg");
-	cell_mode_change_sound_ = audioEngine_->loadSoundEffect("sound/Player_CellModeChange.ogg");
-	select_sound_ = audioEngine_->loadSoundEffect("sound/Player_Select.ogg");
+	blood_vessel_sound_		= audioEngine_->loadSoundEffect("sound/Blood_Vessel_placeholder.ogg");
+	cell_death_sound_		= audioEngine_->loadSoundEffect("sound/Player_CellDeath.ogg");
+	cell_arrest_sound_		= audioEngine_->loadSoundEffect("sound/Player_CellArrest.ogg");
+	cell_mode_change_sound_	= audioEngine_->loadSoundEffect("sound/Player_CellModeChange.ogg");
+	select_sound_			= audioEngine_->loadSoundEffect("sound/Player_Select.ogg");
 	
 	return gameLoop();
 }
 
 void MainGame::initSystems()
 {
-	// Clear the depth buffer to 1
-	glClearDepthf(1.0);
-	//set line width for grid
-	glLineWidth(5.0f);
+	glClearDepthf(1.0);		// Clear the depth buffer to a value of 1 (really far away)
+	glLineWidth(5.0f);		// Set lines to render at 5px wide
 
-	// init projection matrix
+	/* init projection matrix */
 	window_->updateSizeInfo(); // can do just once here since screen orientation is set to landscape always
-	float ratio = float( window_->getScreenWidth() )/float( window_->getScreenHeight() );	// calculate aspect ratio
-	projectionM_ = glm::perspective( 90.0f, ratio, 0.1f, 100.0f ); // fov 90°, aspect ratio, near and far clipping plane
-	// init ortho matrix
+	float aspect_ratio = float( window_->getScreenWidth() ) / float( window_->getScreenHeight() );
+	projectionM_ = glm::perspective( 90.0f, aspect_ratio, 0.1f, 100.0f ); // fov in degrees, aspect ratio, near, and far clipping plane
+	/* init ortho matrix */
 	// inverting top with bottom to avoid sprites being drawn upside down
 	// note that this will put origin at bottom left, while screen coords have origin at top left
 	orthoM_ = glm::ortho(0.0f, float( window_->getScreenWidth() ), 0.0f, float( window_->getScreenHeight() ));
@@ -75,7 +73,7 @@ void MainGame::initSystems()
 	// Pass a pointer to the tutorial control
 	grid_.setTutorialPhase( &tut_phase_ );
 
-	// Grab parameters from the config file
+	// Load the config file to get parameters from
 	T3E::ConfigFile configFile("config/config.txt");
 
 	float cam_x, cam_y, cam_z;
@@ -287,6 +285,12 @@ void MainGame::initSystems()
 		1.0f/2, 1.0f/2,
 		1.0f/2, 1.0f/2);
 	
+    nextButton_.init( float(window_->getScreenWidth())*0.85f, float(window_->getScreenHeight())*0.05f,
+		float(window_->getScreenWidth())*0.12f, float(window_->getScreenHeight())*0.08f, "textures/ssheet0.png",
+		1.0f/16, 1.0f/4,
+		6.0f/16, 2.0f/4,
+		6.0f/16, 3/4.0f );
+
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
 
@@ -516,7 +520,7 @@ void MainGame::processInput( float dTime )
 			if( quitButton_.touchCollides( finger_position_pixels_ ) ) quitButton_.press();
 			else quitButton_.unpress();
 		}
-		else if( finger_lifted_ && nOfFingers_ == 0)
+		else if( finger_lifted_ && nOfFingers_ == 0 )
 		{
 			if( quitButton_.touchCollides( finger_position_pixels_ ) )
 				gameState_ = GameState::EXIT;
@@ -544,6 +548,9 @@ void MainGame::processInput( float dTime )
 				resumeButton_.unpress();
 				menuButton_.unpress();
 				paused_ = false;
+
+				if( tut_phase_ == TutorialPhase::SHOW_PAUSE )
+					increment_tutorial();
 			}
 			else if( quitButton_.touchCollides( finger_position_pixels_ ) )
 			{
@@ -563,10 +570,25 @@ void MainGame::processInput( float dTime )
 				bvButton_.touchCollides( finger_position_pixels_ )? bvButton_.press() : bvButton_.unpress();
 			if( interactionMode_ != InteractionMode::KILLMODE )
 				killButton_.touchCollides( finger_position_pixels_ )? killButton_.press() : killButton_.unpress();
+			if( tutorial_ )
+				nextButton_.touchCollides( finger_position_pixels_ )? nextButton_.press() : nextButton_.unpress();
 		}
+		else
+		{
+			if( tutorial_ )
+				nextButton_.unpress();
+		}		
 
 		if( finger_lifted_ )
 		{
+			if( tutorial_ )
+			{
+				if( nextButton_.touchCollides( finger_position_pixels_ ) )
+				{
+					increment_tutorial();
+				}
+			}
+
 			// Check if the blood vessel button has been pressed
 			if( bvButton_.touchCollides( finger_position_pixels_) )
 			{
@@ -834,16 +856,22 @@ void MainGame::renderGame()
 	// Render the tex before the menus so the menus appear on top
 	textRenderer_.render();
     
+    // Now render the rest of th UI
+	uiProgram_.use();
+    
+    if( tutorial_ )
+    {
+    	nextButton_.draw();
+    }
+    
 	// Render menus
 	if( paused_ )
 	{
-		uiProgram_.use();
 		resumeButton_.draw();
 		quitButton_.draw();
 	}		
 	else if( gameOver_ )
 	{
-		uiProgram_.use();
 		quitButton_.draw();
 		grid_.setCurrency( 0 );
 	}
@@ -1015,7 +1043,9 @@ void MainGame::renderTutorial()
 		tut_phase_ == TutorialPhase::CANCER_CELL ||
 		tut_phase_ == TutorialPhase::DONE
 		) )
-		increment_tutorial();		
+	{
+		//increment_tutorial();
+	}
 
 	switch( tut_phase_ )
 	{
@@ -1096,7 +1126,11 @@ void MainGame::increment_tutorial()
 	else if( tut_phase_ == TutorialPhase::ARREST_CELL ) tut_phase_ = TutorialPhase::KILL_CELL;
 	else if( tut_phase_ == TutorialPhase::KILL_CELL ) tut_phase_ = TutorialPhase::CANCER_CELL;
 	else if( tut_phase_ == TutorialPhase::CANCER_CELL ) tut_phase_ = TutorialPhase::DONE;
-	else if( tut_phase_ == TutorialPhase::DONE ) tut_phase_ = TutorialPhase::NONE;
+	else if( tut_phase_ == TutorialPhase::DONE )
+	{
+		tut_phase_ = TutorialPhase::NONE;
+		tutorial_ = false;
+	}
 
 }
 

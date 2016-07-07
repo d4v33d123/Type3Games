@@ -101,6 +101,7 @@ private:
     GLint ui_sampler_location_, ui_finalM_location_;
 	T3E::Button bvButton_, killButton_, menuButton_, resumeButton_, quitButton_;
     T3E::Button scorebar_;
+    T3E::Button nextButton_;	///< Increments the tutorial
 	
 	bool finger_dragged_;	///< True when a finger is being dragged significantly
 	bool finger_down_;		///< True when a finger is down, false when finger dragged of no fingers are down
