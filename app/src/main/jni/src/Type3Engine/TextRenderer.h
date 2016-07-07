@@ -83,19 +83,23 @@ namespace T3E
 		*/
 		void render();
 
+		void setSamplerLocation( GLint sampler ) { texture_sampler_ = sampler; }
+
 	private:
 		int width_;
 		int height_;
 
 		GLTexture bitmap_font_;
 		GLint texture_sampler_;
-		GLuint shader_program_;
-		GLuint vertex_shader_;
-		GLuint pixel_shader_;
+		//GLuint shader_program_;
+		//GLuint vertex_shader_;
+		//GLuint pixel_shader_;
 		GLuint vbo_;
 
-		void pushVert( float x, float y, float u, float v, float a );
-		std::vector<GLfloat> verts_;
+		void pushCharVert( float x, float y, float u, float v, float a );
+		void pushBoxVert( float x, float y );
+		std::vector<GLfloat> char_verts_;
+		std::vector<GLfloat> box_vert_;
 	};
 }
 

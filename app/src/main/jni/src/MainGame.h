@@ -123,7 +123,7 @@ private:
 	bool bvCreationMode_;
 	
 	// GRAPHICS
-	T3E::GLSLProgram tintedSpriteProgram_;//shader programs
+	T3E::GLSLProgram tintedSpriteProgram_, fontProgram_;
 	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
 	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse, orthoM_; // transform matrices
 	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex. TODO: profile this?

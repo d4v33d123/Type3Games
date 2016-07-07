@@ -330,6 +330,14 @@ void MainGame::initShaders()
 	avaliable_for_highlight	= hexProgram_.getUniformLocation("Avaliable");
 	hex_finalM_location		= hexProgram_.getUniformLocation("finalM");
 
+	/* Font Shader: draws text */
+	fontProgram_.compileShaders("shaders/font_vs.txt", "shaders/font_ps.txt");
+	fontProgram_.addAttribute("vPosition");
+	fontProgram_.addAttribute("vTexCoord");
+	fontProgram_.linkShaders();
+
+	textRenderer_.setSamplerLocation( fontProgram_.getUniformLocation("font_bitmap") );
+
 	/* UI Shader: draws buttons and other ui elements (excluding text) */
 	uiProgram_.compileShaders("shaders/ui_vs.txt", "shaders/ui_ps.txt");
 	uiProgram_.addAttribute("aPosition");
@@ -854,6 +862,7 @@ void MainGame::renderGame()
     scorebar_.draw();
 
 	// Render the tex before the menus so the menus appear on top
+	fontProgram_.use();
 	textRenderer_.render();
     
     // Now render the rest of th UI

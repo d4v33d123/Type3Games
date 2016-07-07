@@ -61,6 +61,16 @@ namespace T3E
 		*/
 		void toggle() { isPressed_ = !isPressed_; }
 		
+		/**
+		* Disables the button
+		*/
+		void disable() { isDisabled_ = true; }
+
+		/**
+		* enables the button
+		*/
+		void enable() { isDisabled_ = false; }
+
 		//getters
 		/**
 		* checks to see if the button is pressed or not 
@@ -69,6 +79,13 @@ namespace T3E
 		*/
 		bool isPressed() { return isPressed_; }
 		
+		/**
+		* Checks to see if the button is disabled or not
+		*
+		* @return [out] true of false value of if the button is disabled
+		*/
+		bool isDisabled() { return isDisabled_; }
+
 		/**
 		* Gets the texture unit of the pressed sprite 
 		*
@@ -79,6 +96,7 @@ namespace T3E
 	private:
 		Sprite unpressedSprite_, pressedSprite_;
 		bool isPressed_;
+		bool isDisabled_;
 	};
 }
 

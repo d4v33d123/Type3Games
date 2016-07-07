@@ -24,7 +24,7 @@ namespace T3E
 		bitmap_font_ = ResourceManager::getTexture( "textures/font.png" );
 
 		// Create the shader, should probably be using the GLSLshader class here but I don't understand it yet...
-		shader_program_ = glCreateProgram();
+		/* shader_program_ = glCreateProgram();
 		vertex_shader_ = glCreateShader( GL_VERTEX_SHADER );
 		if( vertex_shader_ == 0 )
 		{
@@ -124,10 +124,10 @@ namespace T3E
 		glDeleteShader( vertex_shader_ );
 		glDeleteShader( pixel_shader_ );
 
-		glUseProgram( shader_program_ );
+		glUseProgram( shader_program_ ); */
 	    glGenBuffers( 1, &vbo_ );
-		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
-		glUniform1i( texture_sampler_, bitmap_font_.unit );
+		//glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
+		//glUniform1i( texture_sampler_, bitmap_font_.unit );
 	}
 
 	void TextRenderer::putNumber( int num, unsigned padding, float x, float y, float char_size, float alpha )
@@ -191,21 +191,21 @@ namespace T3E
 		float width = char_size;
 		float height = -char_size;
 
-		// TODO: update x and y
-		pushVert( x, 			y, 			tex_x, 				tex_y, 				alpha );
-		pushVert( x, 			y + height, tex_x, 				tex_y + tex_height, alpha );
-		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height, alpha );
-		pushVert( x, 			y, 			tex_x, 				tex_y, 				alpha );
-		pushVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height, alpha );
-		pushVert( x + width, 	y, 			tex_x + tex_width, 	tex_y, 				alpha );
+		pushCharVert( x, 			y, 			tex_x, 				tex_y, 				alpha );
+		pushCharVert( x, 			y + height, tex_x, 				tex_y + tex_height, alpha );
+		pushCharVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height, alpha );
+		pushCharVert( x, 			y, 			tex_x, 				tex_y, 				alpha );
+		pushCharVert( x + width, 	y + height, tex_x + tex_width, 	tex_y + tex_height, alpha );
+		pushCharVert( x + width, 	y, 			tex_x + tex_width, 	tex_y, 				alpha );
 	}
 
 	void TextRenderer::render()
 	{
 		// Bind the shader and verts
-		glUseProgram( shader_program_ );
+		//glUseProgram( shader_program_ );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
-		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * verts_.size(), verts_.data(), GL_DYNAMIC_DRAW );
+		glUniform1i( texture_sampler_, bitmap_font_.unit );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * char_verts_.size(), char_verts_.data(), GL_DYNAMIC_DRAW );
 
     	// Sent the texture and set properties
 		glActiveTexture( GL_TEXTURE0 + bitmap_font_.unit );
@@ -217,23 +217,23 @@ namespace T3E
 	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
 	    // Specify the vertex layout
-		glEnableVertexAttribArray( 0 );
+		//glEnableVertexAttribArray( 0 );
 		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, 0 );
-		glEnableVertexAttribArray( 1 );
+		//glEnableVertexAttribArray( 1 );
 		glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void*)(2*sizeof(GLfloat)) );
 
-		glDrawArrays( GL_TRIANGLES, 0, verts_.size() / 5 );
+		glDrawArrays( GL_TRIANGLES, 0, char_verts_.size() / 5 );
 
 		// Clear the array ready for next time
-		verts_.clear();
+		char_verts_.clear();
 	}
 
-	void TextRenderer::pushVert( float x, float y, float u, float v, float a )
+	void TextRenderer::pushCharVert( float x, float y, float u, float v, float a )
 	{
-		verts_.push_back( x );
-		verts_.push_back( y );
-		verts_.push_back( u );
-		verts_.push_back( v );
-		verts_.push_back( a );
+		char_verts_.push_back( x );
+		char_verts_.push_back( y );
+		char_verts_.push_back( u );
+		char_verts_.push_back( v );
+		char_verts_.push_back( a );
 	}
 }
