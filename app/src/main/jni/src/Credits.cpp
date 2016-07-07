@@ -1,11 +1,14 @@
 #include "Credits.h"
+#include "Type3Engine/TextRenderer.h"
+#include "Type3Engine/window.h"
 
-command Credits::run(T3E::window* window, T3E::AudioEngine* audioEngine)
+command Credits::run(T3E::window* window, T3E::AudioEngine* audioEngine, T3E::TextRenderer* textRenderer )
 {
 	maxFPS_ = 60.0f;
 	
 	window_ = window;
 	audioEngine_ = audioEngine;
+	textRenderer_ = textRenderer;
 	
 	initSystems();
 		
@@ -31,10 +34,12 @@ void Credits::initSystems()
 		4.0f/16, 3/4.0f);	
 
 	//background sprite
-	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
-	
-    textRenderer_.init();
-	textRenderer_.setScreenSize( window_->getScreenWidth(), window_->getScreenHeight() );
+	backgroundSprite_.init(	0.0f, 0.0f,
+							float(window_->getScreenWidth()),
+							float(window_->getScreenHeight()),
+							"textures/background.png",
+							0.0f, 0.0f,
+							1.0f, 1.0f );
 	
 	//init shaders
 	initShaders();
@@ -42,19 +47,18 @@ void Credits::initSystems()
 
 void Credits::initShaders()
 {
-	 //CELL PRORGAM
-	// compile
+	// CELL PRORGAM
 	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
 	// add attributes
 	tintedSpriteProgram_.addAttribute("aPosition");
 	//tintedSpriteProgram_.addAttribute("aColour");
 	tintedSpriteProgram_.addAttribute("aTexCoord");
-	// link
 	tintedSpriteProgram_.linkShaders();
+
 	// query uniform locations - could use "layout location" in shaders to set fixed locations
-	tintedSprite_finalM_location = tintedSpriteProgram_.getUniformLocation("finalM");
-	sampler0_location = tintedSpriteProgram_.getUniformLocation("sampler0");
-	inputColour_location = tintedSpriteProgram_.getUniformLocation("inputColour");
+	tintedSprite_finalM_location	= tintedSpriteProgram_.getUniformLocation("finalM");
+	sampler0_location				= tintedSpriteProgram_.getUniformLocation("sampler0");
+	inputColour_location			= tintedSpriteProgram_.getUniformLocation("inputColour");
 }
 
 command Credits::gameLoop()
@@ -67,15 +71,15 @@ command Credits::gameLoop()
 	{
 		float startTicks = SDL_GetTicks();
         
-        textRenderer_.putString("Credits!", -0.4, 0.9, 0.08f );
-        textRenderer_.putString("Kieran Taylor - Producer", -0.9, 0.7, 0.06f );
-		textRenderer_.putString("Melissa Lonie - Designer", -0.9, 0.6, 0.06f );
-		textRenderer_.putString("David Robertson - Programmer", -0.9, 0.5, 0.06f );
-		textRenderer_.putString("Davide Passaniti - Programmer", -0.9, 0.4, 0.06f );
-		textRenderer_.putString("Thomas Hope - Programmer", -0.9, 0.3, 0.06f );
-		textRenderer_.putString("Robert Baron - Sound Designer", -0.9, 0.2, 0.06f );
-		textRenderer_.putString("Elliot McArthur - Artist", -0.9, 0.1, 0.06f );
-		textRenderer_.putString("Roberto Fontana - Artist", -0.9, 0.0, 0.06f );
+        textRenderer_->putString("Credits!", -0.4, 0.9, 0.08f );
+        textRenderer_->putString("Kieran Taylor - Producer", -0.9, 0.7, 0.06f );
+		textRenderer_->putString("Melissa Lonie - Designer", -0.9, 0.6, 0.06f );
+		textRenderer_->putString("David Robertson - Programmer", -0.9, 0.5, 0.06f );
+		textRenderer_->putString("Davide Passaniti - Programmer", -0.9, 0.4, 0.06f );
+		textRenderer_->putString("Thomas Hope - Programmer", -0.9, 0.3, 0.06f );
+		textRenderer_->putString("Robert Baron - Sound Designer", -0.9, 0.2, 0.06f );
+		textRenderer_->putString("Elliot McArthur - Artist", -0.9, 0.1, 0.06f );
+		textRenderer_->putString("Roberto Fontana - Artist", -0.9, 0.0, 0.06f );
 
 		renderGame();
 		
@@ -174,7 +178,7 @@ void Credits::renderGame()
 		
 	tintedSpriteProgram_.stopUse();
     
-    textRenderer_.render();
+    textRenderer_->render();
 
 	// swap our buffers 
 	window_->swapBuffer();

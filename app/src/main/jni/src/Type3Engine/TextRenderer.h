@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "glTexture.h"
+#include "GLSLProgram.h"
 
 namespace T3E
 {
@@ -21,8 +22,16 @@ namespace T3E
 		void init();
         
         /**
+        * Cleans up the internal resources
+        */
+		void destroy();
+
+        /**
 		*
 		* Set the screen dimension for appropriate rendering
+		* 
+		* \note
+		* This function is currently not needed but the text renderer is in flux, wait till it has stabalised before removing
 		*
         * @param [in] width of the screen (pixel resolution)
 		* @param [in] height of the screen (pixel resolution)
@@ -83,17 +92,14 @@ namespace T3E
 		*/
 		void render();
 
-		void setSamplerLocation( GLint sampler ) { texture_sampler_ = sampler; }
-
 	private:
 		int width_;
 		int height_;
 
 		GLTexture bitmap_font_;
 		GLint texture_sampler_;
-		//GLuint shader_program_;
-		//GLuint vertex_shader_;
-		//GLuint pixel_shader_;
+		T3E::GLSLProgram font_shader_;
+		T3E::GLSLProgram background_shader_;
 		GLuint vbo_;
 
 		void pushCharVert( float x, float y, float u, float v, float a );

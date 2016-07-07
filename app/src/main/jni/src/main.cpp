@@ -1,5 +1,7 @@
 #include "Type3Engine/Type3Engine.h"
 #include "Type3Engine/AudioEngine.h"
+#include "Type3Engine/TextRenderer.h"
+#include "Type3Engine/window.h"
 #include <time.h>
 #include "command.h"
 #include "StartMenu.h"
@@ -31,6 +33,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	T3E::window window;
 	T3E::AudioEngine audioEngine;
+	T3E::TextRenderer textRenderer;
 	T3E::Music menuMusic;
 	
 	// Scenes
@@ -40,13 +43,19 @@ int main(int argc, char** argv)
 	
 	// Setup game, window, render flags
 	T3E::init();
-	window.create("Type3Games - Mutagenesis", 800, 600, T3E::BORDERLESS);//screen size is overwritten on android devices to be full screen
+	window.create("Type3Games - CellCycle", 800, 600, T3E::BORDERLESS);//screen size is overwritten on android devices to be full screen
+	
+	// Setup the audio engine
 	audioEngine.init();
 	menuMusic = audioEngine.loadMusic("sound/menu_music_v2.ogg");
 	menuMusic.play(-1);
 
+	// Setup the text renderer
+	textRenderer.init();
+	textRenderer.setScreenSize( window.getScreenWidth(), window.getScreenHeight() );
+
     // Enable aplha blending	
-	glEnable( GL_BLEND ); // Should we instead use frame buffer fetch in shader?
+	glEnable( GL_BLEND );		// TODO: Should we instead use frame buffer fetch in shader?
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	
 	// Initalise the game to the start menu
@@ -63,26 +72,26 @@ int main(int argc, char** argv)
 		{
 		case command::PLAY:
 			mainGame = new MainGame();
-			c = mainGame->run(&window, &audioEngine, false);
+			c = mainGame->run(&window, &audioEngine, &textRenderer, false);
 			delete mainGame;
 			mainGame = NULL;
 			menuMusic.play(-1);//put menu music back on
 			break;
 		case command::TUTORIAL:
 			mainGame = new MainGame();
-			c = mainGame->run(&window, &audioEngine, true);
+			c = mainGame->run(&window, &audioEngine, &textRenderer, true);
 			delete mainGame;
 			mainGame = NULL;
 			break;
 		case command::CREDITS:
 			credits = new Credits();
-			c = credits->run(&window, &audioEngine);
+			c = credits->run(&window, &audioEngine, &textRenderer);
 			delete credits;
 			credits = NULL;
 			break;
 		case command::MENU:
 			startMenu = new StartMenu();
-			c = startMenu->run(&window, &audioEngine);
+			c = startMenu->run(&window, &audioEngine, &textRenderer);
 			delete startMenu;
 			startMenu = NULL;
 			break; 
@@ -92,6 +101,7 @@ int main(int argc, char** argv)
 	}
 
 	// Application Cleanup	
+	textRenderer.destroy();
 	T3E::ResourceManager::clearTextures();
 	T3E::GLTexture::numTextures = 0;
 	SDL_Quit();

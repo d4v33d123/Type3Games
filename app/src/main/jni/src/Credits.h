@@ -19,17 +19,21 @@
 //Type3Engine includes
 #include "Type3Engine/Sprite.h"
 #include "Type3Engine/GLSLProgram.h"
-//#include "Type3Engine/glTexture.h"
-#include "Type3Engine/window.h"
-//#include "Type3Engine/errors.h"
 #include "Type3Engine/AudioEngine.h"
 #include "Type3Engine/Button.h"
-#include "Type3Engine/TextRenderer.h"
 
 #include "command.h"
 #include "Cell.h"
 #include "Grid.h"
 #include "BloodVessel.h"
+
+// Forward declare pointer only member classes
+namespace T3E
+{
+	class TextRenderer;
+	class window;
+}
+
 class Credits
 {
 public:
@@ -39,7 +43,7 @@ public:
 	* @param [in] AudioEngine* The audio engine to use
 	* Run handles initialisation of the state then enters the game loop
 	*/
-	command run( T3E::window* window, T3E::AudioEngine* audioEngine );
+	command run( T3E::window* window, T3E::AudioEngine* audioEngine, T3E::TextRenderer* textRenderer );
 
 private:
 	//control functions
@@ -63,7 +67,7 @@ private:
 	GLint tintedSprite_finalM_location, sampler0_location, inputColour_location;//shader uniform locations
 	glm::mat4 orthoM_;//transform matrices
 	T3E::Sprite backgroundSprite_;
-	T3E::TextRenderer textRenderer_;
+	T3E::TextRenderer* textRenderer_;
     
 	//AUDIO
     T3E::AudioEngine* audioEngine_;	

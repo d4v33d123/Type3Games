@@ -19,13 +19,11 @@
 #include "Type3Engine/Sprite.h"
 #include "Type3Engine/GLSLProgram.h"
 #include "Type3Engine/glTexture.h"
-#include "Type3Engine/window.h"
 #include "Type3Engine/Type3Engine.h"
+#include "Type3Engine/AudioEngine.h"
 #include "Type3Engine/errors.h"
 #include "Type3Engine/Camera.h"
-#include "Type3Engine/AudioEngine.h"
 #include "Type3Engine/Button.h"
-#include "Type3Engine/TextRenderer.h"
 #include "Type3Engine/Timer.h"
 //game classes
 #include "Cell.h"
@@ -36,6 +34,13 @@
 
 /// The game is either playing or request quit
 enum class GameState { PLAY, EXIT };
+
+// Forward declare pointer member classes
+namespace T3E
+{
+	class TextRenderer;
+	class window;
+}
 
 class MainGame
 {
@@ -49,7 +54,7 @@ public:
 	* @param [in] Bool flag of weather to run the game with tutorial hints on	
 	* Run handles initialisation of the state then enters the game loop
 	*/
-	command run(T3E::window* window, T3E::AudioEngine* audioEngine, bool tutorial);
+	command run(T3E::window* window, T3E::AudioEngine* audioEngine, T3E::TextRenderer* textRenderer, bool tutorial);
 
 private:
 	//camera sensitivity
@@ -123,13 +128,13 @@ private:
 	bool bvCreationMode_;
 	
 	// GRAPHICS
-	T3E::GLSLProgram tintedSpriteProgram_, fontProgram_;
+	T3E::GLSLProgram tintedSpriteProgram_;
 	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
 	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse, orthoM_; // transform matrices
 	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex. TODO: profile this?
 	bool avaliable_for_highlight;
 	T3E::Sprite backgroundSprite_;
-	T3E::TextRenderer textRenderer_;
+	T3E::TextRenderer* textRenderer_;
 	
 	// AUDIO
     T3E::AudioEngine* audioEngine_;

@@ -1,5 +1,7 @@
 #include "MainGame.h"
 #include "Type3Engine/ConfigFile.h"
+#include "Type3Engine/TextRenderer.h"
+#include "Type3Engine/window.h"
 #include "GlobalScoreValues.h"
 
 MainGame::MainGame():
@@ -30,10 +32,11 @@ MainGame::~MainGame()
 	sprites_.clear();
 }
 
-command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, bool tutorial)
+command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, T3E::TextRenderer* textRenderer, bool tutorial)
 {
 	window_ = window;
 	audioEngine_ = audioEngine;
+	textRenderer_ = textRenderer;
 	tutorial_ = tutorial;
 	if( tutorial_ ) {
 		grid_.setGridUpdates(false);
@@ -291,11 +294,8 @@ void MainGame::initSystems()
 		6.0f/16, 2.0f/4,
 		6.0f/16, 3/4.0f );
 
-	//background sprite
+	// background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
-
-	textRenderer_.init();
-	textRenderer_.setScreenSize( window_->getScreenWidth(), window_->getScreenHeight() );
 
 	// Set the inital score
 	int initial_score_;
@@ -329,14 +329,6 @@ void MainGame::initShaders()
 	lerp_weight_location	= hexProgram_.getUniformLocation("weight");
 	avaliable_for_highlight	= hexProgram_.getUniformLocation("Avaliable");
 	hex_finalM_location		= hexProgram_.getUniformLocation("finalM");
-
-	/* Font Shader: draws text */
-	fontProgram_.compileShaders("shaders/font_vs.txt", "shaders/font_ps.txt");
-	fontProgram_.addAttribute("vPosition");
-	fontProgram_.addAttribute("vTexCoord");
-	fontProgram_.linkShaders();
-
-	textRenderer_.setSamplerLocation( fontProgram_.getUniformLocation("font_bitmap") );
 
 	/* UI Shader: draws buttons and other ui elements (excluding text) */
 	uiProgram_.compileShaders("shaders/ui_vs.txt", "shaders/ui_ps.txt");
@@ -391,12 +383,12 @@ command MainGame::gameLoop()
 		else // game over!!!
 		{
 			gameOver_ = true;
-			textRenderer_.putString( "Game over!", -0.5, 0.3, 0.1f );
+			textRenderer_->putString( "Game over!", -0.5, 0.3, 0.1f );
 		}
 		
 		score_ = grid_.getHighScore();
-        textRenderer_.putNumber( grid_.getHighScore() * 100, 10, -0.74, 0.93, 0.06f );
-		textRenderer_.putNumber( grid_.getCurrency(), 10, -0.99, 0.785, 0.06f );
+        textRenderer_->putNumber( grid_.getHighScore() * 100, 10, -0.74, 0.93, 0.06f );
+		textRenderer_->putNumber( grid_.getCurrency(), 10, -0.99, 0.785, 0.06f );
 
 		// Render the tutorial text
 		if( tutorial_ )	
@@ -862,8 +854,7 @@ void MainGame::renderGame()
     scorebar_.draw();
 
 	// Render the tex before the menus so the menus appear on top
-	fontProgram_.use();
-	textRenderer_.render();
+	textRenderer_->render();
     
     // Now render the rest of th UI
 	uiProgram_.use();
@@ -1059,53 +1050,53 @@ void MainGame::renderTutorial()
 	switch( tut_phase_ )
 	{
 	case TutorialPhase::READY:
-		textRenderer_.putString( "Welcome to the\nCell Cycle tutorial.\n\nHere you will learn\nhow to play the game.", -0.8, 0.6, 0.07f );
-		textRenderer_.putString( "Tap to begin", -0.4, 0.1, 44 );
+		textRenderer_->putString( "Welcome to the\nCell Cycle tutorial.\n\nHere you will learn\nhow to play the game.", -0.8, 0.6, 0.07f );
+		textRenderer_->putString( "Tap to begin", -0.4, 0.1, 44 );
 	break;
 	case TutorialPhase::MOVE_CAM:
-		textRenderer_.putString( "Swipe the screen to\nscoll the camera.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Swipe the screen to\nscoll the camera.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::ZOOM_CAM:
-		textRenderer_.putString( "Use a pinch gesture\nto zoom in and out.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Use a pinch gesture\nto zoom in and out.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::SHOW_PAUSE:
-		textRenderer_.putString( "The button in the top left\npauses the game.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "The button in the top left\npauses the game.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::SHOW_SCORE:
-		textRenderer_.putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::SHOW_CURRENCY:
-		textRenderer_.putString( "The bottom number is your\ncurrenncy, keep an eye on it!\n\nSome actions earn you points\nand currency,while others\nwill cost you.\n\nIf your currency hits 0 it is\ngame over!", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "The bottom number is your\ncurrenncy, keep an eye on it!\n\nSome actions earn you points\nand currency,while others\nwill cost you.\n\nIf your currency hits 0 it is\ngame over!", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::EXPLAIN_STEMBV:
-		textRenderer_.putString( "Here you see a blood vessel\nand a stem cell.\n\nStem cells produce healthy cells\nwhile blood vessels provide\nenergy to the cells\naround them.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Here you see a blood vessel\nand a stem cell.\n\nStem cells produce healthy cells\nwhile blood vessels provide\nenergy to the cells\naround them.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::MOVE_STEM:
-		textRenderer_.putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::SPLIT_STEM:
-		textRenderer_.putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::PLACE_BV:
-		textRenderer_.putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong place\npress the blood vessel button\nagain and hold to remvoe it", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong place\npress the blood vessel button\nagain and hold to remvoe it", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::CREATE_BV:
-		textRenderer_.putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy\ncells to create a new\nblood vesesl.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy\ncells to create a new\nblood vesesl.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::MUTATE_CELL:
-		textRenderer_.putString( "Sometimes healthy cells will\nspawn orange mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Sometimes healthy cells will\nspawn orange mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::ARREST_CELL:
-		textRenderer_.putString( "You can control the board by\ncreating barriers of\narrested cells.\n\nTo arrest a cell hold down\non a healthy cell till\nit changes colour.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "You can control the board by\ncreating barriers of\narrested cells.\n\nTo arrest a cell hold down\non a healthy cell till\nit changes colour.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::KILL_CELL:
-		textRenderer_.putString( "A more effective but costly\nway to control mutated cells is\nto use the kill button,\nGive it a try.\n\n(The lowest button on the left)", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "A more effective but costly\nway to control mutated cells is\nto use the kill button,\nGive it a try.\n\n(The lowest button on the left)", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::CANCER_CELL:
-		textRenderer_.putString( "Purple cells are dangerously\nmutated!\n\nYou cant kill these or arrest\nthem, but you can isolate\nthem with arrested cells.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( "Purple cells are dangerously\nmutated!\n\nYou cant kill these or arrest\nthem, but you can isolate\nthem with arrested cells.", -0.8, 0.6, 0.06f );
 	break;
 	case TutorialPhase::DONE:
-		textRenderer_.putString( "And thats all there is to learn.\n\nWe hope you enjoy Cell Cycle!", -0.8, 0.4, 0.06f );
+		textRenderer_->putString( "And thats all there is to learn.\n\nWe hope you enjoy Cell Cycle!", -0.8, 0.4, 0.06f );
 	break;
 	default:
 	break;

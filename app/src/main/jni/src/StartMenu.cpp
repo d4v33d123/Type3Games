@@ -1,11 +1,22 @@
 #include "StartMenu.h"
+#include "Type3Engine/TextRenderer.h"
+#include "Type3Engine/window.h"
 
-command StartMenu::run(T3E::window* window, T3E::AudioEngine* audioEngine)
+StartMenu::StartMenu() :
+finger_down_(false),
+finger_lifted_(false)
+{}
+
+StartMenu::~StartMenu()
+{}
+
+command StartMenu::run(T3E::window* window, T3E::AudioEngine* audioEngine, T3E::TextRenderer* TextRenderer )
 {
 	maxFPS_ = 60.0f;
 	
 	window_ = window;
 	audioEngine_ = audioEngine;
+	textRenderer_ = TextRenderer;
 	
 	initSystems();
 	
@@ -50,10 +61,7 @@ void StartMenu::initSystems()
 
 	//background sprite
 	backgroundSprite_.init(0.0f, 0.0f, float(window_->getScreenWidth()), float(window_->getScreenHeight()),"textures/background.png", 0, 0, 1.0f, 1.0f);
-	
-    textRenderer_.init();
-	textRenderer_.setScreenSize( window_->getScreenWidth(), window_->getScreenHeight() );
-    
+	    
 	//init shaders
 	initShaders();
 }
@@ -106,115 +114,111 @@ command StartMenu::gameLoop()
 
 command StartMenu::processInput()
 {
-	SDL_Point screenCoords;
+	finger_lifted_ = false;
+	command c = command::NONE;
 	
 	// processing our input
 	SDL_Event evnt;
-	while (SDL_PollEvent(&evnt))
+	while( SDL_PollEvent(&evnt) )
 	{
 		switch( evnt.type )
 		{
 		case SDL_QUIT:
 			return command::QUIT;
-			break;
-		
+
+		break;
+		case SDL_FINGERMOTION: // WARNING: fall through
 		case SDL_FINGERDOWN:
+			finger_down_ = true;
+			
 			//get touch pos in screen coordinates for UI interaction
 			//invert y to match our ortho projection (origin at bottom left for ease of life)
-			screenCoords.x = evnt.tfinger.x * float(window_->getScreenWidth());
-			screenCoords.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
-				
-			if(playButton_.touchCollides(screenCoords))
-			{
-				playButton_.press();
-			}
-			if(tutorialButton_.touchCollides(screenCoords))
-			{
-				tutorialButton_.press();	
-			}
-			if(creditsButton_.touchCollides(screenCoords))
-			{
-				creditsButton_.press();	
-			}
-			if(quitButton_.touchCollides(screenCoords))
-			{
-				quitButton_.press();
-			}
-			return command::NONE;
-			break;
-		
+			finger_position_pixels_.x = evnt.tfinger.x * float(window_->getScreenWidth());
+			finger_position_pixels_.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
+
+		break;
 		case SDL_FINGERUP:
 			//get touch pos in screen coordinates for UI interaction
 			//invert y to match our ortho projection (origin at bottom left for ease of life)
-			screenCoords.x = evnt.tfinger.x * float(window_->getScreenWidth());
-			screenCoords.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
-				
-			if(playButton_.touchCollides(screenCoords))
-			{
-				playButton_.unpress();
-				return command::PLAY;	
-			}
-			else if(tutorialButton_.touchCollides(screenCoords))
-			{
-				tutorialButton_.unpress();
-				return command::TUTORIAL;	
-			}
-			else if(creditsButton_.touchCollides(screenCoords))
-			{
-				creditsButton_.unpress();
-				return command::CREDITS;	
-			}
-			else if(quitButton_.touchCollides(screenCoords))
-			{
-				quitButton_.unpress();
-				return command::QUIT;
-			}
-            else
-            {
-                playButton_.unpress();
-                tutorialButton_.unpress();
-                creditsButton_.unpress();
-                quitButton_.unpress();
-            }
-			return command::NONE;
-			break;
+			finger_position_pixels_.x = evnt.tfinger.x * float(window_->getScreenWidth());
+			finger_position_pixels_.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
 			
+			finger_down_ = false;
+			finger_lifted_ = true;
+
+		break;			
 		default:
-			return command::NONE;
+		break;
 		}
-	}	
+	}
+
+	// Depress buttons when the finger is over them
+	if( finger_down_ )
+	{
+		playButton_.touchCollides(finger_position_pixels_)? playButton_.press() : playButton_.unpress();
+		tutorialButton_.touchCollides(finger_position_pixels_)? tutorialButton_.press() : tutorialButton_.unpress();
+		creditsButton_.touchCollides(finger_position_pixels_)? creditsButton_.press() : creditsButton_.unpress();
+		quitButton_.touchCollides(finger_position_pixels_)? quitButton_.press() : quitButton_.unpress();
+	}
+
+	// Activate buttons when the finger is lifted on them
+	if( finger_lifted_ )
+	{
+		if( playButton_.touchCollides(finger_position_pixels_) )
+		{
+			c = command::PLAY;
+		}
+
+		if( tutorialButton_.touchCollides(finger_position_pixels_) )
+		{
+			c = command::TUTORIAL;
+		}
+
+		if( creditsButton_.touchCollides(finger_position_pixels_) )
+		{
+			c = command::CREDITS;
+		}
+
+		if( quitButton_.touchCollides(finger_position_pixels_) )
+		{
+			c = command::QUIT;
+		}
+
+		playButton_.unpress();
+		tutorialButton_.unpress();
+		creditsButton_.unpress();
+		quitButton_.unpress();
+	}
+
+	return c;	
 }
 
 void StartMenu::renderGame()
 {
-	//clear both buffers
-	glClearDepthf(1.0);
+	// clear both buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	tintedSpriteProgram_.use();
 	
-	//RENDER BACKGROUND
+	/* RENDER BACKGROUND */
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
 	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glUniform4fv(inputColour_location, 1, bgtint);
-	// set texture	
+	glUniform4fv( inputColour_location, 1, bgtint );
+	// set texture
 	GLint texid = T3E::ResourceManager::getTexture("textures/background.png").unit;
-	glActiveTexture(GL_TEXTURE0 + texid);	
-	glUniform1i(sampler0_location, texid);
-	//draw sprite
+	glActiveTexture( GL_TEXTURE0 + texid );
+	glUniform1i( sampler0_location, texid );
+	// Draw the backgorund sprite
 	backgroundSprite_.draw();
 	
-	//RENDER UI	
+	/* RENDER UI */
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );		
 	float tint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glUniform4fv(inputColour_location, 1, tint);
-	// set texture
-	// texid = T3E::ResourceManager::getTexture("textures/ui2.png").unit;
-	// glActiveTexture(GL_TEXTURE0 + texid);	
-	// glUniform1i(sampler0_location, texid);
-	//draw sprite
+	glUniform4fv( inputColour_location, 1, tint );
+
+	// draw menu buttons
 	playButton_.draw();
 	tutorialButton_.draw();
 	creditsButton_.draw();
@@ -229,7 +233,6 @@ void StartMenu::renderGame()
 void StartMenu::renderLoadScreen()
 {
 	//clear both buffers
-	glClearDepthf(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	tintedSpriteProgram_.use();
@@ -238,23 +241,19 @@ void StartMenu::renderLoadScreen()
 	// send ortho matrix to shaders
 	glUniformMatrix4fv( tintedSprite_finalM_location, 1, GL_FALSE, glm::value_ptr(orthoM_) );
 	float bgtint[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glUniform4fv(inputColour_location, 1, bgtint);
-	// set texture	
-	// GLint texid = T3E::ResourceManager::getTexture("textures/loadScreen.png").unit;
-	// glActiveTexture(GL_TEXTURE0 + texid);	
-	// glUniform1i(sampler0_location, texid);
-	//draw sprite
+	glUniform4fv( inputColour_location, 1, bgtint );
+	// Draw the background sprite
 	backgroundSprite_.draw();
 	
 	tintedSpriteProgram_.stopUse();	
 
-    textRenderer_.putString( "... Loading ...", -0.75f, 0.2, 0.1f );
-    textRenderer_.render();
+    textRenderer_->putString( "... Loading ...", -0.75f, 0.2, 0.1f );
+    textRenderer_->render();
     
 	// swap our buffers 
 	window_->swapBuffer();
 	
-	SDL_Delay(750);//wait a few milllisecs, don't want to just flash this for a millisecond if loading is fast
+	SDL_Delay(500);//wait a few milllisecs, don't want to just flash this for a millisecond if loading is fast
 }
 
 void StartMenu::calculateFPS()
