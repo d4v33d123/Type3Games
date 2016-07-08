@@ -1,0 +1,13 @@
+// Pixel shader
+
+// Set default precision to mediump since highp is not
+// supported on all devices in the fragment stage
+precision mediump float;
+
+// Input varibles
+varying vec4 vColour;
+
+void main()
+{
+	gl_FragColor = vColour;
+}

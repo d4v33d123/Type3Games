@@ -1,0 +1,17 @@
+// Vertex shader
+
+// A super simple shader that takes 2d coords
+// and draws them to the screen with interpolated colours.
+
+// Input variables
+attribute vec2 aPosition;
+attribute vec4 aColour;
+
+// Output variables
+varying vec4 vColour;
+
+void main()
+{
+	vColour = aColour;
+	gl_Position = vec4( aPosition, 0.0, 1.0 );
+}

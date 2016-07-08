@@ -1,5 +1,6 @@
 #include "TextRenderer.h"
 #include "ResourceManager.h"
+#include "glm/glm.hpp"
 #ifdef __ANDROID__
 	#include <GLES2/gl2.h>
 	#include <GLES2/gl2ext.h>
@@ -12,25 +13,31 @@ namespace T3E
 	TextRenderer::TextRenderer() :
 	width_(0),
 	height_(0),
-	texture_sampler_(0),
-	vbo_(0)
+	texture_sampler_(0)
 	{
+		vbo_[0] = 0;
+		vbo_[1] = 0;
 	}
 
 	TextRenderer::~TextRenderer()
-	{
-	}
+	{}
 
 	void TextRenderer::init()
 	{
 		bitmap_font_ = ResourceManager::getTexture( "textures/font.png" );
-	    glGenBuffers( 1, &vbo_ );
+	    glGenBuffers( 2, vbo_ );
 
 		/* Font Shader: draws text */
 		font_shader_.compileShaders("shaders/font_vs.txt", "shaders/font_ps.txt");
 		font_shader_.addAttribute("vPosition");
 		font_shader_.addAttribute("vTexCoord");
 		font_shader_.linkShaders();
+
+		/* Background Shader: used for drawing the text boxes */
+		background_shader_.compileShaders("shaders/colour_vs.txt", "shaders/colour_ps.txt");
+		background_shader_.addAttribute("aPosition");
+		background_shader_.addAttribute("aColour");
+		background_shader_.linkShaders();
 
 		texture_sampler_ = font_shader_.getUniformLocation("font_bitmap");
 	}
@@ -69,16 +76,16 @@ namespace T3E
 
 	void TextRenderer::putString( std::string str, float x, float y, float char_size, float alpha )
 	{
-		//float char_width = (size_pixels / (float)width_) * 2.0f;
 		int chars_this_line = 0;
 		float line_height = 1.2f;
 		float char_spacing = 0.9f;
+		glm::vec2 top_left_ = glm::vec2(x, y + char_size * 0.1f);
+		glm::vec2 bottom_right_ = glm::vec2(x, y);
 
 		for( size_t i = 0; i < str.size(); ++i )
 		{
 			// If it's a new line, move down and back
 			if( str[i] == '\n' ) {
-				//y += (size_pixels / (float)height_) * -2.20f;
 				y -= char_size * line_height;
 				x -= char_size * (chars_this_line + 1) * char_spacing;
 				chars_this_line = 0;
@@ -87,7 +94,19 @@ namespace T3E
 
 			putChar( str[i], x + char_size * i * char_spacing, y, char_size, alpha );
 			chars_this_line++;
+
+			if( x + char_size * (i + 1) * char_spacing + char_size > bottom_right_.x ) bottom_right_.x = x + char_size * (i + 1) * char_spacing;
+			if( y - char_size * 1.1f < bottom_right_.y ) bottom_right_.y = y - char_size * 1.1f;
 		}
+
+		pushBoxVert( top_left_.x, top_left_.y, 0.0f, 0.0f, 0.0f, 0.1f );
+		pushBoxVert( bottom_right_.x, top_left_.y, 0.0f, 0.0f, 0.0f, 0.1f );
+		pushBoxVert( top_left_.x, bottom_right_.y, 0.0f, 0.0f, 0.0f, 0.1f );
+		pushBoxVert( bottom_right_.x, top_left_.y, 0.0f, 0.0f, 0.0f, 0.1f );
+		pushBoxVert( top_left_.x, bottom_right_.y, 0.0f, 0.0f, 0.0f, 0.1f );
+		pushBoxVert( bottom_right_.x, bottom_right_.y, 0.0f, 0.0f, 0.0f, 0.1f );
+
+
 	}
 
 	void TextRenderer::putChar( unsigned char c, float x, float y, float char_size, float alpha )
@@ -112,9 +131,19 @@ namespace T3E
 
 	void TextRenderer::render()
 	{
+		background_shader_.use();
+
+		glBindBuffer( GL_ARRAY_BUFFER, vbo_[0] );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(box_verts_[0]) * box_verts_.size(), box_verts_.data(), GL_DYNAMIC_DRAW );
+		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, 0 );
+		glVertexAttribPointer( 1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (void*)(2*sizeof(GLfloat)) );
+
+		glDrawArrays( GL_TRIANGLES, 0, box_verts_.size() / 6 );
+		box_verts_.clear();
+
 		// Bind the shader and verts
 		font_shader_.use();
-		glBindBuffer( GL_ARRAY_BUFFER, vbo_ );
+		glBindBuffer( GL_ARRAY_BUFFER, vbo_[1] );
 		glUniform1i( texture_sampler_, bitmap_font_.unit );
 		glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * char_verts_.size(), char_verts_.data(), GL_DYNAMIC_DRAW );
 
@@ -128,9 +157,7 @@ namespace T3E
 	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
 	    // Specify the vertex layout
-		//glEnableVertexAttribArray( 0 );
 		glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, 0 );
-		//glEnableVertexAttribArray( 1 );
 		glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void*)(2*sizeof(GLfloat)) );
 
 		glDrawArrays( GL_TRIANGLES, 0, char_verts_.size() / 5 );
@@ -146,5 +173,15 @@ namespace T3E
 		char_verts_.push_back( u );
 		char_verts_.push_back( v );
 		char_verts_.push_back( a );
+	}
+
+	void TextRenderer::pushBoxVert( float x, float y, float r, float g, float b, float a )
+	{
+		box_verts_.push_back( x );
+		box_verts_.push_back( y );
+		box_verts_.push_back( r );
+		box_verts_.push_back( g );
+		box_verts_.push_back( b );
+		box_verts_.push_back( a );		
 	}
 }

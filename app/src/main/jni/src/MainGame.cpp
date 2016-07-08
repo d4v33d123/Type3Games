@@ -387,8 +387,8 @@ command MainGame::gameLoop()
 		}
 		
 		score_ = grid_.getHighScore();
-        textRenderer_->putNumber( grid_.getHighScore() * 100, 10, -0.74, 0.93, 0.06f );
-		textRenderer_->putNumber( grid_.getCurrency(), 10, -0.99, 0.785, 0.06f );
+        textRenderer_->putNumber( grid_.getHighScore() * 100, 10, -0.77, 0.93, 0.06f );
+		textRenderer_->putNumber( grid_.getCurrency(), 6, -0.82, 0.785, 0.06f );
 
 		// Render the tutorial text
 		if( tutorial_ )	
@@ -1050,8 +1050,7 @@ void MainGame::renderTutorial()
 	switch( tut_phase_ )
 	{
 	case TutorialPhase::READY:
-		textRenderer_->putString( "Welcome to the\nCell Cycle tutorial.\n\nHere you will learn\nhow to play the game.", -0.8, 0.6, 0.07f );
-		textRenderer_->putString( "Tap to begin", -0.4, 0.1, 44 );
+		textRenderer_->putString( "Welcome to the\nCell Cycle tutorial.\n\nTap next to begin", -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::MOVE_CAM:
 		textRenderer_->putString( "Swipe the screen to\nscoll the camera.", -0.8, 0.6, 0.06f );

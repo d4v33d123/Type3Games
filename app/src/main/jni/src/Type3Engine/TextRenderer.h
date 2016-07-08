@@ -100,12 +100,12 @@ namespace T3E
 		GLint texture_sampler_;
 		T3E::GLSLProgram font_shader_;
 		T3E::GLSLProgram background_shader_;
-		GLuint vbo_;
+		GLuint vbo_[2];
 
 		void pushCharVert( float x, float y, float u, float v, float a );
-		void pushBoxVert( float x, float y );
+		void pushBoxVert( float x, float y, float r, float g, float b, float a );
 		std::vector<GLfloat> char_verts_;
-		std::vector<GLfloat> box_vert_;
+		std::vector<GLfloat> box_verts_;
 	};
 }
 
