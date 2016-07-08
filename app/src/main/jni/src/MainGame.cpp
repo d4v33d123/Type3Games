@@ -706,18 +706,21 @@ void MainGame::processInput( float dTime )
 			
 			if( interactionMode_ == InteractionMode::NORMAL )
 			{
-				//try to arrest
-				if(!grid_.arrestCell(finger_position_row_col_.x, finger_position_row_col_.y, &cellSelected_))
-				{
-					//try to change stem cell mode
-					if(grid_.setStemToSpawnMode(finger_position_row_col_.x, finger_position_row_col_.y))
-						cell_mode_change_sound_.play();
-				}					
-				else
+				// try to arrest th cell (assuming it's a normal cell)
+				if( grid_.arrestCell(finger_position_row_col_.x, finger_position_row_col_.y, &cellSelected_) )
 				{
 					cell_arrest_sound_.play();
 					if( tut_phase_ == TutorialPhase::ARREST_CELL )
 						increment_tutorial();
+				}
+				// If thats false, maybe it's a stem cell, try changin it's mode
+				else if( grid_.setStemToSpawnMode( finger_position_row_col_.x, finger_position_row_col_.y) )
+				{
+					// Bit of a hack, to sto pthe cell deselecting if you toggle the mode
+					grid_.unselectCell(selectedPos_.x, selectedPos_.y);//move inside select cell?
+					cellSelected_ = false;
+
+					cell_mode_change_sound_.play();
 				}
 			}
 			else if( interactionMode_ == InteractionMode::BVCREATION )
