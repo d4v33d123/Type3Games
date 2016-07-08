@@ -38,6 +38,9 @@ class Credits
 {
 public:
 
+	Credits();
+	~Credits();
+
 	/**
 	* @param [in] Window* The window to render to
 	* @param [in] AudioEngine* The audio engine to use
@@ -61,6 +64,9 @@ private:
     
 	//INPUT
 	T3E::Button backButton_;
+	bool finger_down_;
+	bool finger_lifted_;
+	SDL_Point finger_position_pixels_;
 	
 	//GRAPHICS
 	T3E::GLSLProgram tintedSpriteProgram_;//shader programs

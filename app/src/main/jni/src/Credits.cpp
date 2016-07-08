@@ -2,6 +2,14 @@
 #include "Type3Engine/TextRenderer.h"
 #include "Type3Engine/window.h"
 
+Credits::Credits() :
+finger_down_(false),
+finger_lifted_(false)
+{}
+
+Credits::~Credits()
+{}
+
 command Credits::run(T3E::window* window, T3E::AudioEngine* audioEngine, T3E::TextRenderer* textRenderer )
 {
 	maxFPS_ = 60.0f;
@@ -27,8 +35,9 @@ void Credits::initSystems()
 	window_->updateSizeInfo();
 	orthoM_ = glm::ortho(0.0f, float( window_->getScreenWidth() ), 0.0f, float( window_->getScreenHeight() ));
 
-	backButton_.init(10.0f, 10.0f,
-		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f, "textures/ssheet0.png",
+	backButton_.init( 10.0f, 10.0f,
+		float(window_->getScreenWidth())/3.0f, float(window_->getScreenHeight())/7.0f,
+		"textures/ssheet0.png",
 		1.0f/16, 1.0f/4,
 		4.0f/16, 2.0f/4,
 		4.0f/16, 3/4.0f);	
@@ -51,7 +60,6 @@ void Credits::initShaders()
 	tintedSpriteProgram_.compileShaders("shaders/tintedSprite_vs.txt", "shaders/tintedSprite_ps.txt");
 	// add attributes
 	tintedSpriteProgram_.addAttribute("aPosition");
-	//tintedSpriteProgram_.addAttribute("aColour");
 	tintedSpriteProgram_.addAttribute("aTexCoord");
 	tintedSpriteProgram_.linkShaders();
 
@@ -99,8 +107,11 @@ command Credits::gameLoop()
 
 command Credits::processInput()
 {
-	SDL_Point screenCoords;
-	
+	finger_lifted_ = false;
+	command c = command::NONE;
+
+	// TODO: exit when pressing android back button
+
 	// processing our input
 	SDL_Event evnt;
 	while (SDL_PollEvent(&evnt))
@@ -108,40 +119,45 @@ command Credits::processInput()
 		switch( evnt.type )
 		{
 		case SDL_QUIT:
-			return command::QUIT;
-			break;
-		
+			c = command::QUIT;
+		break;		
+		case SDL_FINGERMOTION: // WARNING: fallthrough
 		case SDL_FINGERDOWN:
 			//get touch pos in screen coordinates for UI interaction
 			//invert y to match our ortho projection (origin at bottom left for ease of life)
-			screenCoords.x = evnt.tfinger.x * float(window_->getScreenWidth());
-			screenCoords.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
-				
-			if(backButton_.touchCollides(screenCoords))
-			{
-				backButton_.press();
-			}
-			return command::NONE;
-			break;
+			finger_position_pixels_.x = evnt.tfinger.x * float(window_->getScreenWidth());
+			finger_position_pixels_.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
 			
+			finger_down_ = true;
+
+		break;
 		case SDL_FINGERUP:
 			//get touch pos in screen coordinates for UI interaction
 			//invert y to match our ortho projection (origin at bottom left for ease of life)
-			screenCoords.x = evnt.tfinger.x * float(window_->getScreenWidth());
-			screenCoords.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
-				
-			if(backButton_.touchCollides(screenCoords))
-			{
-				backButton_.unpress();
-				return command::MENU;	
-			}
-			return command::NONE;
-			break;
+			finger_position_pixels_.x = evnt.tfinger.x * float(window_->getScreenWidth());
+			finger_position_pixels_.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
 			
+			finger_lifted_ = true;
+		break;			
 		default:
-			return command::NONE;
+		break;
 		}
-	}	
+	}
+
+	if( finger_down_ )
+	{
+		backButton_.touchCollides(finger_position_pixels_)? backButton_.press() : backButton_.unpress();
+	}
+
+	if( finger_lifted_ )
+	{
+		if( backButton_.touchCollides(finger_position_pixels_) )
+		{
+			c = command::MENU;
+		}
+	}
+
+	return c;
 }
 
 void Credits::renderGame()

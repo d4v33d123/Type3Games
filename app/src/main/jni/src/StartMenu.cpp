@@ -124,8 +124,7 @@ command StartMenu::processInput()
 		switch( evnt.type )
 		{
 		case SDL_QUIT:
-			return command::QUIT;
-
+			c = command::QUIT;
 		break;
 		case SDL_FINGERMOTION: // WARNING: fall through
 		case SDL_FINGERDOWN:
