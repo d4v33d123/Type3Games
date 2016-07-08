@@ -101,6 +101,16 @@ private:
 	*/
 	bool selectCell(int row, int col);
 	
+	/**
+	* Draws a full screen quad with transparency
+	*
+	* @param [in] r red
+	* @param [in] g green
+	* @param [in] b blue
+	* @param [in] a alpha
+	*/
+	void renderFullscreenQuad( float r, float g, float b, float a );
+
     // INPUT
     T3E::GLSLProgram uiProgram_;
     GLint ui_sampler_location_, ui_finalM_location_;
@@ -128,7 +138,7 @@ private:
 	bool bvCreationMode_;
 	
 	// GRAPHICS
-	T3E::GLSLProgram tintedSpriteProgram_;
+	T3E::GLSLProgram tintedSpriteProgram_, colourProgram_;
 	GLint cell_finalM_location, sampler0_location, inputColour_location; // shader uniform locations
 	glm::mat4 worldM_, viewM_, projectionM_, viewProjInverse, orthoM_; // transform matrices
 	glm::mat4 finalM_; // product of above 3, do in cpu once per geometry vs do in gpu once per each vertex. TODO: profile this?

@@ -339,6 +339,12 @@ void MainGame::initShaders()
 	// query uniform locations
 	ui_finalM_location_	= uiProgram_.getUniformLocation("finalM");
 	ui_sampler_location_ = uiProgram_.getUniformLocation("sampler0");
+
+	/* Colour shader: simply renders 2d coloured shapes in NDC */
+	colourProgram_.compileShaders("shaders/colour_vs.txt", "shaders/colour_ps.txt");
+	colourProgram_.addAttribute("aPosition");
+	colourProgram_.addAttribute("aColour");
+	colourProgram_.linkShaders();
 }
 
 command MainGame::gameLoop()
@@ -464,7 +470,7 @@ void MainGame::processInput( float dTime )
 			}
 
 			// Move the camera with a one finger drag
-			if( /*nOfFingers_ < 2 &&*/ finger_dragged_ && !paused_ )
+			if( nOfFingers_ < 2 && finger_dragged_ && !paused_ )
 			{
 				camera_.moveDelta( glm::vec3( -event.tfinger.dx, event.tfinger.dy, 0.0f) );
 				
@@ -858,15 +864,21 @@ void MainGame::renderGame()
 
 	// Render the tex before the menus so the menus appear on top
 	textRenderer_->render();
-    
+
     // Now render the rest of th UI
-	uiProgram_.use();
-    
+	uiProgram_.use();    
     if( tutorial_ )
     {
     	nextButton_.draw();
     }
     
+	// Render a grey quad over everything
+	if( paused_ || gameOver_ )
+	{
+		renderFullscreenQuad( 0.0f, 0.0f, 0.0f, 0.2f );
+	}
+    
+    uiProgram_.use();
 	// Render menus
 	if( paused_ )
 	{
@@ -1259,4 +1271,33 @@ void MainGame::drawGrid()
 		// draw our verticies
 		glDrawArrays(GL_LINE_LOOP, 0, 6);
 	}
+}
+
+
+void MainGame::renderFullscreenQuad( float r, float g, float b, float a )
+{
+	colourProgram_.use();
+	static GLuint vbo = 0;
+	if( vbo == 0 )
+	{
+		glGenBuffers( 1, &vbo );
+	}
+
+	GLfloat quad[] = {
+		-1.0f,  1.0f, r, g, b, a,
+		 1.0f,  1.0f, r, g, b, a,
+		-1.0f, -1.0f, r, g, b, a,
+		-1.0f, -1.0f, r, g, b, a,
+		 1.0f,  1.0f, r, g, b, a,
+		 1.0f, -1.0f, r, g, b, a
+	};
+	
+	glBindBuffer( GL_ARRAY_BUFFER, vbo );
+	glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 6, quad, GL_DYNAMIC_DRAW );
+
+	glBindBuffer( GL_ARRAY_BUFFER, vbo );
+	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, 0 );
+	glVertexAttribPointer( 1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (void*)(2*sizeof(GLfloat)) );
+
+	glDrawArrays( GL_TRIANGLES, 0, 6 * 6 );
 }
