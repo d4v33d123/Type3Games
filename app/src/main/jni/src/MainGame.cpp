@@ -464,7 +464,7 @@ void MainGame::processInput( float dTime )
 			}
 
 			// Move the camera with a one finger drag
-			if( nOfFingers_ < 2 && finger_dragged_ && !paused_ )
+			if( /*nOfFingers_ < 2 &&*/ finger_dragged_ && !paused_ )
 			{
 				camera_.moveDelta( glm::vec3( -event.tfinger.dx, event.tfinger.dy, 0.0f) );
 				

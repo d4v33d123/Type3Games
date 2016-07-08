@@ -764,7 +764,7 @@ namespace T3E
 									stem = nullptr;
 									//delete the old stem cell
 									setEmpty(selRow, selCol);
-									minusScore(T3E::SCORE::SPAWNED_HEALTHY_CELL());
+									minusScore(T3E::SCORE::SPAWNED_STEM_CELL());
 									return true;
 								}							
 								//couldn't create cell
@@ -793,7 +793,7 @@ namespace T3E
 									theNewCell->ignoreBirthDelay();
 									theNewCell->hardcodeNormalTint(tint);
 									theNewCell = nullptr;
-									minusScore(T3E::SCORE::SPAWNED_HEALTHY_CELL());
+									minusScore(T3E::SCORE::SPAWNED_STEM_CELL());
 									return true;
 								}				
 								// couldn't move the stem cell so put the normal cell back 
@@ -801,7 +801,9 @@ namespace T3E
 								theNewCell->ignoreBirthDelay();
 								theNewCell->hardcodeNormalTint(tint);
 								theNewCell = nullptr;
-								minusScore(T3E::SCORE::SPAWNED_HEALTHY_CELL());
+								
+								minusScore(T3E::SCORE::SPAWNED_STEM_CELL());
+
 								//couldn't create cell
 								return false;
 							}
