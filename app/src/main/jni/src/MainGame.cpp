@@ -457,8 +457,8 @@ void MainGame::processInput( float dTime )
 			update_finger_position( event.tfinger.x, event.tfinger.y );
 
 			// Only register the finger as dragged if it moves over a certain distance from where it was placed
-			if(    std::abs(event.tfinger.x - finger_down_position_sdl_.x) > 0.01f
-				|| std::abs(event.tfinger.y - finger_down_position_sdl_.y) > 0.01f )
+			if(    std::abs(event.tfinger.x - finger_down_position_sdl_.x) > 0.04f
+				|| std::abs(event.tfinger.y - finger_down_position_sdl_.y) > 0.04f )
 			{
 				finger_dragged_ = true;
 			}

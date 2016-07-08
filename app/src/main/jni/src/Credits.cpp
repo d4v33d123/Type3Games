@@ -113,10 +113,10 @@ command Credits::processInput()
 	// TODO: exit when pressing android back button
 
 	// processing our input
-	SDL_Event evnt;
-	while (SDL_PollEvent(&evnt))
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
 	{
-		switch( evnt.type )
+		switch( event.type )
 		{
 		case SDL_QUIT:
 			c = command::QUIT;
@@ -125,8 +125,8 @@ command Credits::processInput()
 		case SDL_FINGERDOWN:
 			//get touch pos in screen coordinates for UI interaction
 			//invert y to match our ortho projection (origin at bottom left for ease of life)
-			finger_position_pixels_.x = evnt.tfinger.x * float(window_->getScreenWidth());
-			finger_position_pixels_.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
+			finger_position_pixels_.x = event.tfinger.x * float(window_->getScreenWidth());
+			finger_position_pixels_.y = window_->getScreenHeight() - event.tfinger.y * float(window_->getScreenHeight());
 			
 			finger_down_ = true;
 
@@ -134,11 +134,18 @@ command Credits::processInput()
 		case SDL_FINGERUP:
 			//get touch pos in screen coordinates for UI interaction
 			//invert y to match our ortho projection (origin at bottom left for ease of life)
-			finger_position_pixels_.x = evnt.tfinger.x * float(window_->getScreenWidth());
-			finger_position_pixels_.y = window_->getScreenHeight() - evnt.tfinger.y * float(window_->getScreenHeight());
+			finger_position_pixels_.x = event.tfinger.x * float(window_->getScreenWidth());
+			finger_position_pixels_.y = window_->getScreenHeight() - event.tfinger.y * float(window_->getScreenHeight());
 			
 			finger_lifted_ = true;
-		break;			
+		break;
+		case SDL_KEYDOWN:
+			if( event.key.keysym.sym == SDLK_AC_BACK )
+			{
+				backButton_.unpress();
+				c = command::MENU;
+			}	
+		break;		
 		default:
 		break;
 		}
