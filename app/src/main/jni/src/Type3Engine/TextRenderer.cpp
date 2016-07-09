@@ -78,7 +78,7 @@ namespace T3E
 	{
 		int chars_this_line = 0;
 		float line_height = 1.2f;
-		float char_spacing = 0.9f;
+		float char_spacing = 0.8f;
 		glm::vec2 top_left_ = glm::vec2(x, y + char_size * 0.1f);
 		glm::vec2 bottom_right_ = glm::vec2(x, y);
 
@@ -118,7 +118,7 @@ namespace T3E
 
 		//float width = (size_pixels / (float)width_) * 2.0f;
 		//float height = (size_pixels / (float)height_) * -2.0f;
-		float width = char_size;
+		float width = char_size * 0.8;
 		float height = -char_size;
 
 		pushCharVert( x, 			y, 			tex_x, 				tex_y, 				alpha );

@@ -93,6 +93,16 @@ private:
 	TutorialPhase tut_phase_;
 	T3E::Timer timer_;
 	void increment_tutorial();
+	void initTutorial();
+
+	struct
+	{
+		std::string ready_, move_cam_, zoom_cam_,
+		show_pause_, show_score_, show_currency_,
+		explain_stembv_, move_stem_, split_stem_,
+		place_bv_, create_bv_, mutate_cell_,
+		arrest_cell_, kill_cell_, cancer_cell_, done_;
+	} tut_strings_;
 	
 	/**
 	* @param [in] row to test

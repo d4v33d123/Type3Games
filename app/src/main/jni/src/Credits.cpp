@@ -79,15 +79,15 @@ command Credits::gameLoop()
 	{
 		float startTicks = SDL_GetTicks();
         
-        textRenderer_->putString("Credits!", -0.4, 0.9, 0.08f );
-        textRenderer_->putString("Kieran Taylor - Producer", -0.9, 0.7, 0.06f );
-		textRenderer_->putString("Melissa Lonie - Designer", -0.9, 0.6, 0.06f );
-		textRenderer_->putString("David Robertson - Programmer", -0.9, 0.5, 0.06f );
-		textRenderer_->putString("Davide Passaniti - Programmer", -0.9, 0.4, 0.06f );
-		textRenderer_->putString("Thomas Hope - Programmer", -0.9, 0.3, 0.06f );
-		textRenderer_->putString("Robert Baron - Sound Designer", -0.9, 0.2, 0.06f );
-		textRenderer_->putString("Elliot McArthur - Artist", -0.9, 0.1, 0.06f );
-		textRenderer_->putString("Roberto Fontana - Artist", -0.9, 0.0, 0.06f );
+        textRenderer_->putString("Credits!", -0.4, 0.9, 0.09f );
+        textRenderer_->putString("Kieran Taylor - Producer", -0.9, 0.7, 0.07f );
+		textRenderer_->putString("Melissa Lonie - Designer", -0.9, 0.6, 0.07f );
+		textRenderer_->putString("David Robertson - Programmer", -0.9, 0.5, 0.07f );
+		textRenderer_->putString("Davide Passaniti - Programmer", -0.9, 0.4, 0.07f );
+		textRenderer_->putString("Thomas Hope - Programmer", -0.9, 0.3, 0.07f );
+		textRenderer_->putString("Robert Baron - Sound Designer", -0.9, 0.2, 0.07f );
+		textRenderer_->putString("Elliot McArthur - Artist", -0.9, 0.1, 0.07f );
+		textRenderer_->putString("Roberto Fontana - Artist", -0.9, 0.0, 0.07f );
 
 		renderGame();
 		

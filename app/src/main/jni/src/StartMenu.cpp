@@ -246,7 +246,7 @@ void StartMenu::renderLoadScreen()
 	
 	tintedSpriteProgram_.stopUse();	
 
-    textRenderer_->putString( "... Loading ...", -0.75f, 0.2, 0.1f );
+    textRenderer_->putString( "... Loading ...", -0.65f, 0.1, 0.1f );
     textRenderer_->render();
     
 	// swap our buffers 

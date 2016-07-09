@@ -3,6 +3,7 @@
 #include "Type3Engine/TextRenderer.h"
 #include "Type3Engine/window.h"
 #include "GlobalScoreValues.h"
+#include "CustomGlyphs.h"
 
 MainGame::MainGame():
 	score_(0),
@@ -38,12 +39,14 @@ command MainGame::run(T3E::window* window, T3E::AudioEngine* audioEngine, T3E::T
 	audioEngine_ = audioEngine;
 	textRenderer_ = textRenderer;
 	tutorial_ = tutorial;
-	if( tutorial_ ) {
-		grid_.setGridUpdates(false);
-	}
 	
 	initSystems();
 	
+	if( tutorial_ ) {
+		grid_.setGridUpdates(false);
+		initTutorial();
+	}
+
  	sprites_.push_back( new T3E::Sprite() );
 	sprites_.back()->init( -1.5f, -1.5f, 3.0f, 3.0f,"textures/bloodVessel.png", 4/5.0f, 2/5.0f, 1.0f/5, 1.0f/5 );
     
@@ -1043,74 +1046,92 @@ void MainGame::calculateFPS()
 	}
 }
 
+void MainGame::initTutorial()
+{
+	tut_strings_.ready_ = "Welcome to the\nCell Cycle tutorial.\n\nTap next to begin";
+	tut_strings_.move_cam_ = "Swipe the screen to\nscoll the camera.";
+	tut_strings_.zoom_cam_ = "Use a pinch gesture\nto zoom in and out.";
+	tut_strings_.show_pause_ = "The button in the top left\npauses the game.";
+	tut_strings_.show_score_ = "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.";
+	tut_strings_.show_currency_ = "The bottom number is your\ncurrenncy, keep an eye on it!\n\nSome actions earn you points\nand currency,while others\nwill cost you.\n\nIf your currency hits 0 it is\ngame over!";
+	tut_strings_.explain_stembv_ =
+		  std::string("Here you see a blood vessel ") + BV_GLYPH
+		+ std::string("\nand a stem cell ") + STEM_GLYPH
+		+ std::string("\n\nStem cells produce healthy cells\nwhile blood vessels provide\nenergy to the cells\naround them.");
+	tut_strings_.move_stem_ =
+		  std::string("Tap a stem cell ") + STEM_GLYPH
+		+ std::string(",\nthen tap an adjacent hex\nto move it");
+	tut_strings_.split_stem_ =
+		  std::string("Hold your finger on a\nstem cell ") + STEM_GLYPH
+		+ std::string(" to put it\ninto split mode ") + SPLIT_MODE_GLYPH
+		+ std::string("\n\nThen tap an adjacent hex\nto create a new stem cell");
+	tut_strings_.place_bv_ =  "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong\nplace press the blood\nvessel button again and hold\nto remvoe it";
+	tut_strings_.create_bv_ = "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy\ncells to create a new\nblood vesesl.";
+	tut_strings_.mutate_cell_ =
+		  std::string("Sometimes healthy cells\nwill spawn orange\nmutated cells! ") + MUTATED_GLYPH
+		+ std::string("\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations");
+	tut_strings_.arrest_cell_ =
+		  std::string("You can control the board by\ncreating barriers of\narrested cells ") + ARRESTED_GLYPH
+		+ std::string("\n\nTo arrest a cell hold down\non a healthy cell ") + HEALTHY_GLYPH
+		+ std::string("\ntill it changes colour.");
+	tut_strings_.kill_cell_ = "A more effective but costly\nway to control mutated cells is\nto use the kill button,\nGive it a try.\n\n(The lowest button on the left)";
+	tut_strings_.cancer_cell_ =
+		  std::string("Purple cells are dangerously\nmutated! ") + CANCER_GLYPH
+		+ std::string("\n\nYou can't kill these or arrest\nthem, but you can isolate\nthem with arrested cells.");
+	tut_strings_.done_ = "And thats all there is to learn.\n\nWe hope you enjoy Cell Cycle!";
+}
+
 void MainGame::renderTutorial()
 {
-	// Depending on the tutorial phase,
-	// sometimes the tutorial will progress with just a tap,
-	// sometimes the player has to perform a certain action
-	if( finger_pressed_ && (
-		tut_phase_ == TutorialPhase::READY ||
-		tut_phase_ == TutorialPhase::SHOW_PAUSE ||
-		tut_phase_ == TutorialPhase::SHOW_SCORE ||
-		tut_phase_ == TutorialPhase::SHOW_CURRENCY ||
-		tut_phase_ == TutorialPhase::EXPLAIN_STEMBV ||
-		tut_phase_ == TutorialPhase::MUTATE_CELL ||
-		tut_phase_ == TutorialPhase::CANCER_CELL ||
-		tut_phase_ == TutorialPhase::DONE
-		) )
-	{
-		//increment_tutorial();
-	}
-
 	switch( tut_phase_ )
 	{
 	case TutorialPhase::READY:
-		textRenderer_->putString( "Welcome to the\nCell Cycle tutorial.\n\nTap next to begin", -0.8, 0.6, 0.07f );
+		textRenderer_->putString( tut_strings_.ready_, -0.8, 0.6, 0.08f );
 	break;
 	case TutorialPhase::MOVE_CAM:
-		textRenderer_->putString( "Swipe the screen to\nscoll the camera.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.move_cam_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::ZOOM_CAM:
-		textRenderer_->putString( "Use a pinch gesture\nto zoom in and out.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.zoom_cam_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::SHOW_PAUSE:
-		textRenderer_->putString( "The button in the top left\npauses the game.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.show_pause_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::SHOW_SCORE:
-		textRenderer_->putString( "The top number is your score\n\nYour score will increase as you\ngrow healthy cells.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.show_score_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::SHOW_CURRENCY:
-		textRenderer_->putString( "The bottom number is your\ncurrenncy, keep an eye on it!\n\nSome actions earn you points\nand currency,while others\nwill cost you.\n\nIf your currency hits 0 it is\ngame over!", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.show_currency_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::EXPLAIN_STEMBV:
-		textRenderer_->putString( "Here you see a blood vessel\nand a stem cell.\n\nStem cells produce healthy cells\nwhile blood vessels provide\nenergy to the cells\naround them.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.explain_stembv_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::MOVE_STEM:
-		textRenderer_->putString( "Tap a stem cell,\nthen tap an adjacent hex\nto move it", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.move_stem_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::SPLIT_STEM:
-		textRenderer_->putString( "Hold your finger on a stem\ncell to put it into split mode.\n\nThen tap an adjacent hex\nto create a new stem cell", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.split_stem_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::PLACE_BV:
-		textRenderer_->putString( "Tap the blood vessel button,\nthen place a blood vessel spawn\nby holding on a hex.\n\nIf you put one in the wrong place\npress the blood vessel button\nagain and hold to remvoe it", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.place_bv_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::CREATE_BV:
-		textRenderer_->putString( "Move the stem cell to the centre\nof the blood vessel spawn.\n\nThen surround it with healthy\ncells to create a new\nblood vesesl.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.create_bv_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::MUTATE_CELL:
-		textRenderer_->putString( "Sometimes healthy cells will\nspawn orange mutated cells!\n\nMutated cell aren't dangerous\nthemselves but they can lead\nto dangerous mutations", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.mutate_cell_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::ARREST_CELL:
-		textRenderer_->putString( "You can control the board by\ncreating barriers of\narrested cells.\n\nTo arrest a cell hold down\non a healthy cell till\nit changes colour.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.arrest_cell_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::KILL_CELL:
-		textRenderer_->putString( "A more effective but costly\nway to control mutated cells is\nto use the kill button,\nGive it a try.\n\n(The lowest button on the left)", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.kill_cell_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::CANCER_CELL:
-		textRenderer_->putString( "Purple cells are dangerously\nmutated!\n\nYou cant kill these or arrest\nthem, but you can isolate\nthem with arrested cells.", -0.8, 0.6, 0.06f );
+		textRenderer_->putString( tut_strings_.cancer_cell_, -0.8, 0.6, 0.07f );
 	break;
 	case TutorialPhase::DONE:
-		textRenderer_->putString( "And thats all there is to learn.\n\nWe hope you enjoy Cell Cycle!", -0.8, 0.4, 0.06f );
+		textRenderer_->putString( tut_strings_.done_, -0.8, 0.4, 0.07f );
 	break;
 	default:
 	break;
